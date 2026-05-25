@@ -165,7 +165,6 @@ texture = ExtResource("2_vecp2")
 libraries/ = SubResource("AnimationLibrary_10c06")
 
 [node name="AttackController" parent="." unique_id=536803343 instance=ExtResource("6_s4hlh")]
-primary_attack_id = 2
 attacks = Array[ExtResource("21_ufsp2")]([ExtResource("23_yipme"), ExtResource("25_g728n"), ExtResource("26_0a2ce"), ExtResource("27_lwuy0"), ExtResource("28_i2ta7"), ExtResource("28_yipme")])
 attack_upgrades = Array[ExtResource("27_g728n")]([ExtResource("28_0a2ce"), ExtResource("29_lwuy0"), ExtResource("30_skm2m"), ExtResource("31_hqjte"), ExtResource("30_i2ta7"), ExtResource("35_uebbv")])
 
