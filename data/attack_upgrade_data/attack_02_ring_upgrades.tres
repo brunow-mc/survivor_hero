@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="AttackUpgradeData" format=3 uid="uid://c2nak4p7hxb3q"]
+
+[ext_resource type="Script" uid="uid://c0rqddrmydg2d" path="res://data/attack_upgrade_data/attack_upgrade_data.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+attack_id = 2
+attack_name = "Ring"
+description = "Ring burst upgrades"
+max_level = 8
+display_name_per_level = Array[String](["Ring Attack Lv1", "Ring Attack Lv2", "Ring Attack Lv3", "Ring Attack Lv4", "Ring Attack Lv5", "Ring Attack Lv6", "Ring Attack Lv7", "Ring Attack Lv8"])
+description_per_level = Array[String](["+1 Projectile\\n+2% Scale", "+1 Projectile\\nTest", "+10% Damage\\nTest", "+10% Damage\\nTest", "+10% Damage\\nTest", "+10% Damage\\nTest", "+10% Damage\\nTest", "+10% Damage\\nTest"])
+projectile_count_per_level = Array[int]([0, 1, 0, 1, 0, 1, 0, 1])
+damage_bonus_per_level = Array[float]([0.0, 0.0, 0.1, 0.0, 0.1, 0.0, 0.1, 0.15])
+speed_bonus_per_level = Array[float]([0.0, 0.0, 0.05, 0.0, 0.05, 0.0, 0.05, 0.1])
+max_hits_per_level = Array[int]([0, 0, 1, 0, 1, 0, 1, 1])
+cooldown_reduction_per_level = Array[float]([0.0, 0.0, 0.04, 0.0, 0.04, 0.0, 0.04, 0.04])
+projectile_angle_spread_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+life_time_bonus_per_level = Array[float]([0.0, 0.0, 0.05, 0.0, 0.05, 0.0, 0.05, 0.05])
+attack_scale_bonus_per_level = Array[float]([0.0, 0.0, 0.1, 0.0, 0.15, 0.0, 0.15, 0.25])
+projectile_stagger_delay_per_level = Array[float]([0.0, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01])
+orbit_radius_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
+orbit_speed_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])

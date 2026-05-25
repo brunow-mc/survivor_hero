@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HitData" format=3 uid="uid://nch1jxntycb"]
+
+[ext_resource type="Script" uid="uid://36q17kpid15g" path="res://data/hit_data/hit_data.gd" id="1_2umgf"]
+[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit02.mp3" id="1_blys6"]
+[ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit01.mp3" id="2_7wc67"]
+
+[resource]
+script = ExtResource("1_2umgf")
+damage = 3.0
+knockback_force = 120.0
+hit_sound = ExtResource("2_7wc67")
+death_sound = ExtResource("1_blys6")
+metadata/_custom_type_script = "uid://36q17kpid15g"

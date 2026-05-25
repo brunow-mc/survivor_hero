@@ -1,0 +1,144 @@
+=============================================================================
+SURVIVOR HERO - v1.2.0 (CORRIGIDO - CASE-SENSITIVE)
+=============================================================================
+
+🐛 PROBLEMA IDENTIFICADO PELO DEBUG: Grupo "player" vs "Player"
+✅ CORREÇÃO APLICADA: Ambos scripts corrigidos
+
+Data: 23/03/2026
+Status: MAGNET DEVE FUNCIONAR AGORA!
+
+=============================================================================
+🔍 O QUE O DEBUG REVELOU
+=============================================================================
+
+OUTPUT DO CONSOLE:
+⚠️ TestPowerups: Player não encontrado!
+❌ FALHA: PowerUpController não encontrado!
+
+CAUSA RAIZ:
+Os scripts procuravam grupo "player" (minúsculo)
+Mas o grupo correto é "Player" (maiúsculo)
+Godot é CASE-SENSITIVE para grupos!
+
+=============================================================================
+✅ CORREÇÃO APLICADA
+=============================================================================
+
+Arquivo 1: scripts/test_powerups.gd
+────────────────────────────────────────────────
+ANTES:
+var players = get_tree().get_nodes_in_group("player")
+
+DEPOIS:
+var players = get_tree().get_nodes_in_group("Player")  # ← P maiúsculo!
+
+Arquivo 2: scripts/debug_magnet.gd
+────────────────────────────────────────────────
+ANTES:
+var players = get_tree().get_nodes_in_group("player")
+
+DEPOIS:
+var players = get_tree().get_nodes_in_group("Player")  # ← P maiúsculo!
+
+=============================================================================
+🧪 TESTE AGORA
+=============================================================================
+
+1. RODE O JOGO (F5)
+
+2. OBSERVE O CONSOLE NO INÍCIO:
+   Deve mostrar:
+   ✅ TestPowerups: PowerUpController encontrado!  ← NOVO!
+   ✅ DebugMagnet: PowerUpController encontrado!   ← NOVO!
+
+3. PRESSIONE [6] PARA ATIVAR MAGNET:
+   Console deve mostrar:
+   ✨ PowerUp UNLOCKED: 'Magnetic Field' (Level 1)
+   🧲 Magnet Range: +25.0 (applied in XP items)
+
+4. MATE INIMIGOS E OBSERVE:
+   XP items agora são atraídos de MAIS LONGE!
+
+5. (OPCIONAL) PRESSIONE [M] PARA DEBUG COMPLETO:
+   Agora todos os 7 testes devem passar ✅
+
+=============================================================================
+📊 PROGRESSÃO ESPERADA
+=============================================================================
+
+Pressione [6] quatro vezes:
+
+[6] Lv1: Range 50 → 75px (+50%)
+[6] Lv2: Range 75 → 110px (+120%)
+[6] Lv3: Range 110 → 155px (+210%)
+[6] Lv4: Range 155 → 210px (+320%)
+
+Lv4 = XP items são atraídos de 4x MAIS LONGE!
+
+=============================================================================
+✅ ARQUIVOS MODIFICADOS
+=============================================================================
+
+scripts/test_powerups.gd
+   → Grupo "player" → "Player"
+
+scripts/debug_magnet.gd
+   → Grupo "player" → "Player"
+
+=============================================================================
+🎯 POR QUE ESTAVA FALHANDO
+=============================================================================
+
+FLUXO QUEBRADO:
+1. test_powerups.gd procurava "player" (minúsculo)
+2. Não encontrava nada
+3. powerup_controller = null
+4. Pressionar [6] não fazia nada (script desativado)
+
+FLUXO CORRETO AGORA:
+1. test_powerups.gd procura "Player" (maiúsculo)
+2. Encontra Major_Heat ✅
+3. Pega PowerUpController do player
+4. Pressionar [6] funciona! ✅
+
+=============================================================================
+💡 LIÇÃO APRENDIDA
+=============================================================================
+
+Godot é CASE-SENSITIVE para:
+✅ Grupos de nodes (Player ≠ player)
+✅ Nomes de arquivos
+✅ Nomes de funções
+✅ Nomes de variáveis
+
+Sempre usar o case EXATO!
+
+=============================================================================
+🎮 CONTROLES (LEMBRANDO)
+=============================================================================
+
+[1] = Vitality (Max Health)
+[2] = Swift Feet (Move Speed)
+[3] = Raw Power (Damage)
+[4] = Iron Skin (Armor)
+[5] = Warrior's Might (HP + Damage)
+[6] = Magnetic Field (Magnet Range) ← DEVE FUNCIONAR AGORA!
+[R] = Reset All Powerups
+[L] = List Active Powerups
+[S] = Show Current Stats
+[M] = Debug Magnet (diagnóstico completo)
+
+=============================================================================
+📤 SE AINDA NÃO FUNCIONAR
+=============================================================================
+
+Se mesmo assim não funcionar:
+
+1. Pressione [M] para debug completo
+2. Copie TODO o output do console
+3. Me envie aqui
+
+Mas agora DEVE funcionar! 🎯
+
+=============================================================================

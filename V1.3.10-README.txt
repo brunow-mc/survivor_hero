@@ -1,0 +1,281 @@
+═══════════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.3.10
+═══════════════════════════════════════════════════════════════════════
+
+## 🐛 BUG CRÍTICO CORRIGIDO: DETECÇÃO AUTOMÁTICA DE MUDANÇAS DE UPGRADE
+
+### PROBLEMA IDENTIFICADO
+
+Quando `upgrade.current_level` era modificado manualmente (Remote Inspector, código externo), o sistema NÃO reagia automaticamente:
+
+**COMPORTAMENTO ERRADO:**
+1. Modificar `upgrade.current_level` no Remote Inspector
+2. ❌ Nada acontece
+3. ❌ Upgrades não são aplicados
+4. ❌ Sistema fica dessincronizado
+
+**POR QUE test_attack_upgrades.gd FUNCIONAVA:**
+```gdscript
+upgrade.current_level = new
+attack_controller.apply_upgrades_to_attack(id)  // ← CHAMADA EXPLÍCITA!
+```
+
+Ele chamava manualmente `apply_upgrades_to_attack()` após cada mudança.
+
+**POR QUE Remote Inspector NÃO FUNCIONAVA:**
+- Mudava o valor
+- MAS ninguém chamava `apply_upgrades_to_attack()`
+- Sistema ficava dessincronizado
+
+---
+
+### CAUSA RAIZ
+
+O sistema tinha:
+- ✅ `_check_enabled_changes()` para detectar mudanças em `attack_data.current_level` (liga/desliga timers)
+- ❌ NENHUM sistema para detectar mudanças em `upgrade.current_level`
+
+Resultado: Upgrades só funcionavam com chamadas explícitas.
+
+---
+
+### SOLUÇÃO IMPLEMENTADA (v1.3.10)
+
+Criado sistema de **detecção automática de mudanças** seguindo o mesmo padrão de `_check_enabled_changes()`:
+
+#### **1. Novo Dictionary de Rastreamento**
+
+```gdscript
+var upgrade_last_levels: Dictionary = {}  ## v1.3.10
+```
+
+Guarda o último `current_level` conhecido de cada upgrade.
+
+---
+
+#### **2. Nova Função: `_check_upgrade_changes()`**
+
+**INSERIDA APÓS `_check_enabled_changes()` (linha ~291):**
+
+```gdscript
+func _check_upgrade_changes() -> void:
+    """
+    v1.3.10: Detecta mudanças em upgrade.current_level e sincroniza automaticamente.
+    
+    Funciona para:
+    - Mudanças via código (test_attack_upgrades.gd)
+    - Mudanças no Remote Inspector
+    - Qualquer outra fonte de mudança
+    """
+    for upgrade in attack_upgrades:
+        if not upgrade:
+            continue
+        
+        var attack_id = upgrade.attack_id
+        var last_level = upgrade_last_levels.get(attack_id, upgrade.current_level)
+        var current_level = upgrade.current_level
+        
+        # Detecta mudança
+        if current_level != last_level:
+            upgrade_last_levels[attack_id] = current_level
+            
+            # Sincronizar AttackData.current_level
+            var attack_data = find_attack_data(attack_id)
+            if attack_data:
+                if current_level == 0:
+                    attack_data.current_level = 0
+                elif last_level == 0 and current_level > 0:
+                    attack_data.current_level = 1
+            
+            # Aplicar upgrades automaticamente
+            apply_upgrades_to_attack(attack_id)
+            
+            # Log para debug
+            if current_level == 0:
+                print("🔒 Upgrade '%s' LOCKED (auto-detected)" % upgrade.attack_name)
+            elif last_level == 0:
+                print("🔓 Upgrade '%s' UNLOCKED at Lv%d (auto-detected)" % [upgrade.attack_name, current_level])
+            else:
+                var arrow = "⬆️" if current_level > last_level else "⬇️"
+                print("%s Upgrade '%s' Lv%d → Lv%d (auto-detected)" % [arrow, upgrade.attack_name, last_level, current_level])
+```
+
+---
+
+#### **3. Função de Inicialização: `_initialize_upgrade_tracking()`**
+
+**INSERIDA APÓS `_apply_initial_upgrades()` (linha ~155):**
+
+```gdscript
+func _initialize_upgrade_tracking() -> void:
+    """
+    v1.3.10: Inicializa Dictionary de rastreamento de levels de upgrades.
+    """
+    for upgrade in attack_upgrades:
+        if not upgrade:
+            continue
+        upgrade_last_levels[upgrade.attack_id] = upgrade.current_level
+    
+    print("🔄 AttackController: Upgrade tracking initialized")
+```
+
+---
+
+#### **4. Modificações em `_ready()` e `_physics_process()`**
+
+**_ready() (linha ~21):**
+```gdscript
+func _ready():
+    _duplicate_attack_resources()
+    _duplicate_upgrade_resources()
+    _sync_initial_levels()
+    _apply_initial_upgrades()
+    _initialize_upgrade_tracking()  // ← NOVO v1.3.10
+    PowerUpStatsGlobal.stats_changed.connect(_on_stats_changed)
+```
+
+**_physics_process() (linha ~260):**
+```gdscript
+func _physics_process(_delta: float) -> void:
+    _check_enabled_changes()
+    _check_upgrade_changes()  // ← NOVO v1.3.10
+```
+
+---
+
+### COMPORTAMENTO CORRIGIDO
+
+**AGORA:**
+
+1. ✅ Modificar `upgrade.current_level` no Remote Inspector
+2. ✅ Sistema detecta mudança automaticamente (a cada frame)
+3. ✅ Sincroniza `attack_data.current_level`
+4. ✅ Aplica upgrades automaticamente
+5. ✅ Log no console: "⬆️ Upgrade 'Gear' Lv2 → Lv3 (auto-detected)"
+
+**Funciona para:**
+- ✅ Mudanças via código (test_attack_upgrades.gd)
+- ✅ Mudanças no Remote Inspector
+- ✅ Mudanças via qualquer outro script
+- ✅ Serialização/deserialização (save/load)
+
+---
+
+### CONSISTÊNCIA COM PADRÃO EXISTENTE
+
+A solução segue **exatamente o mesmo padrão** de `_check_enabled_changes()`:
+
+| Aspecto | _check_enabled_changes() | _check_upgrade_changes() |
+|---------|-------------------------|-------------------------|
+| **Detecta mudanças em** | `attack_data.current_level` | `upgrade.current_level` |
+| **Dictionary de rastreamento** | `attack_enabled_states` | `upgrade_last_levels` |
+| **Frequência** | A cada frame (_physics_process) | A cada frame (_physics_process) |
+| **Ação ao detectar** | Liga/desliga timers | Sincroniza + aplica upgrades |
+| **Funciona em runtime** | ✅ Sim | ✅ Sim |
+
+---
+
+## 🎮 COMO TESTAR A CORREÇÃO
+
+### TESTE 1: Remote Inspector - Aumentar Level
+
+1. Rodar o jogo (F5)
+2. Abrir Remote Inspector (Scene > Remote)
+3. Expandir: MajorHeat → AttackController → Attack Upgrades → [2] (Gear)
+4. Modificar `Current Level` de 0 para 3
+5. **Observar:**
+   - ✅ Console: "🔓 Upgrade 'Gear' UNLOCKED at Lv3 (auto-detected)"
+   - ✅ Gear aparece imediatamente com 3 gears orbitando
+   - ✅ Raio de órbita maior (50 + 10 + 15 = 75px)
+   - ✅ Velocidade maior (3.0 × 1.2 = 3.6 rad/s)
+
+---
+
+### TESTE 2: Remote Inspector - Diminuir Level
+
+1. Com Gear em Level 3
+2. Modificar `Current Level` de 3 para 1
+3. **Observar:**
+   - ✅ Console: "⬇️ Upgrade 'Gear' Lv3 → Lv1 (auto-detected)"
+   - ✅ Gear retorna para 1 gear orbitando
+   - ✅ Raio volta para 60px (50 + 10)
+   - ✅ Velocidade volta para 3.3 rad/s
+
+---
+
+### TESTE 3: Remote Inspector - Desativar (Level 0)
+
+1. Modificar `Current Level` para 0
+2. **Observar:**
+   - ✅ Console: "🔒 Upgrade 'Gear' LOCKED (auto-detected)"
+   - ✅ Gear desaparece completamente
+   - ✅ Timer é parado
+   - ✅ Nenhum Gear é spawnado
+
+---
+
+### TESTE 4: Comparar com test_attack_upgrades.gd
+
+1. Usar [I] para fazer upgrade de Gear via código
+2. **Observar:**
+   - ✅ Ambos funcionam identicamente
+   - ✅ Ambos mostram logs de detecção
+   - ✅ Ambos aplicam upgrades instantaneamente
+
+---
+
+## 📊 IMPACTO DA MUDANÇA
+
+**Antes (v1.3.9):**
+- Modificações manuais: ❌ Não funcionavam
+- Modificações via código: ✅ Funcionavam (com chamada explícita)
+- Remote Inspector: ❌ Inútil
+- Debug difícil: ❌ Tinha que usar test_attack_upgrades.gd
+
+**Depois (v1.3.10):**
+- Modificações manuais: ✅ Funcionam automaticamente
+- Modificações via código: ✅ Funcionam (com ou sem chamada explícita)
+- Remote Inspector: ✅ Totalmente funcional
+- Debug fácil: ✅ Ajustar levels em tempo real
+
+---
+
+## 🔧 COMPATIBILIDADE
+
+**✅ 100% retrocompatível com v1.3.9:**
+- test_attack_upgrades.gd continua funcionando
+- Nada quebra
+- Apenas adiciona funcionalidade
+
+**Sistemas existentes preservados:**
+- _check_enabled_changes() intocado
+- apply_upgrades_to_attack() intocado
+- upgrade_attack() intocado
+
+---
+
+## 📦 ARQUIVOS MODIFICADOS v1.3.10
+
+**scripts/attack_controller.gd:**
+- ✅ Adicionado `var upgrade_last_levels: Dictionary = {}`
+- ✅ Adicionada função `_check_upgrade_changes()`
+- ✅ Adicionada função `_initialize_upgrade_tracking()`
+- ✅ Modificado `_ready()` para chamar `_initialize_upgrade_tracking()`
+- ✅ Modificado `_physics_process()` para chamar `_check_upgrade_changes()`
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🎯 RESUMO EXECUTIVO
+
+**Problema:** Mudanças em `upgrade.current_level` só funcionavam com chamadas explícitas.
+
+**Solução:** Sistema de detecção automática de mudanças que:
+- Detecta mudanças a cada frame
+- Sincroniza AttackData automaticamente
+- Aplica upgrades automaticamente
+- Funciona com Remote Inspector
+- Segue padrão existente
+
+**Resultado:** Remote Inspector agora é totalmente funcional para debug e testes!
+
+═══════════════════════════════════════════════════════════════════════

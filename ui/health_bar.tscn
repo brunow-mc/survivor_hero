@@ -1,0 +1,92 @@
+[gd_scene load_steps=8 format=3 uid="uid://dlqhld5x854vn"]
+
+[ext_resource type="Script" uid="uid://dm5bn87nim4kr" path="res://scripts/health_bar.gd" id="1_mrh3v"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6htnt"]
+bg_color = Color(0.2159017, 0.21590173, 0.2159017, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rwxrv"]
+bg_color = Color(0.23529412, 0.23529412, 0.23529412, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prk0l"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1w8tp"]
+bg_color = Color(0.38549232, 0.38549256, 0.3854924, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thfh1"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eo044"]
+bg_color = Color(1, 0.725, 0, 1)
+
+[node name="HealthBar" type="Control"]
+custom_minimum_size = Vector2(25, 2)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -0.5
+offset_right = -455.0
+offset_bottom = -269.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mrh3v")
+enable_shake = false
+
+[node name="BackgroundBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_6htnt")
+theme_override_styles/fill = SubResource("StyleBoxFlat_rwxrv")
+value = 100.0
+show_percentage = false
+
+[node name="DelayBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_prk0l")
+theme_override_styles/fill = SubResource("StyleBoxFlat_1w8tp")
+value = 100.0
+show_percentage = false
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_thfh1")
+theme_override_styles/fill = SubResource("StyleBoxFlat_eo044")
+value = 100.0
+show_percentage = false
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+position = Vector2(-1, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(0, 0, 0, 3, -1, 3, -1, 3, -1, 0)
+
+[node name="Polygon2D2" type="Polygon2D" parent="."]
+position = Vector2(27, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(0, 0, 0, 3, -1, 3, -1, 3, -1, 0)

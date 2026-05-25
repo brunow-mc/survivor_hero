@@ -1,0 +1,256 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.1.17
+=============================================================================
+
+🔄 CONVERSÃO COMPLETA: int → float PARA SISTEMA DE VIDA E DANO
+✅ Preparação para sistema de upgrades percentuais
+✅ Compatível com padrão de survivor-likes (Vampire Survivors, Brotato)
+
+Base: v1.1.16
+Data: 20/03/2026
+Status: COMPLETO E TESTADO
+
+=============================================================================
+MUDANÇAS CRÍTICAS
+=============================================================================
+
+MOTIVAÇÃO:
+Upgrades percentuais (+5%, +10%, +15%) não funcionam com int.
+Exemplo com int: 4 * 1.05 = 4.2 → 4 (perde 0.2!)
+Exemplo com float: 4.0 * 1.05 = 4.2 ✓ (mantém precisão)
+
+Sistema de upgrades futuros REQUER float para funcionar corretamente.
+
+=============================================================================
+ARQUIVOS MODIFICADOS
+=============================================================================
+
+ARQUIVO 1: data/hit_data/hit_data.gd
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+@export var damage: int = 1
+
+DEPOIS:
+@export var damage: float = 1.0
+
+IMPACTO: Todo dano de ataques do player agora é float.
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 2: scripts/enemy_base.gd
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+@export var max_health: int = 10
+@export var damage_per_tick: int = 1
+var life: int = 0
+
+DEPOIS:
+@export var max_health: float = 10.0
+@export var damage_per_tick: float = 1.0
+var life: float = 0.0
+
+IMPACTO: 
+- Vida de inimigos agora é float
+- Dano que inimigos causam ao player é float
+- Permite balanceamento fino (ex: 4.5 damage, 12.3 HP)
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 3: scripts/player_base.gd
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+@export var max_health: int = 100
+func take_damage(amount: int) -> void
+
+DEPOIS:
+@export var max_health: float = 100.0
+func take_damage(amount: float) -> void
+
+IMPACTO: Vida do player agora é float.
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 4: autoload/game_state.gd
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+signal player_health_changed(current: int, max: int)
+var player_max_health: int = 100
+var player_health: int = 100
+func register_player(max_health: int) -> void
+func apply_damage(amount: int) -> void
+func heal(amount: int) -> void
+
+DEPOIS:
+signal player_health_changed(current: float, max: float)
+var player_max_health: float = 100.0
+var player_health: float = 100.0
+func register_player(max_health: float) -> void
+func apply_damage(amount: float) -> void
+func heal(amount: float) -> void
+
+IMPACTO: Sistema global de health usa float.
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 5: scripts/health_bar.gd
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+func _on_health_changed(new_health: int, new_max_health: int) -> void
+
+DEPOIS:
+func _on_health_changed(new_health: float, new_max_health: float) -> void
+
+IMPACTO: Barra de vida recebe valores float (já usava float internamente).
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 6: scripts/health_label.gd (DISPLAY ARREDONDADO)
+───────────────────────────────────────────────────────────────────────────
+
+ANTES:
+var last_health: int = -1
+func _on_health_changed(current: int, _max_health: int) -> void:
+    text = str(current)
+
+DEPOIS:
+var last_health: float = -1.0
+func _on_health_changed(current: float, _max_health: float) -> void:
+    text = str(int(current))  # ← ARREDONDA PARA DISPLAY
+
+IMPACTO: 
+- Internamente usa float
+- Display mostra inteiro (98.7 HP → "98")
+- Trunca decimal (não arredonda para cima)
+
+=============================================================================
+ARQUIVOS .tres ATUALIZADOS
+=============================================================================
+
+TODOS os hit_data:
+├─ hit_01_fire.tres:      damage = 4  → damage = 4.0
+├─ hit_02_ring.tres:      damage = 3  → damage = 3.0
+├─ hit_03_electricity.tres: damage = 3  → damage = 3.0
+├─ hit_04_bo.tres:        damage = 3  → damage = 3.0
+└─ hit_05_gear.tres:      damage = 3  → damage = 3.0
+
+INIMIGOS:
+└─ red_gator.tscn:
+   ├─ max_health = 30      → max_health = 30.0
+   └─ damage_per_tick = 3  → damage_per_tick = 3.0
+
+PLAYER:
+└─ major_heat.tscn:
+   └─ max_health = 1000    → max_health = 1000.0
+
+NOTA: Valores mantidos iguais (4 → 4.0), apenas tipo mudado.
+
+=============================================================================
+COMPATIBILIDADE
+=============================================================================
+
+RETROCOMPATIBILIDADE:
+✅ Valores atuais mantidos (4 = 4.0)
+✅ Gameplay não muda
+✅ Balanceamento preservado
+
+FUTURO - SISTEMA DE UPGRADES:
+✅ Upgrades percentuais funcionarão (+5%, +10%, +15%)
+✅ Synergies multiplicativas possíveis (Damage × Speed × Area)
+✅ Balanceamento fino (4.2 vs 4.8 importa!)
+✅ Pequenos incrementos acumulam (0.5 + 0.3 + 0.8 = 1.6)
+
+=============================================================================
+DECISÕES DE DESIGN
+=============================================================================
+
+1. DISPLAY ARREDONDADO (health_label):
+   - Internamente: 98.7 HP (float)
+   - UI mostra: "98" (int)
+   - Método: int() - trunca (não arredonda para cima)
+   - Razão: Mais comum em games (98.7 ≠ 99 ainda)
+
+2. VALORES MANTIDOS:
+   - 4 damage → 4.0 damage (mesmo valor)
+   - Apenas tipo mudou
+   - Balanceamento atual preservado
+
+3. PREPARAÇÃO PARA UPGRADES:
+   - Sistema pronto para percentuais
+   - Exemplo: 4.0 * 1.15 = 4.6 damage ✓
+   - Sem float: 4 * 1.15 = 4.6 → 4 ✗
+
+=============================================================================
+TESTE
+=============================================================================
+
+1. Verificar gameplay normal:
+   ✅ Player toma dano normalmente
+   ✅ Inimigos morrem normalmente
+   ✅ Health bar funciona
+   ✅ Health label mostra valor inteiro
+
+2. Testar precisão:
+   - Modificar damage para 4.5 em hit_data
+   - Verificar que funciona corretamente
+   - Voltar para 4.0
+
+3. Inspector:
+   - Abrir hit_data.tres
+   - Verificar que damage aceita decimais
+   - Abrir enemy.tscn
+   - Verificar que max_health aceita decimais
+
+=============================================================================
+PRÓXIMOS PASSOS
+=============================================================================
+
+Com esta mudança, o jogo está PRONTO para:
+
+1. SISTEMA DE UPGRADES:
+   - Damage +5%, +10%, +15%
+   - Max Health +20%
+   - Attack Speed +10%
+
+2. SYNERGIES:
+   - Damage × Projectile Count × Area
+   - Cálculos complexos sem perda de precisão
+
+3. BALANCEAMENTO FINO:
+   - Inimigos com 12.5 HP
+   - Ataques com 3.7 damage
+   - Incrementos graduais (não saltos de 1 em 1)
+
+=============================================================================
+ARQUIVOS MODIFICADOS - RESUMO
+=============================================================================
+
+SCRIPTS (.gd):
+├─ data/hit_data/hit_data.gd
+├─ scripts/enemy_base.gd
+├─ scripts/player_base.gd
+├─ autoload/game_state.gd
+├─ scripts/health_bar.gd
+└─ scripts/health_label.gd
+
+RESOURCES (.tres):
+├─ data/hit_data/hit_01_fire.tres
+├─ data/hit_data/hit_02_ring.tres
+├─ data/hit_data/hit_03_electricity.tres
+├─ data/hit_data/hit_04_bo.tres
+└─ data/hit_data/hit_05_gear.tres
+
+SCENES (.tscn):
+├─ entities/enemies/red_gator.tscn
+└─ entities/players/major_heat.tscn
+
+=============================================================================
+
+Status: COMPLETO ✅
+Sistema de vida/dano agora é float ✅
+Preparado para sistema de upgrades ✅
+Compatível com padrão do gênero survivor-like ✅

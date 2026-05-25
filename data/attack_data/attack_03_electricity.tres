@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://cj7onj8ncd4fr"]
+
+[ext_resource type="AudioStream" uid="uid://dks13giptxf8o" path="res://audio/effects/powers/power_03_electricity_sound.mp3" id="1_jw84l"]
+[ext_resource type="Resource" uid="uid://ceo6npyxrfas" path="res://data/hit_data/hit_03_electricity.tres" id="1_nduou"]
+[ext_resource type="PackedScene" uid="uid://unvtaukujfo1" path="res://entities/powers/power_03_electricity.tscn" id="2_31mlq"]
+[ext_resource type="Texture2D" uid="uid://ci43v7m3qpnm1" path="res://sprites/icons/attack_icons/power_03_electricity_icon.png" id="3_14fuk"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="3_fev6t"]
+
+[resource]
+script = ExtResource("3_fev6t")
+attack_id = 3
+attack_name = "Lightning Arc"
+description = "Electric chain attack"
+icon = ExtResource("3_14fuk")
+packed_scene = ExtResource("2_31mlq")
+hit_data = ExtResource("1_nduou")
+interval = 8.0
+life_time = 3.9
+attack_delay = 0.4
+damage_interval = 0.25
+start_immediately = true
+max_hits = -1
+attach_to_player = true
+attack_sound = ExtResource("1_jw84l")
+handles_own_audio = true
+attack_scale = 0.67
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

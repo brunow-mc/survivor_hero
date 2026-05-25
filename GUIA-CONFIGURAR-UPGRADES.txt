@@ -1,0 +1,287 @@
+═══════════════════════════════════════════════════════════════════════
+GUIA: CONFIGURAR ATTACK UPGRADES PARA GEAR E RING
+═══════════════════════════════════════════════════════════════════════
+
+## ✅ ARQUIVOS JÁ CRIADOS (AUTOMÁTICO)
+
+Os seguintes arquivos foram criados automaticamente:
+
+1. ✅ `data/attack_upgrade_data/attack_05_gear_upgrades.tres`
+2. ✅ `data/attack_upgrade_data/attack_02_ring_upgrades.tres`
+3. ✅ `data/attack_upgrade_data/attack_05_gear_upgrades.tres.uid`
+4. ✅ `data/attack_upgrade_data/attack_02_ring_upgrades.tres.uid`
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📝 PASSO A PASSO NO GODOT EDITOR
+
+### PASSO 1: Abrir o projeto no Godot
+1. Abrir Godot
+2. Abrir o projeto "Survivor Hero"
+3. Aguardar carregamento completo
+
+---
+
+### PASSO 2: Abrir o arquivo do Player (Major Heat)
+1. No FileSystem (painel esquerdo), navegar até:
+   ```
+   res://entities/players/major_heat.tscn
+   ```
+2. Dar duplo clique para abrir a cena
+
+---
+
+### PASSO 3: Selecionar o AttackController
+1. Na árvore de nodes (Scene, painel esquerdo superior)
+2. Expandir o node "MajorHeat" (node raiz)
+3. Clicar no node **"AttackController"**
+4. O Inspector (painel direito) mostrará as propriedades
+
+---
+
+### PASSO 4: Adicionar Gear Upgrades ao Array
+
+**No Inspector, procurar a propriedade "Attack Upgrades":**
+
+1. Você verá: **Attack Upgrades: Array[AttackUpgradeData] (size 1)**
+2. Clicar no **número "1"** para expandir o array
+3. Você verá **[0]: [Attack01FireUpgrades]** (Fire já está configurado)
+
+**Adicionar Gear:**
+
+4. No topo do array, onde diz "size 1", clicar e mudar para **size 3**
+   - Isso adicionará 2 slots vazios: [1] e [2]
+
+5. Clicar no slot **[1]** (segundo slot)
+   - Uma lista suspensa aparecerá
+   - Procurar por **"Attack02RingUpgrades"** ou navegar até:
+     ```
+     res://data/attack_upgrade_data/attack_02_ring_upgrades.tres
+     ```
+   - Selecionar o arquivo
+
+6. Clicar no slot **[2]** (terceiro slot)
+   - Procurar por **"Attack05GearUpgrades"** ou navegar até:
+     ```
+     res://data/attack_upgrade_data/attack_05_gear_upgrades.tres
+     ```
+   - Selecionar o arquivo
+
+**Resultado esperado:**
+```
+Attack Upgrades: Array[AttackUpgradeData] (size 3)
+  [0]: [Attack01FireUpgrades]
+  [1]: [Attack02RingUpgrades]
+  [2]: [Attack05GearUpgrades]
+```
+
+---
+
+### PASSO 5: Salvar a cena
+1. **Ctrl+S** ou **File > Save Scene**
+2. Confirmar salvamento
+
+---
+
+### PASSO 6: Verificar configuração dos .tres (OPCIONAL)
+
+**Para Gear (attack_05_gear_upgrades.tres):**
+
+1. No FileSystem, navegar até:
+   ```
+   res://data/attack_upgrade_data/attack_05_gear_upgrades.tres
+   ```
+2. Clicar no arquivo
+3. No Inspector, verificar se as propriedades estão corretas:
+   - **Attack Id:** 5
+   - **Attack Name:** "Gear"
+   - **Orbit Radius Per Level:** [0.0, 10.0, 15.0, 20.0, 30.0]
+   - **Orbit Speed Bonus Per Level:** [0.0, 0.1, 0.1, 0.15, 0.15]
+
+**Para Ring (attack_02_ring_upgrades.tres):**
+
+1. Verificar:
+   - **Attack Id:** 2
+   - **Attack Name:** "Ring"
+   - **Projectile Stagger Delay Per Level:** [0.0, -0.02, -0.02, -0.03, -0.05]
+
+Se algum valor estiver errado, você pode ajustar manualmente no Inspector.
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🎮 TESTANDO NO JOGO
+
+### Após configurar tudo no Godot:
+
+1. Rodar o jogo (F5)
+2. Aguardar aparecer a mensagem no console:
+   ```
+   ✅ TestAttackUpgrades: AttackController encontrado!
+   🎮 CONTROLES:
+      [E] Fire++    [F] Fire--
+      [T] Ring++    [G] Ring--
+      [Y] Elec++    [H] Elec--
+      [U] Bo++      [J] Bo--
+      [I] Gear++    [K] Gear--
+      [X] List Levels
+   ```
+
+---
+
+### TESTE 1: Gear - Orbit Radius
+
+1. Apertar **[I]** várias vezes para fazer upgrade de Gear
+2. **Observar:**
+   - Level 1: Gear orbita próximo (50px)
+   - Level 2: Gear orbita mais longe (60px)
+   - Level 3: Gear orbita ainda mais longe (75px)
+   - Level 4: Gear orbita bem longe (95px)
+   - Level 5: Gear orbita MUITO longe (125px - 2.5x o raio inicial!)
+
+---
+
+### TESTE 2: Gear - Orbit Speed
+
+1. **Observar a velocidade de rotação:**
+   - Level 1: Rotação base (1 volta ~2 segundos)
+   - Level 2: 10% mais rápido
+   - Level 3: 20% mais rápido
+   - Level 4: 35% mais rápido
+   - Level 5: 50% mais rápido (1 volta ~1.4 segundos)
+
+---
+
+### TESTE 3: Gear - Attack Scale
+
+1. **Observar o tamanho do Gear:**
+   - Level 1: Tamanho normal (100%)
+   - Level 2: 5% maior
+   - Level 3: 10% maior
+   - Level 4: 20% maior
+   - Level 5: 35% maior
+
+---
+
+### TESTE 4: Gear - Life Time
+
+1. **Observar quanto tempo o Gear permanece ativo:**
+   - Level 1: Tempo base
+   - Level 2: +1.0s
+   - Level 3: +2.0s
+   - Level 4: +3.5s
+   - Level 5: +5.5s
+
+**Nota:** Se life_time base do Gear for infinito (-1), essa propriedade não terá efeito visível.
+
+---
+
+### TESTE 5: Ring - Stagger Delay
+
+1. Apertar **[T]** várias vezes para fazer upgrade de Ring
+2. **Observar o intervalo entre disparos:**
+   - Level 1: 0.22s entre projéteis (base - metralhadora)
+   - Level 2: 0.20s (mais rápido)
+   - Level 3: 0.18s
+   - Level 4: 0.15s (rajada rápida)
+   - Level 5: 0.10s (quase simultâneo, tipo shotgun)
+
+---
+
+### TESTE 6: Listar Todos os Levels
+
+1. Apertar **[X]** para ver status de todos os ataques
+2. Verificar que Gear e Ring aparecem na lista com seus níveis
+
+═══════════════════════════════════════════════════════════════════════
+
+## ⚠️ TROUBLESHOOTING
+
+### Problema: "Upgrade não encontrado" ao apertar [I]
+
+**Solução:**
+- Verificar se attack_05_gear_upgrades.tres foi adicionado ao array de upgrades no AttackController
+- Verificar se o Attack Id no .tres é **5** (correspondente ao Gear)
+
+---
+
+### Problema: Gear não muda de comportamento ao fazer upgrade
+
+**Solução:**
+- Verificar se os arrays estão preenchidos corretamente no .tres
+- Verificar no console se aparecem mensagens de upgrade (⬆️ Attack 'Gear' upgraded to level X)
+- Usar [X] para listar levels e confirmar que o level está aumentando
+
+---
+
+### Problema: Valores errados (ex: Gear fica muito longe ou muito rápido)
+
+**Solução:**
+- Abrir attack_05_gear_upgrades.tres no Inspector
+- Ajustar manualmente os valores dos arrays:
+  - orbit_radius_per_level
+  - orbit_speed_bonus_per_level
+  - attack_scale_bonus_per_level
+  - etc.
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📊 VALORES CONFIGURADOS (REFERÊNCIA)
+
+### GEAR (attack_05_gear_upgrades.tres)
+
+```
+projectile_count_per_level = [0, 1, 1, 1, 1]
+  → Level 1: 1 gear
+  → Level 2: 2 gears
+  → Level 3: 3 gears
+  → Level 4: 4 gears
+  → Level 5: 5 gears
+
+damage_bonus_per_level = [0.0, 0.1, 0.1, 0.15, 0.15]
+  → Level 1: Dano base (0% bonus)
+  → Level 5: +50% dano total
+
+cooldown_reduction_per_level = [0.0, 0.05, 0.1, 0.15, 0.2]
+  → Level 5: -50% cooldown (2x mais frequente)
+
+orbit_radius_per_level = [0.0, 10.0, 15.0, 20.0, 30.0]
+  → Level 1: Raio 50px (base)
+  → Level 5: Raio 125px (+75px, 2.5x o raio)
+
+orbit_speed_bonus_per_level = [0.0, 0.1, 0.1, 0.15, 0.15]
+  → Level 1: Velocidade base (3.0 rad/s)
+  → Level 5: Velocidade 4.5 rad/s (+50%)
+
+attack_scale_bonus_per_level = [0.0, 0.05, 0.05, 0.1, 0.15]
+  → Level 5: 35% maior (1.35x)
+
+life_time_bonus_per_level = [0.0, 1.0, 1.0, 1.5, 2.0]
+  → Level 5: +5.5 segundos
+```
+
+---
+
+### RING (attack_02_ring_upgrades.tres)
+
+```
+projectile_count_per_level = [0, 1, 1, 1, 2]
+  → Level 5: +4 projéteis totais
+
+projectile_stagger_delay_per_level = [0.0, -0.02, -0.02, -0.03, -0.05]
+  → Level 1: 0.22s entre disparos
+  → Level 5: 0.10s entre disparos (rajada 2.2x mais rápida)
+
+damage_bonus_per_level = [0.0, 0.08, 0.12, 0.18, 0.25]
+  → Level 5: +63% dano
+
+speed_bonus_per_level = [0.0, 0.05, 0.05, 0.1, 0.1]
+  → Level 5: +30% velocidade
+
+max_hits_per_level = [0, 0, 0, 1, 1]
+  → Level 4-5: +2 hits máximos
+
+cooldown_reduction_per_level = [0.0, 0.05, 0.1, 0.15, 0.2]
+  → Level 5: -50% cooldown
+```
+
+═══════════════════════════════════════════════════════════════════════

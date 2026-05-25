@@ -1,0 +1,16 @@
+[gd_scene load_steps=11 format=3 uid="uid://bva3jhodc5h5u"]
+
+[ext_resource type="Script" uid="uid://cfpl0wlblc26u" path="res://scripts/power_up_controller.gd" id="1_tsi2p"]
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="2_1lscn"]
+[ext_resource type="Resource" uid="uid://b1b2hdibf5ov1" path="res://data/power_up_data/power_up_vitality.tres" id="3_f4owa"]
+[ext_resource type="Resource" uid="uid://dto11lmqgrgnu" path="res://data/power_up_data/power_up_swift_feet.tres" id="4_wim2b"]
+[ext_resource type="Resource" uid="uid://p0ff7nws3hm2" path="res://data/power_up_data/power_up_raw_power.tres" id="5_oqirl"]
+[ext_resource type="Resource" uid="uid://uytwj78qi6f2" path="res://data/power_up_data/power_up_iron_skin.tres" id="6_nq07i"]
+[ext_resource type="Resource" uid="uid://dxo1dsxkao41p" path="res://data/power_up_data/power_up_warrior.tres" id="7_633pp"]
+[ext_resource type="Resource" uid="uid://muumcado1u0v" path="res://data/power_up_data/power_up_magnet.tres" id="8_wim2b"]
+[ext_resource type="Resource" uid="uid://c8vj4k2l3nan0" path="res://data/power_up_data/power_up_attack_speed.tres" id="9_aspd"]
+[ext_resource type="Resource" uid="uid://cjk7ut73hedh5" path="res://data/power_up_data/power_up_lethal_impact.tres" id="10_lethal"]
+
+[node name="PowerUpController" type="Node"]
+script = ExtResource("1_tsi2p")
+powerups = Array[ExtResource("2_1lscn")]([ExtResource("3_f4owa"), ExtResource("4_wim2b"), ExtResource("5_oqirl"), ExtResource("6_nq07i"), ExtResource("7_633pp"), ExtResource("8_wim2b"), ExtResource("9_aspd"), ExtResource("10_lethal")])

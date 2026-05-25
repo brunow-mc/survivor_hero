@@ -1,0 +1,80 @@
+=============================================================================
+v1.2.1 - RESUMO RÁPIDO
+=============================================================================
+
+⚡ ATTACK SPEED IMPLEMENTADO!
+
+=============================================================================
+🎯 TESTE AGORA
+=============================================================================
+
+1. RODE O JOGO (F5)
+
+2. PRESSIONE [7] CINCO VEZES
+
+3. OBSERVE:
+   Fire Power vira METRALHADORA!
+   Todos ataques disparam MUITO mais rápido!
+   DPS aumenta +110%!
+
+Console mostra:
+⚡ Attack Speed Multiplier: ×2.10
+
+=============================================================================
+📊 PROGRESSÃO
+=============================================================================
+
+[7] Lv1: +15% attack speed (1.74s)
+[7] Lv2: +30% attack speed (1.54s)
+[7] Lv3: +50% attack speed (1.33s)
+[7] Lv4: +75% attack speed (1.14s)
+[7] Lv5: +110% attack speed (0.95s) ← DOBRO!
+
+=============================================================================
+💥 SINERGIA
+=============================================================================
+
+Raw Power Lv5 + Rapid Fire Lv5 = +247% DPS!
+
+[3] 5x (Raw Power)
+[7] 5x (Rapid Fire)
+= QUASE 3.5x O DPS BASE!
+
+=============================================================================
+✅ O QUE FOI FEITO
+=============================================================================
+
+MODIFICADO:
+✅ attack_controller.gd
+   - Conecta ao signal stats_changed
+   - Aplica attack_speed_multiplier aos timers
+   - Atualiza timers em tempo real
+
+CRIADO:
+✅ powerup_attack_speed.tres (ID 7)
+
+ATUALIZADO:
+✅ power_up_controller.tscn (array de 7 powerups)
+✅ test_powerups.gd (tecla [7] + reset)
+
+=============================================================================
+🎮 CONTROLES
+=============================================================================
+
+[1] = Vitality
+[2] = Swift Feet
+[3] = Raw Power
+[4] = Iron Skin
+[5] = Warrior's Might
+[6] = Magnetic Field
+[7] = Rapid Fire ← NOVO!
+[R] = Reset
+[S] = Stats
+
+=============================================================================
+✅ 7 POWERUPS FUNCIONANDO!
+=============================================================================
+
+Sistema completo e pronto para produção! 🎮
+
+=============================================================================

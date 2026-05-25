@@ -1,0 +1,88 @@
+[gd_scene load_steps=16 format=3 uid="uid://cefydgegqsrfo"]
+
+[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player01.gd" id="1_b0kkn"]
+[ext_resource type="SpriteFrames" uid="uid://ct2we8xj64ab7" path="res://sprites/heroes/major_heat/player01.tres" id="2_b0kkn"]
+[ext_resource type="Texture2D" uid="uid://ecw247a5n3yt" path="res://sprites/effects/shadow01.png" id="2_srb7a"]
+[ext_resource type="PackedScene" uid="uid://dlqhld5x854vn" path="res://ui/health_bar.tscn" id="4_uuxwp"]
+[ext_resource type="PackedScene" uid="uid://bo5tc8icd75ql" path="res://entities/attack_controller.tscn" id="6_s4hlh"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data.gd" id="7_b1ms6"]
+[ext_resource type="Resource" uid="uid://b6xnifqudo26l" path="res://data/attack_04_bo.tres" id="7_fppcu"]
+[ext_resource type="Resource" uid="uid://bbclnnndnvs3j" path="res://data/attack_01_fire.tres" id="8_rt0ot"]
+[ext_resource type="Resource" uid="uid://ckvmf44l62iit" path="res://data/attack_02_ring.tres" id="9_fppcu"]
+[ext_resource type="PackedScene" uid="uid://kcb5x3rnrxnf" path="res://ui/health_label.tscn" id="10_fppcu"]
+[ext_resource type="Resource" uid="uid://cj7onj8ncd4fr" path="res://data/attack_03_electricity.tres" id="10_rt0ot"]
+[ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch01.mp3" id="12_eo2hn"]
+[ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death01.mp3" id="13_eo2hn"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ldj1t"]
+radius = 7.0
+height = 22.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b0kkn"]
+radius = 3.0
+height = 14.0
+
+[node name="Player01" type="CharacterBody2D" groups=["Player"]]
+z_index = 2
+collision_layer = 2
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_b0kkn")
+
+[node name="AttackController" parent="." instance=ExtResource("6_s4hlh")]
+attacks = Array[ExtResource("7_b1ms6")]([ExtResource("8_rt0ot"), ExtResource("9_fppcu"), ExtResource("10_rt0ot"), ExtResource("7_fppcu")])
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.3137255)
+z_index = 1
+position = Vector2(0, 12)
+texture = ExtResource("2_srb7a")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(0, -1)
+sprite_frames = ExtResource("2_b0kkn")
+animation = &"walk_attack"
+
+[node name="AttackPositionRight" type="Node2D" parent="."]
+position = Vector2(18, -2)
+
+[node name="AttackPositionLeft" type="Node2D" parent="."]
+position = Vector2(-18, -2)
+
+[node name="Hurtbox" type="Area2D" parent="." groups=["PlayerHurtbox"]]
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CapsuleShape2D_ldj1t")
+debug_color = Color(0, 0.6862745, 0, 0.41960785)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 9)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_b0kkn")
+
+[node name="HealthBar" parent="." instance=ExtResource("4_uuxwp")]
+z_index = 5
+offset_left = -11.0
+offset_top = -21.0
+offset_right = 11.0
+offset_bottom = -18.0
+max_value = 200.0
+value = 200.0
+
+[node name="HealthLabel" parent="." instance=ExtResource("10_fppcu")]
+offset_left = -13.0
+offset_top = -30.0
+offset_right = -5.0
+offset_bottom = -22.0
+
+[node name="Audio_Hit" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("12_eo2hn")
+attenuation = 1e-05
+
+[node name="Audio_Death" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("13_eo2hn")
+volume_db = 7.0
+attenuation = 1e-05

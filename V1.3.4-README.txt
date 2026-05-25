@@ -1,0 +1,78 @@
+═══════════════════════════════════════════════════════════════
+v1.3.4 - PADRONIZAÇÃO: DICTIONARY EM POWERUPCONTROLLER
+═══════════════════════════════════════════════════════════════
+
+OBJETIVO:
+Padronizar PowerUpController para usar Dictionary (mesmo padrão de 
+AttackController) ao invés de variáveis separadas para valores base.
+
+═══════════════════════════════════════════════════════════════
+MUDANÇAS
+═══════════════════════════════════════════════════════════════
+
+ARQUIVO MODIFICADO:
+* scripts/power_up_controller.gd
+
+MUDANÇAS ESPECÍFICAS:
+
+1. Linha ~16-17 (ANTES):
+   var base_max_health: float = 0.0
+   var base_move_speed: float = 0.0
+
+   Linha ~16 (DEPOIS):
+   var player_base_values: Dictionary = {}
+
+2. Linha ~34-35 (ANTES):
+   base_max_health = player.max_health
+   base_move_speed = player.move_speed
+
+   Linha ~34-39 (DEPOIS):
+   player_base_values = {
+       "max_health": player.max_health,
+       "move_speed": player.move_speed
+   }
+
+3. Linha ~255 (ANTES):
+   var new_max_health = (base_max_health + ...)
+
+   Linha ~255 (DEPOIS):
+   var new_max_health = (player_base_values["max_health"] + ...)
+
+4. Linha ~295 (ANTES):
+   var new_speed = (base_move_speed + ...)
+
+   Linha ~295 (DEPOIS):
+   var new_speed = (player_base_values["move_speed"] + ...)
+
+═══════════════════════════════════════════════════════════════
+COMPORTAMENTO
+═══════════════════════════════════════════════════════════════
+
+✅ NENHUMA mudança de comportamento
+✅ NENHUMA mudança de gameplay
+✅ Apenas refatoração interna (organização de código)
+
+═══════════════════════════════════════════════════════════════
+CONSISTÊNCIA ALCANÇADA
+═══════════════════════════════════════════════════════════════
+
+ANTES:
+* AttackController: Dictionary attack_base_values
+* PowerUpController: Variáveis base_max_health, base_move_speed
+
+DEPOIS:
+✅ AttackController: Dictionary attack_base_values
+✅ PowerUpController: Dictionary player_base_values
+
+AMBOS USAM O MESMO PADRÃO!
+
+═══════════════════════════════════════════════════════════════
+PRÓXIMA FASE (v1.3.5)
+═══════════════════════════════════════════════════════════════
+
+FASE 2: Padronizar PowerUpData para método ACUMULATIVO
+* Mudar power_up_data.gd (_get_value para somar)
+* Reconfigurar os 8 .tres (arrays acumulativos)
+* Testar cada powerup level por level
+
+═══════════════════════════════════════════════════════════════

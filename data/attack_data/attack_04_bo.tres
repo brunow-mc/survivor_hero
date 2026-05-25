@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://b6xnifqudo26l"]
+
+[ext_resource type="Resource" uid="uid://mtffopymkq25" path="res://data/hit_data/hit_04_bo.tres" id="1_hev41"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="1_kwnx1"]
+[ext_resource type="AudioStream" uid="uid://blfo4ggevb1y4" path="res://audio/effects/powers/power_04_bo_sound.wav" id="1_lsfi6"]
+[ext_resource type="PackedScene" uid="uid://ck2bejwemkxi6" path="res://entities/powers/power_04_bo.tscn" id="2_qcw3k"]
+[ext_resource type="Texture2D" uid="uid://cixf66nsxfdfn" path="res://sprites/icons/attack_icons/power_04_bo_icon.png" id="3_crwg2"]
+
+[resource]
+script = ExtResource("1_kwnx1")
+attack_id = 4
+attack_name = "Bo"
+description = "Throws a returning Bo"
+icon = ExtResource("3_crwg2")
+packed_scene = ExtResource("2_qcw3k")
+hit_data = ExtResource("1_hev41")
+interval = 2.25
+attack_delay = 0.325
+damage_interval = 0.25
+start_immediately = true
+speed = 250.0
+max_hits = -1
+attack_sound = ExtResource("1_lsfi6")
+attack_sound_volume_db = -5.5
+attack_sound_pitch_scale = 1.05
+secondary_sound = ExtResource("1_lsfi6")
+secondary_sound_volume_db = 1.0
+secondary_sound_pitch_scale = 0.92
+attack_scale = 2.25
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

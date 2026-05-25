@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://kcb5x3rnrxnf"]
+
+[ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="1_42n0p"]
+[ext_resource type="Script" uid="uid://itje64g1o7og" path="res://scripts/health_label.gd" id="2_vk48y"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_uuxwp"]
+font = ExtResource("1_42n0p")
+font_size = 7
+font_color = Color(1, 0.725, 0, 1)
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 0
+shadow_color = Color(0, 0, 0, 1)
+shadow_offset = Vector2(0.78, 0.77)
+
+[node name="HealthLabel" type="Label" unique_id=840777013]
+z_index = 5
+offset_right = 8.0
+offset_bottom = 7.0
+text = "100"
+label_settings = SubResource("LabelSettings_uuxwp")
+vertical_alignment = 1
+script = ExtResource("2_vk48y")

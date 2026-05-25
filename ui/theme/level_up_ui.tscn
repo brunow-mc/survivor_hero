@@ -1,0 +1,242 @@
+[gd_scene format=4 uid="uid://btja06mv3ey61"]
+
+[ext_resource type="Script" uid="uid://7kgg5lva6eh3" path="res://scripts/level_up_ui.gd" id="1_level_up_script"]
+[ext_resource type="FontFile" uid="uid://os21wojhs3xa" path="res://fonts/8-bit Arcade In.ttf" id="3_svggg"]
+[ext_resource type="Theme" uid="uid://bt8vtjms5jrhf" path="res://ui/theme/bonus_desc.tres" id="4_rjfvn"]
+[ext_resource type="Theme" uid="uid://dpeinux0ngift" path="res://ui/theme/bonus_label.tres" id="4_vphjb"]
+
+[sub_resource type="Theme" id="Theme_rjfvn"]
+Label/colors/font_color = Color(0.7490196, 0.5372549, 0, 1)
+Label/font_sizes/font_size = 38
+Label/fonts/font = ExtResource("3_svggg")
+
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vphjb"]
+bg_color = Color(0.7490196, 0.5372549, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jlyfc"]
+bg_color = Color(0.7490196, 0.5372549, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qwotx"]
+bg_color = Color(1, 0.7166667, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0sypd"]
+bg_color = Color(0.13, 0.093166664, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rjfvn"]
+bg_color = Color(1, 0.72156864, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[node name="LevelUpUI" type="CanvasLayer" unique_id=830281645]
+process_mode = 3
+layer = 100
+script = ExtResource("1_level_up_script")
+
+[node name="Overlay" type="ColorRect" parent="." unique_id=1175686134]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.627451)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1492369106]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=932606680]
+custom_minimum_size = Vector2(300, 190)
+layout_mode = 2
+
+[node name="BackgroundColor" type="ColorRect" parent="CenterContainer/PanelContainer" unique_id=374525926]
+layout_mode = 2
+color = Color(1, 0.72, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=152763005]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=1145016564]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1519478952]
+layout_mode = 2
+theme = SubResource("Theme_rjfvn")
+text = "LEVEL UP "
+horizontal_alignment = 1
+
+[node name="Separator" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1621123013]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="OptionsContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1709684898]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="Option1" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer" unique_id=720984481]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_svggg")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vphjb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_jlyfc")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qwotx")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_0sypd")
+theme_override_styles/focus = SubResource("StyleBoxFlat_rjfvn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1" unique_id=705134484]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="IconPlaceholder" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1/HBoxContainer" unique_id=1610950164]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="TextContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1/HBoxContainer" unique_id=563696799]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1/HBoxContainer/TextContainer" unique_id=1878649483]
+layout_mode = 2
+theme = ExtResource("4_vphjb")
+text = "Fire  Power  Lv 2"
+
+[node name="DescLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1/HBoxContainer/TextContainer" unique_id=679759804]
+custom_minimum_size = Vector2(0, 19)
+layout_mode = 2
+theme = ExtResource("4_rjfvn")
+text = "10 DAMAGE
+5 COOLDOWN"
+autowrap_mode = 3
+
+[node name="Option2" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer" unique_id=1535773057]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_svggg")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vphjb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_jlyfc")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qwotx")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_0sypd")
+theme_override_styles/focus = SubResource("StyleBoxFlat_rjfvn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2" unique_id=467700063]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="IconPlaceholder" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2/HBoxContainer" unique_id=1971087616]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="TextContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2/HBoxContainer" unique_id=875299540]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2/HBoxContainer/TextContainer" unique_id=416210100]
+layout_mode = 2
+theme = ExtResource("4_vphjb")
+text = "SWIFT FEET LV 1"
+
+[node name="DescLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2/HBoxContainer/TextContainer" unique_id=632208710]
+custom_minimum_size = Vector2(0, 19)
+layout_mode = 2
+theme = ExtResource("4_rjfvn")
+text = "10 SPEED"
+autowrap_mode = 3
+
+[node name="Option3" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer" unique_id=507342290]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_svggg")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vphjb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_jlyfc")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qwotx")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_0sypd")
+theme_override_styles/focus = SubResource("StyleBoxFlat_rjfvn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3" unique_id=1303235063]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="IconPlaceholder" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3/HBoxContainer" unique_id=6581960]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="TextContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3/HBoxContainer" unique_id=1372489760]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3/HBoxContainer/TextContainer" unique_id=382399690]
+layout_mode = 2
+theme = ExtResource("4_vphjb")
+text = "RING ATTACK LV 1"
+
+[node name="DescLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3/HBoxContainer/TextContainer" unique_id=1114797160]
+custom_minimum_size = Vector2(0, 19)
+layout_mode = 2
+theme = ExtResource("4_rjfvn")
+text = "UNLOCK RING ATTACK"
+autowrap_mode = 3
+
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1" to="." method="_on_option_pressed" binds= [0]]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option2" to="." method="_on_option_pressed" binds= [1]]
+[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option3" to="." method="_on_option_pressed" binds= [2]]

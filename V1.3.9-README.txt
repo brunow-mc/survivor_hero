@@ -1,0 +1,358 @@
+═══════════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.3.9
+═══════════════════════════════════════════════════════════════════════
+
+## 🎯 OBJETIVO: COMPLETAR SISTEMA DE ATTACK UPGRADES
+
+Implementação das 3 variáveis finais para upgrades de ataques:
+1. ✅ `projectile_stagger_delay` - Controle de ritmo de disparos
+2. ✅ `orbit_radius` - Alcance orbital (Gear)
+3. ✅ `orbit_speed` - Velocidade orbital (Gear)
+
+Com estas adições, o sistema de Attack Upgrades está **COMPLETO** com **11 variáveis** configuráveis:
+
+**Variáveis Gerais (8):**
+- projectile_count
+- damage
+- speed
+- max_hits
+- cooldown_reduction
+- projectile_angle_spread (v1.3.8)
+- life_time (v1.3.8)
+- attack_scale (v1.3.8)
+
+**Variáveis Específicas (3):**
+- projectile_stagger_delay (v1.3.9) - Ring principalmente
+- orbit_radius (v1.3.9) - Gear
+- orbit_speed (v1.3.9) - Gear
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🚀 NOVAS VARIÁVEIS v1.3.9
+
+### 1. PROJECTILE_STAGGER_DELAY (Ritmo de Disparos)
+
+**Tipo:** float  
+**Método:** ADITIVO (`base + bonus`)  
+**Permite valores negativos:** ✅ SIM (acelera disparos)
+
+**Uso principal:** Power_02_Ring (disparo sequencial)
+
+**Por que é importante:**
+- Controla intervalo entre disparos sequenciais
+- Ring atualmente usa 0.22s entre projéteis
+- Valores negativos = rajada mais rápida
+- Valores positivos = disparos mais espaçados (raramente útil)
+
+**Exemplo (Ring - base 0.22s):**
+```
+Level 1: 0.22 + 0.00 = 0.22s (base - disparo "metralhadora")
+Level 2: 0.22 - 0.02 = 0.20s (mais rápido)
+Level 3: 0.22 - 0.02 - 0.02 = 0.18s (ainda mais rápido)
+Level 4: 0.22 - 0.02 - 0.02 - 0.03 = 0.15s (rajada rápida)
+Level 5: 0.22 - 0.02 - 0.02 - 0.03 - 0.05 = 0.10s (quase simultâneo)
+```
+
+**Comportamento com 0.0s:**
+- Se stagger_delay chegar a 0.0 → disparos simultâneos
+- Útil para transformar disparo sequencial em "shotgun"
+
+---
+
+### 2. ORBIT_RADIUS (Alcance Orbital)
+
+**Tipo:** float  
+**Método:** ADITIVO (`base + bonus`)  
+**Permite valores negativos:** ✅ SIM (aproxima do player)
+
+**Uso principal:** Power_05_Gear (órbita ao redor do player)
+
+**Por que é importante:**
+- Controla distância do Gear ao player
+- Gear base = 50.0 pixels de raio
+- Raio maior = proteção mais ampla, mas cobertura menos densa
+- Raio menor = proteção mais próxima, cobertura mais densa
+
+**Exemplo (Gear - base 50.0):**
+```
+Level 1: 50 + 0 = 50px (base - proteção próxima)
+Level 2: 50 + 10 = 60px (alcance médio)
+Level 3: 50 + 10 + 15 = 75px (alcance grande)
+Level 4: 50 + 10 + 15 + 20 = 95px (alcance muito grande)
+Level 5: 50 + 10 + 15 + 20 + 30 = 125px (alcance máximo - 2.5x base)
+```
+
+**Trade-off interessante:**
+- Órbita pequena + muitos gears = "escudo denso"
+- Órbita grande + poucos gears = "sentinelas espaçadas"
+
+---
+
+### 3. ORBIT_SPEED (Velocidade Orbital)
+
+**Tipo:** float  
+**Método:** MULTIPLICATIVO (`base * (1.0 + bonus)`)  
+**Permite valores negativos:** ⚠️ Sim, mas cuidado (inverte rotação se < -1.0)
+
+**Uso principal:** Power_05_Gear (velocidade de rotação)
+
+**Por que é importante:**
+- Controla velocidade de rotação do Gear
+- Gear base = 3.0 rad/s
+- Velocidade maior = cobertura mais rápida, dificulta acerto de inimigos
+- Velocidade menor = cobertura mais lenta, facilita timing
+
+**Exemplo (Gear - base 3.0):**
+```
+Level 1: 3.0 × (1.0 + 0.00) = 3.0 rad/s (base - 1 rotação ~2s)
+Level 2: 3.0 × (1.0 + 0.10) = 3.3 rad/s (10% mais rápido)
+Level 3: 3.0 × (1.0 + 0.20) = 3.6 rad/s (20% mais rápido)
+Level 4: 3.0 × (1.0 + 0.35) = 4.05 rad/s (35% mais rápido)
+Level 5: 3.0 × (1.0 + 0.50) = 4.5 rad/s (50% mais rápido - 1 rotação ~1.4s)
+```
+
+**Sinergia com orbit_radius:**
+- Raio grande + velocidade alta = "helicóptero de ataque"
+- Raio pequeno + velocidade baixa = "escudo denso e controlado"
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🔧 IMPLEMENTAÇÃO TÉCNICA
+
+### ARQUIVO 1: data/attack_upgrade_data/attack_upgrade_data.gd
+
+**A. Novos arrays de upgrade:**
+```gdscript
+# NOVOS v1.3.9:
+@export var projectile_stagger_delay_per_level: Array[float] = []
+@export var orbit_radius_per_level: Array[float] = []
+@export var orbit_speed_bonus_per_level: Array[float] = []
+```
+
+**B. Novos getters:**
+```gdscript
+# NOVOS v1.3.9:
+func get_projectile_stagger_delay_bonus() -> float:
+    return _sum_float(projectile_stagger_delay_per_level)
+
+func get_orbit_radius_bonus() -> float:
+    return _sum_float(orbit_radius_per_level)
+
+func get_orbit_speed_bonus() -> float:
+    return _sum_float(orbit_speed_bonus_per_level)
+```
+
+---
+
+### ARQUIVO 2: scripts/attack_controller.gd
+
+**A. Novos campos em attack_base_values:**
+```gdscript
+# NOVOS v1.3.9:
+"projectile_stagger_delay": dup_attack.projectile_stagger_delay,
+"orbit_radius": dup_attack.orbit_radius,
+"orbit_speed": dup_attack.orbit_speed
+```
+
+**B. Duplicação de arrays:**
+```gdscript
+# NOVOS v1.3.9:
+dup.projectile_stagger_delay_per_level = _dup_float_arr(dup.projectile_stagger_delay_per_level)
+dup.orbit_radius_per_level = _dup_float_arr(dup.orbit_radius_per_level)
+dup.orbit_speed_bonus_per_level = _dup_float_arr(dup.orbit_speed_bonus_per_level)
+```
+
+**C. Reset de valores base (level = 0):**
+```gdscript
+# NOVOS v1.3.9:
+attack_copy.projectile_stagger_delay = base.projectile_stagger_delay
+attack_copy.orbit_radius = base.orbit_radius
+attack_copy.orbit_speed = base.orbit_speed
+```
+
+**D. Aplicação de bonuses (level > 0):**
+```gdscript
+# NOVOS v1.3.9:
+attack_copy.projectile_stagger_delay = base.projectile_stagger_delay + upgrade.get_projectile_stagger_delay_bonus()  # ADITIVO
+attack_copy.orbit_radius = base.orbit_radius + upgrade.get_orbit_radius_bonus()  # ADITIVO
+attack_copy.orbit_speed = base.orbit_speed * (1.0 + upgrade.get_orbit_speed_bonus())  # MULTIPLICATIVO
+```
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📋 GUIA DE TESTE SIMPLIFICADO
+
+### 🎯 TESTE 1: PROJECTILE_STAGGER_DELAY (Ring)
+
+**Pré-requisito:**
+- Power_02_Ring já implementado no jogo
+- Ring usa `projectile_stagger_delay = 0.22` por padrão
+
+**Configuração:**
+1. Abrir `data/attack_upgrade_data/attack_02_ring_upgrades.tres` (ou criar se não existir)
+2. Configurar arrays:
+```
+projectile_stagger_delay_per_level = [0.0, -0.02, -0.02, -0.03, -0.05]
+```
+
+**Como testar:**
+1. Rodar o jogo
+2. Usar [T] para fazer upgrade de Ring (conforme test_attack_upgrades.gd)
+3. Observar intervalo entre disparos dos projéteis do Ring
+
+**Resultado esperado:**
+- Level 1: Disparos com 0.22s de intervalo (base)
+- Level 2: Disparos com 0.20s de intervalo (mais rápido)
+- Level 3: Disparos com 0.18s de intervalo
+- Level 4: Disparos com 0.15s de intervalo (rajada rápida)
+- Level 5: Disparos com 0.10s de intervalo (quase simultâneo)
+
+**O que observar:**
+- Som dos disparos mais próximos entre si
+- Projéteis aparecem em sequência mais rápida
+
+---
+
+### 🎯 TESTE 2: ORBIT_RADIUS (Gear)
+
+**Pré-requisito:**
+- Power_05_Gear já implementado no jogo
+- Gear usa `orbit_radius = 50.0` por padrão
+
+**Configuração:**
+1. Abrir `data/attack_upgrade_data/attack_05_gear_upgrades.tres` (ou criar se não existir)
+2. Configurar arrays:
+```
+orbit_radius_per_level = [0.0, 10.0, 15.0, 20.0, 30.0]
+```
+
+**Como testar:**
+1. Rodar o jogo
+2. Usar [I] para fazer upgrade de Gear
+3. Observar distância do Gear ao player
+
+**Resultado esperado:**
+- Level 1: Gear orbita próximo ao player (50px)
+- Level 2: Gear orbita um pouco mais longe (60px)
+- Level 3: Gear orbita mais longe (75px)
+- Level 4: Gear orbita bem longe (95px)
+- Level 5: Gear orbita muito longe (125px - 2.5x distância inicial)
+
+**O que observar:**
+- Círculo de órbita aumenta visivelmente
+- Proteção mais ampla, mas menos densa
+
+---
+
+### 🎯 TESTE 3: ORBIT_SPEED (Gear)
+
+**Configuração:**
+1. Continuar usando `attack_05_gear_upgrades.tres`
+2. Adicionar arrays:
+```
+orbit_speed_bonus_per_level = [0.0, 0.10, 0.10, 0.15, 0.15]
+```
+
+**Como testar:**
+1. Observar velocidade de rotação do Gear
+2. Comparar entre levels
+
+**Resultado esperado:**
+- Level 1: Rotação em velocidade base (1 volta ~2s)
+- Level 2: Rotação 10% mais rápida
+- Level 3: Rotação 20% mais rápida
+- Level 4: Rotação 35% mais rápida
+- Level 5: Rotação 50% mais rápida (1 volta ~1.4s)
+
+**O que observar:**
+- Gear gira mais rápido ao redor do player
+- Cobertura defensiva mais dinâmica
+
+---
+
+### 🎯 TESTE 4: COMBINAÇÃO GEAR (Radius + Speed)
+
+**Configuração completa:**
+```
+orbit_radius_per_level = [0.0, 10.0, 15.0, 20.0, 30.0]
+orbit_speed_bonus_per_level = [0.0, 0.10, 0.10, 0.15, 0.15]
+```
+
+**Observar progressão:**
+- Level 1 → 2: Gear afasta + acelera
+- Level 2 → 3: Gear afasta mais + acelera mais
+- Level 3 → 4: Gear afasta muito + acelera muito
+- Level 4 → 5: Gear afasta MUITO + acelera MUITO (helicóptero de ataque)
+
+**Trade-offs:**
+- Raio grande = proteção ampla, mas deixa espaços
+- Velocidade alta = cobertura rápida, mas dificulta timing
+
+═══════════════════════════════════════════════════════════════════════
+
+## ✅ SISTEMA COMPLETO DE ATTACK UPGRADES
+
+Com v1.3.9, o sistema está **COMPLETO** com **11 variáveis**:
+
+**Aplicáveis a todos os ataques (8):**
+1. ✅ projectile_count - Número de projéteis
+2. ✅ damage - Dano base
+3. ✅ speed - Velocidade de movimento
+4. ✅ max_hits - Máximo de alvos
+5. ✅ cooldown_reduction - Redução de intervalo
+6. ✅ projectile_angle_spread - Dispersão do leque (v1.3.8)
+7. ✅ life_time - Duração de vida (v1.3.8)
+8. ✅ attack_scale - Escala visual/colisão (v1.3.8)
+
+**Específicas por tipo de ataque (3):**
+9. ✅ projectile_stagger_delay - Ritmo de disparos (Ring) (v1.3.9)
+10. ✅ orbit_radius - Alcance orbital (Gear) (v1.3.9)
+11. ✅ orbit_speed - Velocidade orbital (Gear) (v1.3.9)
+
+**Próximos passos:**
+- Configurar upgrades completos para Fire (attack_01)
+- Configurar upgrades para Ring (attack_02)
+- Configurar upgrades para Gear (attack_05)
+- Configurar upgrades para Electricity (attack_03)
+- Configurar upgrades para Bo (attack_04)
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📦 ARQUIVOS MODIFICADOS v1.3.9
+
+1. **data/attack_upgrade_data/attack_upgrade_data.gd**
+   - ✅ Adicionados 3 arrays de upgrade
+   - ✅ Adicionados 3 getters
+
+2. **scripts/attack_controller.gd**
+   - ✅ Adicionados 3 campos em attack_base_values
+   - ✅ Adicionadas 3 duplicações de arrays
+   - ✅ Adicionados 3 campos no reset (level = 0)
+   - ✅ Adicionadas 3 aplicações de bonuses (level > 0)
+
+3. **NOVOS ARQUIVOS CRIADOS:**
+   - ✅ **data/attack_upgrade_data/attack_05_gear_upgrades.tres** - Upgrades para Gear
+   - ✅ **data/attack_upgrade_data/attack_02_ring_upgrades.tres** - Upgrades para Ring
+   - ✅ **GUIA-CONFIGURAR-UPGRADES.txt** - Passo a passo para configurar no Godot
+
+═══════════════════════════════════════════════════════════════════════
+
+## ⚠️ AÇÃO MANUAL NECESSÁRIA NO GODOT EDITOR
+
+Para testar os upgrades de Gear e Ring, você precisa adicionar os novos arquivos .tres ao AttackController:
+
+**VER ARQUIVO: GUIA-CONFIGURAR-UPGRADES.txt**
+
+**Resumo rápido:**
+1. Abrir `entities/players/major_heat.tscn` no Godot
+2. Selecionar node "AttackController"
+3. No Inspector, propriedade "Attack Upgrades"
+4. Mudar size de 1 para 3
+5. Adicionar nos novos slots:
+   - [1]: attack_02_ring_upgrades.tres
+   - [2]: attack_05_gear_upgrades.tres
+6. Salvar (Ctrl+S)
+
+Após isso, os upgrades de Gear ([I]) e Ring ([T]) funcionarão!
+
+═══════════════════════════════════════════════════════════════════════

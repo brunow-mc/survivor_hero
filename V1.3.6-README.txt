@@ -1,0 +1,279 @@
+===============================================
+SURVIVOR HERO - v1.3.6
+FASE 2: MÉTODO ACUMULATIVO IMPLEMENTADO
+===============================================
+
+MUDANÇA FUNDAMENTAL NESTA VERSÃO:
+----------------------------------
+
+PowerUpData agora usa MÉTODO ACUMULATIVO (igual ao AttackController).
+Valores em arrays são SOMADOS ao longo dos levels, não SUBSTITUÍDOS.
+
+ANTES (v1.3.5 - MÉTODO DE SUBSTITUIÇÃO):
+  max_health_flat_per_level = [20, 40, 60, 80, 100]
+  Level 1: HP = 20
+  Level 2: HP = 40
+  Level 3: HP = 60
+  Level 4: HP = 80
+  Level 5: HP = 100
+
+DEPOIS (v1.3.6 - MÉTODO ACUMULATIVO):
+  max_health_flat_per_level = [20, 20, 20, 20, 20]
+  Level 1: HP = 20
+  Level 2: HP = 20+20 = 40
+  Level 3: HP = 20+20+20 = 60
+  Level 4: HP = 20+20+20+20 = 80
+  Level 5: HP = 20+20+20+20+20 = 100
+
+
+ARQUIVO MODIFICADO:
+-------------------
+
+1. data/power_up_data/power_up_data.gd
+   
+   Função _get_value() agora SOMA valores:
+   
+   ANTES:
+     func _get_value(arr: Array[float]) -> float:
+         if current_level <= 0:
+             return 0.0
+         var index = current_level - 1
+         if index < arr.size():
+             return arr[index]  # ← SUBSTITUIÇÃO
+         return 0.0
+   
+   DEPOIS:
+     func _get_value(arr: Array[float]) -> float:
+         if current_level <= 0:
+             return 0.0
+         var total = 0.0
+         var max_index = min(current_level, arr.size())
+         for i in range(max_index):
+             total += arr[i]  # ← ACUMULATIVO (SOMA)
+         return total
+
+
+CONVERSÕES DOS 8 POWERUPS:
+===========================
+
+1. VITALITY
+-----------
+ANTES (substituição): [20.0, 40.0, 60.0, 80.0, 100.0]
+DEPOIS (acumulativo): [20.0, 20.0, 20.0, 20.0, 20.0]
+
+Progressão: +20 HP por level
+Level 1: 20 HP
+Level 2: 40 HP
+Level 3: 60 HP
+Level 4: 80 HP
+Level 5: 100 HP
+
+
+2. SWIFT FEET
+-------------
+ANTES (substituição): [5.0, 10.0, 15.0, 20.0, 30.0]
+DEPOIS (acumulativo): [5.0, 5.0, 5.0, 5.0, 10.0]
+
+Progressão: +5 speed nos primeiros 4 levels, +10 no último
+Level 1: 5 speed
+Level 2: 10 speed
+Level 3: 15 speed
+Level 4: 20 speed
+Level 5: 30 speed
+
+
+3. RAW POWER
+------------
+ANTES (substituição): [0.1, 0.2, 0.3, 0.45, 0.6]
+DEPOIS (acumulativo): [0.1, 0.1, 0.1, 0.15, 0.15]
+
+Progressão: +10% damage nos primeiros 3 levels, +15% nos últimos 2
+Level 1: +10% damage (×1.10)
+Level 2: +20% damage (×1.20)
+Level 3: +30% damage (×1.30)
+Level 4: +45% damage (×1.45)
+Level 5: +60% damage (×1.60)
+
+
+4. IRON SKIN
+------------
+ANTES (substituição): [15.0, 25.0, 45.0, 75.0, 99.0]
+DEPOIS (acumulativo): [15.0, 10.0, 20.0, 30.0, 24.0]
+
+Progressão: escalação gradual até o cap de 99%
+Level 1: 15 armor (15% redução)
+Level 2: 25 armor (25% redução)
+Level 3: 45 armor (45% redução)
+Level 4: 75 armor (75% redução)
+Level 5: 99 armor (99% redução - cap via ARMOR_CAP_PERCENT)
+
+
+5. WARRIOR'S MIGHT
+------------------
+MAX HEALTH:
+  ANTES (substituição): [15.0, 30.0, 50.0, 100.0, 200.0]
+  DEPOIS (acumulativo): [15.0, 15.0, 20.0, 50.0, 100.0]
+  
+  Progressão: +15 HP nos primeiros 2 levels, depois escalada
+  Level 1: 15 HP
+  Level 2: 30 HP
+  Level 3: 50 HP
+  Level 4: 100 HP
+  Level 5: 200 HP
+
+DAMAGE:
+  ANTES (substituição): [0.05, 0.1, 0.2, 0.3, 0.5]
+  DEPOIS (acumulativo): [0.05, 0.05, 0.1, 0.1, 0.2]
+  
+  Progressão: +5% nos primeiros 2, depois maior incremento
+  Level 1: +5% damage
+  Level 2: +10% damage
+  Level 3: +20% damage
+  Level 4: +30% damage
+  Level 5: +50% damage
+
+max_level = 5 adicionado explicitamente
+
+
+6. MAGNETIC FIELD
+-----------------
+ANTES (substituição): [15.0, 25.0, 50.0, 75.0, 100.0]
+DEPOIS (acumulativo): [15.0, 10.0, 25.0, 25.0, 25.0]
+
+Progressão: começa pequeno, escala depois
+Level 1: 15 magnet range
+Level 2: 25 magnet range
+Level 3: 50 magnet range
+Level 4: 75 magnet range
+Level 5: 100 magnet range
+
+
+7. RAPID FIRE
+-------------
+ANTES (substituição): [0.15, 0.3, 0.5, 0.75, 1.0]
+DEPOIS (acumulativo): [0.15, 0.15, 0.2, 0.25, 0.25]
+
+Progressão: +15% nos primeiros 2, depois maior incremento
+Level 1: +15% attack speed (×1.15)
+Level 2: +30% attack speed (×1.30)
+Level 3: +50% attack speed (×1.50)
+Level 4: +75% attack speed (×1.75)
+Level 5: +100% attack speed (×2.00)
+
+
+8. LETHAL IMPACT
+----------------
+DAMAGE:
+  ANTES (substituição): [0.08, 0.16, 0.24, 0.32, 0.45]
+  DEPOIS (acumulativo): [0.08, 0.08, 0.08, 0.08, 0.13]
+  
+  Progressão: +8% constante, spike no último
+  Level 1: +8% damage
+  Level 2: +16% damage
+  Level 3: +24% damage
+  Level 4: +32% damage
+  Level 5: +45% damage
+
+PROJECTILE SPEED:
+  ANTES (substituição): [0.1, 0.2, 0.3, 0.4, 0.5]
+  DEPOIS (acumulativo): [0.1, 0.1, 0.1, 0.1, 0.1]
+  
+  Progressão: +10% constante
+  Level 1: +10% proj speed
+  Level 2: +20% proj speed
+  Level 3: +30% proj speed
+  Level 4: +40% proj speed
+  Level 5: +50% proj speed
+
+KNOCKBACK:
+  ANTES (substituição): [0.12, 0.24, 0.36, 0.48, 0.6]
+  DEPOIS (acumulativo): [0.12, 0.12, 0.12, 0.12, 0.12]
+  
+  Progressão: +12% constante
+  Level 1: +12% knockback
+  Level 2: +24% knockback
+  Level 3: +36% knockback
+  Level 4: +48% knockback
+  Level 5: +60% knockback
+
+
+BENEFÍCIOS DO MÉTODO ACUMULATIVO:
+----------------------------------
+
+1. CONSISTÊNCIA COM ATTACKCONTROLLER:
+   • Ambos sistemas usam o mesmo padrão
+   • Fácil entender e manter código
+
+2. CONFIGURAÇÃO INTUITIVA:
+   • Arrays representam INCREMENTOS, não valores finais
+   • "Quanto adiciono em cada level?" ao invés de "Qual o valor total?"
+   
+3. FLEXIBILIDADE:
+   • Fácil criar progressões variadas
+   • Exemplo: [20, 20, 20, 50, 100] = começa linear, depois escala
+   
+4. BALANCEAMENTO:
+   • Mais fácil balancear early vs late game
+   • Incrementos visíveis por level
+
+
+VALIDAÇÃO APÓS CONVERSÃO:
+--------------------------
+
+Teste cada powerup durante o jogo:
+
+1. VITALITY [1]: HP +20, +40, +60, +80, +100
+2. SWIFT FEET [2]: Speed +5, +10, +15, +20, +30
+3. RAW POWER [3]: Dmg ×1.10, ×1.20, ×1.30, ×1.45, ×1.60
+4. IRON SKIN [4]: Armor 15, 25, 45, 75, 99 (15%, 25%, 45%, 75%, 99%)
+5. WARRIOR'S MIGHT [5]: HP +15/+30/+50/+100/+200, Dmg +5%/+10%/+20%/+30%/+50%
+6. MAGNETIC FIELD [6]: Magnet +15, +25, +50, +75, +100
+7. RAPID FIRE [7]: AtkSpd ×1.15, ×1.30, ×1.50, ×1.75, ×2.00
+8. LETHAL IMPACT [8]: Dmg+Speed+Knockback escalando
+
+Progressões devem ser IDÊNTICAS à v1.3.5 apesar da mudança interna.
+
+
+ARQUIVOS MODIFICADOS v1.3.6:
+-----------------------------
+
+CÓDIGO:
+• data/power_up_data/power_up_data.gd (_get_value com soma)
+
+DADOS (8 arquivos .tres convertidos):
+• data/power_up_data/power_up_vitality.tres
+• data/power_up_data/power_up_swift_feet.tres
+• data/power_up_data/power_up_raw_power.tres
+• data/power_up_data/power_up_iron_skin.tres (+ max_level = 5)
+• data/power_up_data/power_up_warrior.tres (+ max_level = 5)
+• data/power_up_data/power_up_magnet.tres
+• data/power_up_data/power_up_attack_speed.tres
+• data/power_up_data/power_up_lethal_impact.tres
+
+
+NOTA IMPORTANTE:
+----------------
+
+Os valores finais de cada powerup em cada level são IDÊNTICOS à v1.3.5.
+A mudança é apenas INTERNA (método de cálculo).
+
+Exemplo com Vitality:
+  v1.3.5: array [20, 40, 60, 80, 100] → level 3 = 60 HP
+  v1.3.6: array [20, 20, 20, 20, 20] → level 3 = 20+20+20 = 60 HP
+  
+  RESULTADO FINAL: IGUAL!
+
+
+PRÓXIMOS PASSOS:
+----------------
+
+Com método acumulativo implementado:
+• Fácil criar novos powerups
+• Fácil balancear progressões
+• Padrão unificado em todo o sistema de upgrades
+
+
+===============================================
+Data: 29/03/2026
+Fase 2 Completa ✅
+===============================================

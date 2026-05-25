@@ -1,0 +1,341 @@
+═══════════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.3.8
+═══════════════════════════════════════════════════════════════════════
+
+## 🎯 OBJETIVO: EXPANSÃO DO SISTEMA DE ATTACK UPGRADES
+
+Implementação das 3 variáveis essenciais para upgrades de ataques:
+1. ✅ `projectile_angle_spread` - Controle de dispersão de projéteis
+2. ✅ `life_time` - Duração de vida dos projéteis
+3. ✅ `attack_scale` - Escala visual e de colisão
+
+## 🗑️ LIMPEZA: REMOÇÃO DO POLYGON2D (power_01_fire)
+
+### PROBLEMA ANTERIOR
+O nó Polygon2D em power_01_fire causava erros ao ser removido:
+- Erro em @implicit_ready: "Node not found: Polygon2D"
+- Erro em start_fade_out: "Parameter p_target is null"
+
+### SOLUÇÃO IMPLEMENTADA
+
+**ARQUIVO: scripts/power_01_fire.gd**
+
+**A. Removida declaração:**
+```gdscript
+// ANTES:
+@onready var polygon_2d: Polygon2D = $Polygon2D
+
+// DEPOIS:
+// (removido completamente)
+```
+
+**B. Simplificado fade_out:**
+```gdscript
+// ANTES:
+tween.parallel().tween_property(anim, "modulate:a", 0.0, fade_out_time)
+tween.parallel().tween_property(polygon_2d, "modulate:a", 0.0, fade_out_time)
+tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+// DEPOIS:
+tween.tween_property(anim, "modulate:a", 0.0, fade_out_time)
+    .set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+```
+
+**C. Removido nó do .tscn:**
+```
+ARQUIVO: entities/powers/power_01_fire.tscn
+Linhas 78-82 removidas (nó Polygon2D completo)
+```
+
+**RESULTADO:**
+✅ Power_01_fire funciona sem erros
+✅ Animação do sprite já supre a função visual do Polygon2D
+✅ Código mais limpo e performático
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🚀 NOVAS VARIÁVEIS DE UPGRADE
+
+### 1. PROJECTILE_ANGLE_SPREAD (Dispersão de Projéteis)
+
+**Tipo:** float  
+**Método:** ADITIVO (`base + bonus`)  
+**Permite valores negativos:** ✅ SIM
+
+**Por que é importante:**
+- Com 1 projétil: ângulo não afeta (irrelevante)
+- Com 2+ projéteis: controle fino da dispersão do leque
+- Valores negativos fecham o leque, positivos abrem
+
+**Exemplo (Fire - base 15.0°):**
+```
+Level 1: 1 proj  → 15 + 0.0 = 15° (irrelevante)
+Level 2: 2 proj  → 15 + 5.0 = 20° (leque mais aberto)
+Level 3: 3 proj  → 15 + 5.0 - 5.0 = 15° (volta ao normal)
+Level 4: 4 proj  → 15 + 5.0 - 5.0 + 0.0 = 15°
+Level 5: 5 proj  → 15 + 5.0 - 5.0 + 0.0 - 3.0 = 12° (mais fechado)
+```
+
+---
+
+### 2. LIFE_TIME (Tempo de Vida)
+
+**Tipo:** float  
+**Método:** ADITIVO (`base + bonus`)  
+**Permite valores negativos:** ⚠️ Tecnicamente sim, mas não recomendado
+
+**Por que é importante:**
+- Aumenta alcance efetivo de projéteis que viajam
+- Crítico para Fire, Ring
+- Menos útil para Electricity, Gear (attach_to_player)
+
+**Exemplo (Fire - base 1.7s):**
+```
+Level 1: 1.7 + 0.0 = 1.7s (base)
+Level 2: 1.7 + 0.3 = 2.0s
+Level 3: 1.7 + 0.3 + 0.3 = 2.3s
+Level 4: 1.7 + 0.3 + 0.3 + 0.4 = 2.7s
+Level 5: 1.7 + 0.3 + 0.3 + 0.4 + 0.5 = 3.2s
+```
+
+---
+
+### 3. ATTACK_SCALE (Escala Visual/Colisão)
+
+**Tipo:** float  
+**Método:** MULTIPLICATIVO (`base * (1.0 + bonus)`)  
+**Permite valores negativos:** ⚠️ Sim, mas cuidado (valores < -1.0 invertem escala)
+
+**Por que é importante:**
+- Afeta visual E mecânica (área de colisão)
+- Todos os 5 poderes já suportam scale corretamente
+- Power_04_bo tem escala dinâmica (cresce/diminui com movimento)
+
+**Exemplo (Fire - base 1.0):**
+```
+Level 1: 1.0 × (1.0 + 0.0) = 1.0 (100% - base)
+Level 2: 1.0 × (1.0 + 0.05) = 1.05 (105%)
+Level 3: 1.0 × (1.0 + 0.10) = 1.10 (110%)
+Level 4: 1.0 × (1.0 + 0.20) = 1.20 (120%)
+Level 5: 1.0 × (1.0 + 0.35) = 1.35 (135%)
+```
+
+═══════════════════════════════════════════════════════════════════════
+
+## 🔧 IMPLEMENTAÇÃO TÉCNICA
+
+### ARQUIVO 1: data/attack_upgrade_data/attack_upgrade_data.gd
+
+**A. Novos arrays de upgrade:**
+```gdscript
+@export_group("Upgrades Per Level")
+@export var projectile_count_per_level: Array[int] = []
+@export var damage_bonus_per_level: Array[float] = []
+@export var speed_bonus_per_level: Array[float] = []
+@export var max_hits_per_level: Array[int] = []
+@export var cooldown_reduction_per_level: Array[float] = []
+# NOVOS v1.3.8:
+@export var projectile_angle_spread_per_level: Array[float] = []
+@export var life_time_bonus_per_level: Array[float] = []
+@export var attack_scale_bonus_per_level: Array[float] = []
+```
+
+**B. Novos getters:**
+```gdscript
+# NOVOS v1.3.8:
+func get_projectile_angle_spread_bonus() -> float:
+    return _sum_float(projectile_angle_spread_per_level)
+
+func get_life_time_bonus() -> float:
+    return _sum_float(life_time_bonus_per_level)
+
+func get_attack_scale_bonus() -> float:
+    return _sum_float(attack_scale_bonus_per_level)
+```
+
+---
+
+### ARQUIVO 2: scripts/attack_controller.gd
+
+**A. Novos campos em attack_base_values (linha ~48):**
+```gdscript
+attack_base_values[dup_attack.attack_id] = {
+    "projectile_count": dup_attack.projectile_count,
+    "interval": dup_attack.interval,
+    "damage": dup_attack.hit_data.damage,
+    "speed": dup_attack.speed,
+    "max_hits": dup_attack.max_hits,
+    # NOVOS v1.3.8:
+    "projectile_angle_spread": dup_attack.projectile_angle_spread,
+    "life_time": dup_attack.life_time,
+    "attack_scale": dup_attack.attack_scale
+}
+```
+
+**B. Duplicação de arrays (linha ~82):**
+```gdscript
+# NOVOS v1.3.8:
+dup.projectile_angle_spread_per_level = _dup_float_arr(dup.projectile_angle_spread_per_level)
+dup.life_time_bonus_per_level = _dup_float_arr(dup.life_time_bonus_per_level)
+dup.attack_scale_bonus_per_level = _dup_float_arr(dup.attack_scale_bonus_per_level)
+```
+
+**C. Reset de valores base (level = 0, linha ~196):**
+```gdscript
+if not upgrade or upgrade.current_level == 0:
+    attack_copy.projectile_count = base.projectile_count
+    attack_copy.interval = base.interval
+    attack_copy.hit_data.damage = base.damage
+    attack_copy.speed = base.speed
+    attack_copy.max_hits = base.max_hits
+    # NOVOS v1.3.8:
+    attack_copy.projectile_angle_spread = base.projectile_angle_spread
+    attack_copy.life_time = base.life_time
+    attack_copy.attack_scale = base.attack_scale
+    return
+```
+
+**D. Aplicação de bonuses (level > 0, linha ~204):**
+```gdscript
+attack_copy.projectile_count = base.projectile_count + upgrade.get_projectile_count_bonus()
+attack_copy.interval = base.interval * (1.0 - upgrade.get_cooldown_reduction())
+attack_copy.hit_data.damage = base.damage * (1.0 + upgrade.get_damage_bonus())
+attack_copy.speed = base.speed * (1.0 + upgrade.get_speed_bonus())
+attack_copy.max_hits = base.max_hits + upgrade.get_max_hits_bonus()
+# NOVOS v1.3.8:
+attack_copy.projectile_angle_spread = base.projectile_angle_spread + upgrade.get_projectile_angle_spread_bonus()  # ADITIVO
+attack_copy.life_time = base.life_time + upgrade.get_life_time_bonus()  # ADITIVO
+attack_copy.attack_scale = base.attack_scale * (1.0 + upgrade.get_attack_scale_bonus())  # MULTIPLICATIVO
+```
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📋 GUIA DE TESTE DETALHADO
+
+### PREPARAÇÃO
+1. Abrir `data/attack_upgrade_data/attack_01_fire_upgrades.tres`
+2. Configurar os 3 novos arrays conforme exemplos abaixo
+3. Rodar o jogo
+4. Usar tecla [E] para fazer upgrade de Fire
+
+---
+
+### TESTE 1: PROJECTILE_ANGLE_SPREAD
+
+**Configuração no .tres:**
+```
+projectile_angle_spread_per_level = [0.0, 5.0, -5.0, 0.0, -3.0]
+```
+
+**Como testar:**
+1. Apertar [E] até ter 2+ projéteis
+2. Observar abertura do leque de projéteis
+3. Comparar ângulos em cada level
+
+**Resultado esperado:**
+- Level 1 (1 proj): Não há leque (ângulo irrelevante)
+- Level 2 (2 proj): Leque MAIS ABERTO (spread = 20°)
+- Level 3 (3 proj): Leque NORMAL (spread = 15°)
+- Level 4 (4 proj): Leque NORMAL (spread = 15°)
+- Level 5 (5 proj): Leque MAIS FECHADO (spread = 12°)
+
+---
+
+### TESTE 2: LIFE_TIME
+
+**Configuração no .tres:**
+```
+life_time_bonus_per_level = [0.0, 0.3, 0.3, 0.4, 0.5]
+```
+
+**Como testar:**
+1. Observar quanto tempo cada fireball vive antes de desaparecer
+2. Medir distância percorrida (tempo × velocidade)
+3. Comparar entre levels
+
+**Resultado esperado:**
+- Level 1: Projétil dura ~1.7s
+- Level 2: Projétil dura ~2.0s (alcance maior)
+- Level 3: Projétil dura ~2.3s
+- Level 4: Projétil dura ~2.7s
+- Level 5: Projétil dura ~3.2s (quase 2x o alcance inicial)
+
+---
+
+### TESTE 3: ATTACK_SCALE
+
+**Configuração no .tres:**
+```
+attack_scale_bonus_per_level = [0.0, 0.05, 0.05, 0.10, 0.15]
+```
+
+**Como testar:**
+1. Observar tamanho visual do fireball
+2. Testar área de colisão (acerta inimigos mais longe?)
+3. Comparar entre levels
+
+**Resultado esperado:**
+- Level 1: Tamanho normal (100%)
+- Level 2: Levemente maior (105%)
+- Level 3: Visivelmente maior (110%)
+- Level 4: Bem maior (120%)
+- Level 5: Muito maior (135%)
+
+---
+
+### TESTE 4: COMBINAÇÃO (Tudo junto)
+
+**Configuração completa no .tres:**
+```
+projectile_count_per_level = [0, 1, 1, 1, 1]
+damage_bonus_per_level = [0.0, 0.05, 0.1, 0.2, 0.3]
+speed_bonus_per_level = [0.0, 0.0, 0.0, 0.0, 0.0]
+max_hits_per_level = [0, 0, 0, 0, 0]
+cooldown_reduction_per_level = [0.0, 0.05, 0.1, 0.2, 0.3]
+projectile_angle_spread_per_level = [0.0, 5.0, -5.0, 0.0, -3.0]
+life_time_bonus_per_level = [0.0, 0.3, 0.3, 0.4, 0.5]
+attack_scale_bonus_per_level = [0.0, 0.05, 0.05, 0.10, 0.15]
+```
+
+**Observar progressão completa:**
+- Level 1 → 2: +1 proj, leque abre, projétil dura mais, fica maior
+- Level 2 → 3: +1 proj, leque fecha, projétil dura mais, fica maior
+- Level 3 → 4: +1 proj, leque mantém, projétil dura mais, fica BEM maior
+- Level 4 → 5: +1 proj, leque fecha, projétil dura MUITO mais, fica MUITO maior
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📝 LEMBRETE PARA v1.3.9
+
+**PRÓXIMAS 3 VARIÁVEIS A IMPLEMENTAR:**
+1. `projectile_stagger_delay` - ADITIVO (permite negativos)
+2. `orbit_radius` - ADITIVO
+3. `orbit_speed` - MULTIPLICATIVO
+
+Essas variáveis completarão o sistema de upgrades, permitindo:
+- Controle de ritmo de disparos sequenciais (Ring)
+- Ajuste de alcance orbital (Gear)
+- Controle de velocidade orbital (Gear)
+
+═══════════════════════════════════════════════════════════════════════
+
+## 📦 ARQUIVOS MODIFICADOS v1.3.8
+
+1. **scripts/power_01_fire.gd**
+   - ✅ Removida declaração de polygon_2d
+   - ✅ Simplificado fade_out (sem polygon)
+
+2. **entities/powers/power_01_fire.tscn**
+   - ✅ Removido nó Polygon2D
+
+3. **data/attack_upgrade_data/attack_upgrade_data.gd**
+   - ✅ Adicionados 3 arrays de upgrade
+   - ✅ Adicionados 3 getters
+
+4. **scripts/attack_controller.gd**
+   - ✅ Adicionados 3 campos em attack_base_values
+   - ✅ Adicionadas 3 duplicações de arrays
+   - ✅ Adicionados 3 campos no reset (level = 0)
+   - ✅ Adicionadas 3 aplicações de bonuses (level > 0)
+
+═══════════════════════════════════════════════════════════════════════

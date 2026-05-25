@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://dqncptp6yegrl"]
+
+[ext_resource type="AudioStream" uid="uid://dwc1ndmd1mcof" path="res://audio/effects/powers/power_05_gear.mp3" id="1_aoiqg"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="1_o77a3"]
+[ext_resource type="Resource" uid="uid://nch1jxntycb" path="res://data/hit_data/hit_05_gear.tres" id="1_sadpl"]
+[ext_resource type="PackedScene" uid="uid://dncopudppo8iv" path="res://entities/powers/power_05_gear.tscn" id="2_aoiqg"]
+[ext_resource type="Texture2D" uid="uid://dpn4t27oruc4c" path="res://sprites/icons/attack_icons/power_05_gear_icon.png" id="3_2hfgw"]
+
+[resource]
+script = ExtResource("1_o77a3")
+attack_id = 5
+attack_name = "Orbital Gear"
+description = "Spinning gear that orbits the player"
+icon = ExtResource("3_2hfgw")
+packed_scene = ExtResource("2_aoiqg")
+hit_data = ExtResource("1_sadpl")
+interval = 10.0
+attack_delay = 0.4
+start_immediately = true
+projectile_count = 2
+max_hits = 6
+attach_to_player = true
+orbit_radius = 40.0
+attack_sound = ExtResource("1_aoiqg")
+attack_sound_volume_db = 0.8000000000000007
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="AttackUpgradeData" format=3 uid="uid://dpke014m70efa"]
+
+[ext_resource type="Script" uid="uid://c0rqddrmydg2d" path="res://data/attack_upgrade_data/attack_upgrade_data.gd" id="1_e5ux0"]
+
+[resource]
+script = ExtResource("1_e5ux0")
+attack_id = 6
+attack_name = "Snow Flake"
+description = "Icy projectiles fall from the sky, freezing enemies in place"
+max_level = 10
+display_name_per_level = Array[String](["Snow Flake Lv1", "Snow Flake Lv2", "Snow Flake Lv3", "Snow Flake Lv4", "Snow Flake Lv5", "Snow Flake Lv6", "Snow Flake Lv7", "Snow Flake Lv8", "Snow Flake Lv9", "Snow Flake Lv10"])
+description_per_level = Array[String](["+1 Projectile\\n+2% Scale", "test\\ntest%", "test%\\ntest", "test\\ntest%", "test%\\ntest", "test\\ntest%", "test%\\ntest", "test\\ntest%", "test%\\ntest", "test\\ntest%"])
+projectile_count_per_level = Array[int]([0, 0, 1, 0, 0, 1, 0, 1, 0, 1])
+damage_bonus_per_level = Array[float]([0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1, 0.0, 0.1, 0.1])
+speed_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+max_hits_per_level = Array[int]([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+cooldown_reduction_per_level = Array[float]([0.0, 0.01, 0.0, 0.01, 0.01, 0.0, 0.01, 0.0, 0.01, 0.01])
+projectile_angle_spread_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+life_time_bonus_per_level = Array[float]([0.0, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15])
+attack_scale_bonus_per_level = Array[float]([0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.05, 0.0, 0.05, 0.05])
+projectile_stagger_delay_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, -0.012, 0.0, -0.012, 0.0, -0.012])
+orbit_radius_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+orbit_speed_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])

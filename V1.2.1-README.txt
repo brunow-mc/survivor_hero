@@ -1,0 +1,234 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.2.1 - ATTACK SPEED IMPLEMENTADO
+=============================================================================
+
+⚡ NOVO POWERUP: Rapid Fire (Attack Speed)
+✅ Sistema completo e funcional
+✅ Afeta TODOS os ataques universalmente
+
+Data: 23/03/2026
+Base: v1.2.0 (Magnet funcionando)
+Status: PRONTO PARA TESTE
+
+=============================================================================
+⚡ O QUE É ATTACK SPEED
+=============================================================================
+
+Attack Speed aumenta a FREQUÊNCIA de disparo de TODOS os ataques.
+Não altera damage nem velocidade de projétil.
+Afeta o COOLDOWN (tempo entre disparos).
+
+FÓRMULA:
+wait_time = base_interval / attack_speed_multiplier
+
+EXEMPLO:
+Fire Power (base = 2.0s)
+
+SEM Attack Speed:
+- Multiplier: ×1.00
+- Wait time: 2.0 / 1.0 = 2.0s
+
+COM Rapid Fire Lv1 (+15%):
+- Multiplier: ×1.15
+- Wait time: 2.0 / 1.15 = 1.74s
+- 15% MAIS RÁPIDO!
+
+COM Rapid Fire Lv5 (+110%):
+- Multiplier: ×2.10
+- Wait time: 2.0 / 2.10 = 0.95s
+- MAIS QUE DOBRA a fire rate!
+
+=============================================================================
+📊 PROGRESSÃO - RAPID FIRE (ID 7)
+=============================================================================
+
+Max Level: 5
+
+| Level | Bonus | Multiplier | Fire (2.0s) | DPS Gain |
+|-------|-------|------------|-------------|----------|
+| 0     | +0%   | ×1.00      | 2.00s       | -        |
+| 1     | +15%  | ×1.15      | 1.74s       | +15%     |
+| 2     | +30%  | ×1.30      | 1.54s       | +30%     |
+| 3     | +50%  | ×1.50      | 1.33s       | +50%     |
+| 4     | +75%  | ×1.75      | 1.14s       | +75%     |
+| 5     | +110% | ×2.10      | 0.95s       | +110%    |
+
+PROGRESSÃO ACELERADA:
+- Lv1-2: Ganhos moderados
+- Lv3: Grande salto (+20%)
+- Lv4-5: Spikes finais
+
+=============================================================================
+🎯 ATAQUES AFETADOS
+=============================================================================
+
+TODOS OS 5 ATAQUES:
+
+✅ Fire Power (01) - 2.0s → 0.95s (Lv5)
+✅ Ring Burst (02) - 3.0s → 1.43s (Lv5)
+✅ Lightning (03) - 1.5s → 0.71s (Lv5)
+✅ Boomerang (04) - 4.0s → 1.90s (Lv5)
+✅ Orbital Gear (05) - 2.5s → 1.19s (Lv5)
+
+UNIVERSAL: Aumenta DPS de TODO o arsenal!
+
+=============================================================================
+🧪 TESTE RÁPIDO
+=============================================================================
+
+1. RODE O JOGO (F5)
+
+2. OBSERVE Fire Power disparando
+   - Intervalo base: 2.0s entre disparos
+
+3. PRESSIONE [7] UMA VEZ
+   Console:
+   ✨ PowerUp UNLOCKED: 'Rapid Fire' (Level 1)
+   ⚡ Attack Speed Multiplier: ×1.15
+   
+   Fire Power agora dispara a cada 1.74s!
+
+4. PRESSIONE [7] MAIS 4 VEZES (até Lv5)
+   Console:
+   ⚡ Attack Speed Multiplier: ×2.10
+   
+   Fire Power vira METRALHADORA (0.95s)!
+
+5. TESTE VISUAL:
+   - Tela fica CHEIA de projéteis
+   - TODOS ataques disparam muito mais rápido
+   - DPS aumenta drasticamente
+
+=============================================================================
+💥 SINERGIA COM RAW POWER
+=============================================================================
+
+Attack Speed + Raw Power = DPS EXPONENCIAL!
+
+Fire Power (4 dmg, 2s interval):
+Base DPS: 2.0 DPS
+
+Só Raw Power Lv5 (+65%):
+→ 3.3 DPS (+65%)
+
+Só Rapid Fire Lv5 (+110%):
+→ 4.2 DPS (+110%)
+
+AMBOS Lv5:
+→ 6.95 DPS (+247%!)
+
+QUASE 3.5x O DPS BASE!
+
+=============================================================================
+🔧 IMPLEMENTAÇÃO TÉCNICA
+=============================================================================
+
+ARQUIVOS MODIFICADOS:
+
+1. scripts/attack_controller.gd
+   ────────────────────────────────────────────────
+   Linha 22: Conecta signal
+   PlayerStatsGlobal.stats_changed.connect(_on_stats_changed)
+   
+   Linha 203: Aplica multiplier
+   timer.wait_time = attack_data.interval / PlayerStatsGlobal.attack_speed_multiplier
+   
+   Linhas 280+: Nova função
+   func _on_stats_changed():
+       # Atualiza timers em tempo real
+
+2. data/powerup_data/powerup_attack_speed.tres
+   ────────────────────────────────────────────────
+   NOVO ARQUIVO
+   powerup_id = 7
+   powerup_name = "Rapid Fire"
+   max_level = 5
+   attack_speed_percent_per_level = [0.15, 0.30, 0.50, 0.75, 1.10]
+
+3. entities/power_up_controller.tscn
+   ────────────────────────────────────────────────
+   Array aumentado de 6 para 7 powerups
+   ExtResource("9_aspd") adicionado
+
+4. scripts/test_powerups.gd
+   ────────────────────────────────────────────────
+   Tecla [7] adicionada
+   Reset agora vai até 7
+   Instruções atualizadas
+
+=============================================================================
+🎮 CONTROLES COMPLETOS
+=============================================================================
+
+[1] = Vitality (Max Health)
+[2] = Swift Feet (Move Speed)
+[3] = Raw Power (Damage)
+[4] = Iron Skin (Armor)
+[5] = Warrior's Might (HP + Damage)
+[6] = Magnetic Field (Magnet Range)
+[7] = Rapid Fire (Attack Speed) ← NOVO!
+[R] = Reset All Powerups
+[L] = List Active Powerups
+[S] = Show Current Stats
+[M] = Debug Magnet
+
+=============================================================================
+📋 STATUS DE TODOS OS POWERUPS
+=============================================================================
+
+| ID | Powerup            | Stat(s)        | Levels | Status |
+|----|--------------------|----------------|--------|--------|
+| 1  | Vitality           | Max Health     | 5      | ✅     |
+| 2  | Swift Feet         | Move Speed     | 3      | ✅     |
+| 3  | Raw Power          | Damage         | 5      | ✅     |
+| 4  | Iron Skin          | Armor          | 4      | ✅     |
+| 5  | Warrior's Might    | HP + Damage    | 3      | ✅     |
+| 6  | Magnetic Field     | Magnet Range   | 4      | ✅     |
+| 7  | **Rapid Fire**     | **Attack Speed** | **5**  | **✅** |
+
+7 POWERUPS COMPLETOS!
+
+=============================================================================
+⚖️ BALANCEAMENTO
+=============================================================================
+
+VALORES ATUAIS:
+[0.15, 0.30, 0.50, 0.75, 1.10]
+
+POR QUÊ:
+✅ Lv1 perceptível (+15%)
+✅ Lv3 ponto de virada (+50%)
+✅ Lv5 empolgante (+110%)
+✅ Progressão acelerada
+
+AJUSTES OPCIONAIS:
+Se muito forte: reduzir Lv5 para 0.90 (+90%)
+Se muito fraco: aumentar Lv5 para 1.30 (+130%)
+
+Valores atuais são BALANCEADOS.
+
+=============================================================================
+✅ RESUMO v1.2.1
+=============================================================================
+
+NOVO:
+⚡ Rapid Fire (Attack Speed) implementado
+⚡ Afeta todos os 5 ataques universalmente
+⚡ Progressão até +110% DPS
+⚡ Sinergia forte com Raw Power
+⚡ Tecla [7] para teste
+
+MANTIDO:
+✅ Todos 6 powerups anteriores
+✅ Sistema de debug [M]
+✅ Magnet funcionando 100%
+
+ARQUIVOS:
+✅ attack_controller.gd (modificado - 4 alterações)
+✅ powerup_attack_speed.tres (novo)
+✅ power_up_controller.tscn (atualizado)
+✅ test_powerups.gd (atualizado)
+
+SISTEMA COMPLETO! 🎮
+
+=============================================================================

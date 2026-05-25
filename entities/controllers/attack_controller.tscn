@@ -1,0 +1,13 @@
+[gd_scene load_steps=8 format=3 uid="uid://bo5tc8icd75ql"]
+
+[ext_resource type="Script" uid="uid://b1aeoqba7q441" path="res://scripts/attack_controller.gd" id="1_afpaq"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="2_o6k7y"]
+[ext_resource type="Resource" uid="uid://bbclnnndnvs3j" path="res://data/attack_data/attack_01_fire.tres" id="3_mrkxt"]
+[ext_resource type="Resource" uid="uid://ckvmf44l62iit" path="res://data/attack_data/attack_02_ring.tres" id="4_pvkh1"]
+[ext_resource type="Resource" uid="uid://cj7onj8ncd4fr" path="res://data/attack_data/attack_03_electricity.tres" id="5_fgyyf"]
+[ext_resource type="Resource" uid="uid://b6xnifqudo26l" path="res://data/attack_data/attack_04_bo.tres" id="6_bwdf6"]
+[ext_resource type="Resource" uid="uid://dqncptp6yegrl" path="res://data/attack_data/attack_05_gear.tres" id="7_l7p5u"]
+
+[node name="AttackController" type="Node"]
+script = ExtResource("1_afpaq")
+attacks = Array[ExtResource("2_o6k7y")]([ExtResource("3_mrkxt"), ExtResource("4_pvkh1"), ExtResource("5_fgyyf"), ExtResource("6_bwdf6"), ExtResource("7_l7p5u")])

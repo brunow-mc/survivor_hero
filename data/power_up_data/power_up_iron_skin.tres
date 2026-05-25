@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://uytwj78qi6f2"]
+
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://ufakxedpeyll" path="res://sprites/icons/powerup_icons/power_up_04_iron_skin_icon.png" id="1_tna6y"]
+
+[resource]
+script = ExtResource("1")
+powerup_id = 4
+powerup_name = "Iron Skin"
+description = "Reduces damage taken"
+icon = ExtResource("1_tna6y")
+display_name_per_level = Array[String](["Iron Skin Lv1", "Iron Skin Lv2", "Iron Skin Lv3", "Iron Skin Lv4", "Iron Skin Lv5"])
+description_per_level = Array[String](["test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest"])
+armor_flat_per_level = Array[float]([15.0, 10.0, 20.0, 30.0, 24.0])

@@ -1,0 +1,88 @@
+=============================================================================
+VERSÃO 1.2.0 - SISTEMA DE DEBUG MAGNET ADICIONADO
+=============================================================================
+
+🔍 PRESSIONE [M] DURANTE O JOGO PARA DIAGNÓSTICO COMPLETO
+
+=============================================================================
+📦 ARQUIVOS ADICIONADOS
+=============================================================================
+
+✅ scripts/debug_magnet.gd
+   → Script de diagnóstico que testa CADA componente do sistema Magnet
+   → Já adicionado ao Major_Heat automaticamente
+
+✅ DEBUG-MAGNET-INSTRUCOES.txt
+   → Instruções completas de como usar o debug
+   → Lista de problemas possíveis e soluções
+
+✅ V1.2.0-MAGNET-CORRECAO.txt
+   → Histórico da correção anterior
+
+=============================================================================
+🎯 TESTE RÁPIDO
+=============================================================================
+
+1. RODE O JOGO (F5)
+
+2. PRESSIONE [M]
+   
+3. LEIA O CONSOLE
+   
+   Procure por:
+   ✅ = Passou
+   ❌ = PROBLEMA AQUI!
+   ⚠️ = Atenção
+
+4. ME ENVIE O OUTPUT COMPLETO
+   
+   Copie TODO o texto que aparece após pressionar [M]
+   e me envie aqui.
+
+=============================================================================
+📋 O QUE O DEBUG TESTA
+=============================================================================
+
+TESTE 1: PowerUpController existe?
+TESTE 2: Array de powerups (mostra todos os 6)
+TESTE 3: Magnet (ID 6) está no array?
+TESTE 4: get_magnet_bonus() retorna valores corretos?
+TESTE 5: PlayerStatsGlobal recebe o valor?
+TESTE 6: XP items na cena aplicam o bonus?
+TESTE 7: Tenta aplicar Magnet Lv1 e verifica se funciona
+
+=============================================================================
+💡 EXEMPLO DO QUE VOCÊ VERÁ
+=============================================================================
+
+Se estiver FUNCIONANDO:
+═══════════════════════════════════════════════════
+📋 TESTE 3: Buscar Magnet (ID 6)
+✅ Magnet encontrado: 'Magnetic Field'
+   Level atual: 0/4
+   Array size: 4
+   Valores: [25, 60, 105, 160]
+═══════════════════════════════════════════════════
+
+Se NÃO estiver funcionando:
+═══════════════════════════════════════════════════
+📋 TESTE 3: Buscar Magnet (ID 6)
+❌ FALHA CRÍTICA: Powerup ID 6 NÃO ENCONTRADO!    ← PROBLEMA!
+   Verificando se algum powerup tem ID 6:
+   - ID 1 = 'Vitality'
+   - ID 2 = 'Swift Feet'
+   - ID 3 = 'Raw Power'
+   - ID 4 = 'Iron Skin'
+   - ID 5 = "Warrior's Might"
+   - ID 0 = 'Magnetic Field'                       ← ID ERRADO!
+═══════════════════════════════════════════════════
+
+=============================================================================
+🎯 AÇÃO NECESSÁRIA
+=============================================================================
+
+RODE O JOGO → PRESSIONE [M] → COPIE OUTPUT COMPLETO → ME ENVIE
+
+Com o output do debug, posso identificar EXATAMENTE o problema!
+
+=============================================================================

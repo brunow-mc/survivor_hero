@@ -1,0 +1,11 @@
+SURVIVOR HERO v1.3.11
+═══════════════════════════════════════════════════
+
+✅ AttackUpgradeData.current_level = ÚNICA fonte de verdade
+❌ AttackData.current_level REMOVIDO completamente
+
+TESTE RÁPIDO:
+1. Play (F5)
+2. Remote Inspector > Root > Player > AttackController
+3. attack_upgrades > [0] > Modificar current_level
+4. Tudo atualiza automaticamente (timer + upgrades)

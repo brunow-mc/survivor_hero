@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://muumcado1u0v"]
+
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1_221pq"]
+[ext_resource type="Texture2D" uid="uid://5yrx3kb6x102" path="res://sprites/icons/powerup_icons/power_up_06_magnet_icon.png" id="1_e35d6"]
+
+[resource]
+script = ExtResource("1_221pq")
+powerup_id = 6
+powerup_name = "Magnetic Field"
+description = "Increases XP collection range"
+icon = ExtResource("1_e35d6")
+display_name_per_level = Array[String](["Magnet Lv1", "Magnet Lv2", "Magnet Lv3", "Magnet Lv4", "Magnet Lv5"])
+description_per_level = Array[String](["test%\\ntest%", "test%\\ntest%", "test%\\ntest%", "test%\\ntest%", "test%\\ntest%"])
+magnet_range_flat_per_level = Array[float]([15.0, 10.0, 25.0, 25.0, 25.0])
+metadata/_custom_type_script = "uid://cixgfjaoi4ito"

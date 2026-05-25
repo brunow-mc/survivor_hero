@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://c8vj4k2l3nan0"]
+
+[ext_resource type="Texture2D" uid="uid://c4npyk3keer1j" path="res://sprites/icons/powerup_icons/power_up_07_attack_speed_icon.png" id="1_5iypm"]
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1_aspd"]
+
+[resource]
+script = ExtResource("1_aspd")
+powerup_id = 7
+powerup_name = "Rapid Fire"
+description = "Increases attack speed (fire rate)"
+icon = ExtResource("1_5iypm")
+display_name_per_level = Array[String](["Attack Speed Lv1", "Attack Speed Lv2", "Attack Speed Lv3", "Attack Speed Lv4", "Attack Speed Lv5"])
+description_per_level = Array[String](["test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest"])
+attack_speed_percent_per_level = Array[float]([0.1, 0.1, 0.1, 0.1, 0.15])
+metadata/_custom_type_script = "uid://cixgfjaoi4ito"

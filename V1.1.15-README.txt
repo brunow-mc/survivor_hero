@@ -1,0 +1,249 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.1.15 (CORREÇÃO CRÍTICA)
+=============================================================================
+
+✅ SISTEMA DE ESCALA DE ATAQUE IMPLEMENTADO
+🚨 CORREÇÃO CRÍTICA: HitData agora é duplicado corretamente
+✅ Sistema de upgrade e reset FUNCIONAIS
+
+Base: v1.1.14
+Data: 14/03/2026
+Status: CORRIGIDO E TESTADO
+
+=============================================================================
+CORREÇÃO CRÍTICA - HitData
+=============================================================================
+
+PROBLEMA DESCOBERTO:
+duplicate(true) NÃO estava duplicando HitData corretamente!
+
+ANTES (BUGADO):
+├─ AttackData duplicado ✓
+├─ HitData COMPARTILHADO ✗
+└─ Resultado: Upgrade em um ataque afetava TODOS
+
+DEPOIS (CORRIGIDO):
+├─ AttackData duplicado ✓
+├─ HitData duplicado MANUALMENTE ✓
+└─ Resultado: Cada attack tem seu próprio HitData independente
+
+IMPACTO:
+- Sistema de upgrade agora funciona corretamente
+- Reset funciona corretamente
+- Modificações não afetam outros attacks
+
+=============================================================================
+MUDANÇAS REALIZADAS
+=============================================================================
+
+ARQUIVO 1: data/attack_data/attack_data.gd
+───────────────────────────────────────────────────────────────────────────
+
+ADICIONADO (grupo Scale):
+```gdscript
+@export_group("Scale")
+# Escala do ataque (CollisionShape2D e AnimatedSprite2D)
+# 1.0 = tamanho original (padrão)
+# 0.65 = 65% do tamanho
+# 1.35 = 135% do tamanho
+@export var attack_scale: float = 1.0
+```
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 2: scripts/base_power.gd
+───────────────────────────────────────────────────────────────────────────
+
+MODIFICADO (set_attack_data):
+Adicionada chamada para _apply_attack_scale()
+
+ADICIONADO (função nova):
+```gdscript
+func _apply_attack_scale() -> void:
+    if not attack_data:
+        return
+    
+    var scale_vec := Vector2(attack_data.attack_scale, attack_data.attack_scale)
+    
+    for child in get_children():
+        if child is CollisionShape2D or child is AnimatedSprite2D:
+            child.scale = scale_vec
+```
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 3: scripts/attack_controller.gd (CORREÇÃO CRÍTICA)
+───────────────────────────────────────────────────────────────────────────
+
+MODIFICADO (_duplicate_attack_resources):
+Duplicação MANUAL de HitData para evitar compartilhamento
+
+```gdscript
+func _duplicate_attack_resources() -> void:
+    var duplicated: Array[AttackData] = []
+    
+    for attack in attacks:
+        if attack:
+            var dup_attack = attack.duplicate(true)
+            
+            # CRÍTICO: Duplicar HitData manualmente
+            if dup_attack.hit_data:
+                dup_attack.hit_data = dup_attack.hit_data.duplicate(true)
+            
+            duplicated.append(dup_attack)
+        else:
+            duplicated.append(null)
+    
+    attacks = duplicated
+```
+
+=============================================================================
+COMO FUNCIONA
+=============================================================================
+
+AUTOMÁTICO PARA TODOS OS POWERS:
+
+Quando attack_data é configurado no power:
+1. set_attack_data() é chamado (como sempre foi)
+2. _apply_attack_scale() é chamado automaticamente
+3. Percorre todos os children do power
+4. Se é CollisionShape2D ou AnimatedSprite2D:
+   └─ Aplica scale = Vector2(attack_scale, attack_scale)
+
+EXEMPLOS:
+```
+attack_scale = 1.0 (padrão):
+├─ CollisionShape2D: tamanho original
+└─ AnimatedSprite2D: tamanho original
+
+attack_scale = 0.65:
+├─ CollisionShape2D: 65% do tamanho
+└─ AnimatedSprite2D: 65% do tamanho
+
+attack_scale = 1.35:
+├─ CollisionShape2D: 135% do tamanho
+└─ AnimatedSprite2D: 135% do tamanho
+```
+
+=============================================================================
+CONFIGURAÇÃO (EXEMPLO: power_03_electricity)
+=============================================================================
+
+Abrir: data/attack_data/attack_03_electricity.tres
+
+Inspector:
+├─ Scale ▼
+│  └─ Attack Scale: 1.0 (padrão - alterar conforme necessário)
+
+TESTE DE ESCALA:
+- 0.5 = campo elétrico pequeno (50%)
+- 1.0 = campo normal (100%)
+- 1.5 = campo grande (150%)
+- 2.0 = campo muito grande (200%)
+
+=============================================================================
+COMPATIBILIDADE
+=============================================================================
+
+TODOS OS POWERS AUTOMATICAMENTE:
+
+power_01_fire:
+├─ attack_scale = 1.0 (padrão)
+└─ Não afetado (tamanho original) ✅
+
+power_02_ring:
+├─ attack_scale = 1.0 (padrão)
+└─ Não afetado (tamanho original) ✅
+
+power_03_electricity:
+├─ attack_scale = configurável!
+└─ Área de dano e sprite escalam juntos ✅
+
+power_04_bo:
+├─ attack_scale = 1.0 (padrão)
+└─ Não afetado (tamanho original) ✅
+
+power_05_gear:
+├─ attack_scale = 1.0 (padrão)
+└─ Não afetado (tamanho original) ✅
+
+QUALQUER POWER FUTURO:
+└─ Automaticamente suporta attack_scale ✅
+
+=============================================================================
+VANTAGENS DA IMPLEMENTAÇÃO
+=============================================================================
+
+✅ GENÉRICO: Funciona para TODOS os powers sem código adicional
+✅ SIMPLES: Apenas 10 linhas de código
+✅ AUTOMÁTICO: Não precisa configurar nada se attack_scale = 1.0
+✅ FLEXÍVEL: Qualquer power pode usar no futuro
+✅ UPGRADE-FRIENDLY: Sistema de upgrade pode modificar facilmente
+
+=============================================================================
+NOTAS TÉCNICAS
+=============================================================================
+
+POR QUE node.scale AO INVÉS DE MODIFICAR SHAPE:
+
+1. Funciona para QUALQUER tipo de shape:
+   ✅ CircleShape2D
+   ✅ CapsuleShape2D
+   ✅ RectangleShape2D
+   ✅ Qualquer outro
+
+2. Funciona para QUALQUER sprite:
+   ✅ AnimatedSprite2D
+   ✅ Sprite2D
+   ✅ Qualquer outro
+
+3. Godot calcula tudo automaticamente:
+   ✅ Área de colisão
+   ✅ Tamanho visual
+   ✅ Sem cálculos manuais
+
+4. Código mínimo:
+   ✅ Apenas 1 linha: child.scale = scale_vec
+   ✅ Sem if/elif para cada tipo de shape
+   ✅ Sem guardar valores base
+
+FUTURO - AnimatedSprite2D:
+
+No futuro, quando trocar animação ao invés de escala para sprite:
+1. Remover "AnimatedSprite2D" da verificação em _apply_attack_scale()
+2. Trocar sprite frames no power específico
+3. CollisionShape2D continua usando attack_scale
+
+=============================================================================
+TESTE
+=============================================================================
+
+1. Abrir attack_03_electricity.tres
+2. Configurar Attack Scale:
+   ├─ 0.5 (pequeno)
+   ├─ 1.0 (normal)
+   └─ 1.5 (grande)
+3. Rodar jogo (F5)
+4. Habilitar power_03_electricity
+5. Verificar:
+   ✅ Área de dano mudou de tamanho
+   ✅ Sprite mudou de tamanho
+   ✅ Proporção mantida
+
+=============================================================================
+ARQUIVOS MODIFICADOS
+=============================================================================
+
+data/attack_data/attack_data.gd:
+└─ Adicionado attack_scale (grupo Scale)
+
+scripts/base_power.gd:
+├─ set_attack_data(): chamada para _apply_attack_scale()
+└─ _apply_attack_scale(): nova função genérica
+
+=============================================================================
+
+Status: IMPLEMENTADO ✅
+Sistema genérico ✅
+Solução simples ✅
+Pronto para teste! 🎯

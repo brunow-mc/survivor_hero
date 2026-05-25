@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://bbclnnndnvs3j"]
+
+[ext_resource type="Resource" uid="uid://n0usdei31tmp" path="res://data/hit_data/hit_01_fire.tres" id="1_5sm5y"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="1_vjfp0"]
+[ext_resource type="PackedScene" uid="uid://docetmttkaemm" path="res://entities/powers/power_01_fire.tscn" id="2_as2g4"]
+[ext_resource type="Texture2D" uid="uid://c2526bur6yag1" path="res://sprites/icons/attack_icons/power_01_fire_icon.png" id="3_d3qp7"]
+[ext_resource type="AudioStream" uid="uid://cr4kt38fgt3ar" path="res://audio/effects/powers/power_01_fire_sound.mp3" id="4_audio"]
+
+[resource]
+script = ExtResource("1_vjfp0")
+attack_id = 1
+attack_name = "Fire Power"
+description = "Shoots fireballs at enemies"
+icon = ExtResource("3_d3qp7")
+packed_scene = ExtResource("2_as2g4")
+hit_data = ExtResource("1_5sm5y")
+interval = 1.9
+life_time = 1.7
+attack_delay = 0.325
+speed = 150.0
+max_hits = -1
+attack_sound = ExtResource("4_audio")
+attack_sound_volume_db = -7.0
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

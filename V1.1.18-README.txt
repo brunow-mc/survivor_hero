@@ -1,0 +1,311 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.1.18
+=============================================================================
+
+📊 FASE 1: PADRONIZAÇÃO DE ATTACKDATA PARA SISTEMA DE UPGRADES
+✅ Preparação para sistema unificado de upgrades
+✅ Substituição de enabled por sistema de levels
+✅ Interface consistente para futuro PowerUpController
+
+Base: v1.1.17 (float system completo)
+Data: 21/03/2026
+Status: COMPLETO E TESTADO
+
+=============================================================================
+MOTIVAÇÃO
+=============================================================================
+
+PREPARAR ATTACKDATA PARA SISTEMA DE UPGRADES:
+
+Antes (v1.1.17):
+├─ enabled: bool (on/off apenas)
+├─ Sem nome legível
+├─ Sem ícone
+└─ Sem progressão de levels
+
+Depois (v1.1.18):
+├─ current_level: int (0=locked, 1+=unlocked com progressão)
+├─ attack_name: String (UI-friendly)
+├─ description: String (tooltips)
+├─ icon: Texture2D (para UI de upgrade)
+└─ max_level: int (permite upgrades incrementais)
+
+OBJETIVO: Mesma interface que PowerUpData terá (Fase 2).
+
+=============================================================================
+MUDANÇAS PRINCIPAIS
+=============================================================================
+
+ARQUIVO 1: data/attack_data/attack_data.gd
+───────────────────────────────────────────────────────────────────────────
+
+ADICIONADO:
+```gdscript
+@export_group("Identity")
+@export var attack_name: String = ""
+@export var description: String = ""
+@export var icon: Texture2D  # Null OK - adicionar depois
+
+@export_group("Progression")  # NO TOPO (fácil acesso)
+@export var current_level: int = 0  # 0 = locked, 1+ = unlocked
+@export var max_level: int = 5
+```
+
+REMOVIDO:
+```gdscript
+@export var enabled: bool = true  # ❌ Substituído por current_level
+```
+
+ORDEM DOS GRUPOS (Inspector):
+1. Identity (primeiro)
+2. Progression (segundo - topo para testes)
+3. Core
+4. Timing
+5. Movement
+...
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 2: scripts/attack_controller.gd
+───────────────────────────────────────────────────────────────────────────
+
+MUDANÇAS:
+
+1. Substituição enabled → current_level:
+   ANTES: `if attack_data.enabled:`
+   DEPOIS: `if attack_data.current_level > 0:`
+
+2. Atualização de métodos:
+   
+   enable_attack(id):
+   - ANTES: attack.enabled = true
+   - DEPOIS: attack.current_level = 1 (unlock)
+   
+   disable_attack(id):
+   - ANTES: attack.enabled = false
+   - DEPOIS: attack.current_level = 0 (lock)
+   
+   upgrade_attack(id): ← NOVO
+   - Incrementa level: current_level += 1
+   - Valida max_level
+   - Retorna bool (sucesso/falha)
+
+3. Logs melhorados:
+   - Mostra nome do ataque
+   - Mostra level atual
+   - Exemplo: "✅ Attack 'Fire Power' unlocked (level 1)"
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVOS 3-8: Todos os .tres atualizados
+───────────────────────────────────────────────────────────────────────────
+
+ATAQUES NORMAIS (current_level = 0 - locked):
+
+attack_01_fire.tres:
+├─ attack_name: "Fire Power"
+├─ description: "Shoots fireballs at enemies"
+├─ current_level: 0  ← Começa desligado
+└─ max_level: 5
+
+attack_02_ring.tres:
+├─ attack_name: "Ring Burst"
+├─ description: "Fires projectiles in a ring pattern"
+├─ current_level: 0
+└─ max_level: 5
+
+attack_03_electricity.tres:
+├─ attack_name: "Lightning Arc"
+├─ description: "Electric chain attack"
+├─ current_level: 0
+└─ max_level: 5
+
+attack_04_bo.tres:
+├─ attack_name: "Boomerang"
+├─ description: "Throws a returning boomerang"
+├─ current_level: 0
+└─ max_level: 5
+
+attack_05_gear.tres:
+├─ attack_name: "Orbital Gear"
+├─ description: "Spinning gear that orbits the player"
+├─ current_level: 0
+└─ max_level: 5
+
+PRIMARY ATTACK (current_level = 1 - ativo):
+
+PRIMARY_01_fire.tres:
+├─ attack_name: "Fire Power"
+├─ description: "Shoots fireballs at enemies"
+├─ current_level: 1  ← Começa LIGADO
+└─ max_level: 5
+
+=============================================================================
+COMO TESTAR
+=============================================================================
+
+TESTE 1 - LIGAR/DESLIGAR ATAQUE:
+
+1. Abrir AttackController no Inspector
+2. Expandir Attacks → [0] PRIMARY_01_fire.tres
+3. Ver grupo Progression (no topo)
+4. Mudar Current Level:
+   - 0 = Ataque desligado
+   - 1 = Ataque ligado
+   - 2, 3, 4, 5 = Levels futuros
+5. Rodar jogo (F5)
+6. Ver que timer liga/desliga automaticamente
+
+TESTE 2 - VIA CÓDIGO (Console):
+
+```gdscript
+# Desbloquear ataque 2
+AttackController.enable_attack(2)
+# Output: "✅ Attack 'Ring Burst' unlocked (level 1)"
+
+# Fazer upgrade
+AttackController.upgrade_attack(2)
+# Output: "⬆️ Attack 'Ring Burst' upgraded to level 2"
+
+# Tentar ultrapassar max_level
+AttackController.upgrade_attack(2)  # level 3
+AttackController.upgrade_attack(2)  # level 4
+AttackController.upgrade_attack(2)  # level 5
+AttackController.upgrade_attack(2)  # FALHA
+# Output: "⚠️ Attack 'Ring Burst' already at max level 5"
+
+# Bloquear ataque
+AttackController.disable_attack(2)
+# Output: "🛑 Attack 'Ring Burst' locked"
+```
+
+TESTE 3 - ÍCONES (FUTURO):
+
+```
+Por enquanto icon = null (OK!)
+Quando criar ícones:
+1. Criar sprites em res://sprites/ui/icons/
+2. Abrir .tres no Inspector
+3. Arrastar ícone para campo Icon
+```
+
+=============================================================================
+COMPATIBILIDADE
+=============================================================================
+
+RETROCOMPATIBILIDADE:
+✅ PRIMARY_01_fire começa com level 1 (ativo)
+✅ Outros ataques começam level 0 (desligados)
+✅ Gameplay não muda
+✅ Testes no Inspector funcionam igual (só muda current_level)
+
+PREPARAÇÃO PARA FASE 2:
+✅ AttackData agora tem mesma interface que PowerUpData terá
+✅ Sistema de levels pronto
+✅ Campos para UI prontos (nome, descrição, ícone)
+
+=============================================================================
+PRÓXIMA FASE (v1.1.19)
+=============================================================================
+
+FASE 2 - POWERUPCONTROLLER:
+
+1. PowerUpData (Resource - Opção C):
+   ├─ Identity (id, name, description, icon)
+   ├─ Progression (current_level, max_level)
+   └─ Stats (arrays de flat/percent por stat)
+
+2. PowerUpController (Node):
+   ├─ Array de PowerUpData
+   ├─ Duplicação de resources
+   └─ Calcula bonuses
+
+3. PlayerStatsGlobal (Autoload):
+   ├─ Armazena stats calculados
+   ├─ damage_multiplier, move_speed_multiplier, etc.
+   └─ Signal: stats_changed
+
+4. Sistema de 3 Camadas:
+   ├─ PowerUpController → Calcula
+   ├─ PlayerStatsGlobal → Armazena
+   └─ Sistemas específicos → Aplicam
+
+=============================================================================
+DECISÕES DE DESIGN
+=============================================================================
+
+1. GRUPO PROGRESSION NO TOPO:
+   - Ordem no código = ordem no Inspector
+   - Fácil acesso para testes
+   - Mudança rápida de levels
+
+2. ENABLED REMOVIDO:
+   - current_level > 0 = mesmo efeito
+   - Permite progressão (1, 2, 3, 4, 5)
+   - Consistente com PowerUpData futuro
+
+3. ÍCONES NULL OK:
+   - Código defensivo (aceita null)
+   - Adicionar ícones depois sem quebrar
+   - Placeholder opcional no futuro
+
+4. MÉTODOS DE CONTROLE:
+   - enable_attack(): 0 → 1 (unlock)
+   - upgrade_attack(): level → level+1 (progressão)
+   - disable_attack(): level → 0 (lock/reset)
+
+=============================================================================
+ARQUIVOS MODIFICADOS - RESUMO
+=============================================================================
+
+SCRIPTS (.gd):
+├─ data/attack_data/attack_data.gd (novos campos)
+└─ scripts/attack_controller.gd (sistema de levels)
+
+RESOURCES (.tres):
+├─ data/attack_data/attack_01_fire.tres
+├─ data/attack_data/attack_02_ring.tres
+├─ data/attack_data/attack_03_electricity.tres
+├─ data/attack_data/attack_04_bo.tres
+├─ data/attack_data/attack_05_gear.tres
+└─ data/primary_attack_data/PRIMARY_01_fire.tres
+
+=============================================================================
+LEMBRETE - OPÇÃO C (FASE 2)
+=============================================================================
+
+PowerUpData estrutura (aguardando implementação):
+
+```gdscript
+@export_group("Identity")
+@export var powerup_id: int
+@export var powerup_name: String
+@export var description: String
+@export var icon: Texture2D
+
+@export_group("Progression")
+@export var current_level: int = 0
+@export var max_level: int = 5
+
+# Stats com arrays de progressão
+@export_group("Max Health")
+@export var max_health_flat_per_level: Array[float] = []
+@export var max_health_percent_per_level: Array[float] = []
+
+@export_group("Move Speed")
+@export var move_speed_flat_per_level: Array[float] = []
+@export var move_speed_percent_per_level: Array[float] = []
+# etc...
+```
+
+Sistema de 3 Camadas:
+1. PowerUpController → Calcula bonuses
+2. PlayerStatsGlobal → Centraliza stats
+3. Sistemas específicos → Aplicam (PlayerBase, AttackController, XPItem)
+
+=============================================================================
+
+Status: FASE 1 COMPLETA ✅
+AttackData padronizado ✅
+Sistema de levels implementado ✅
+Pronto para Fase 2 (PowerUpController) ✅

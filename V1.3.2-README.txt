@@ -1,0 +1,83 @@
+═══════════════════════════════════════════════════════════════
+v1.3.2 - VERSÃO LIMPA E FUNCIONAL
+═══════════════════════════════════════════════════════════════
+
+PROBLEMA RESOLVIDO:
+❌ Max Health aparecia 120 ao invés de 100
+
+CAUSA IDENTIFICADA:
+Em v1.2.6, powerup_vitality.tres tinha:
+  current_level = 1
+  max_health_flat_per_level = [20.0, ...]
+
+Resultado: 100 (base) + 20 (vitality level 1) = 120
+
+SOLUÇÃO:
+✅ Removido current_level = 1 de powerup_vitality.tres
+✅ Vitality agora começa em level 0 (desligado)
+✅ Max Health = 100 (correto)
+
+═══════════════════════════════════════════════════════════════
+SISTEMA DE UPGRADE DE ATAQUE
+═══════════════════════════════════════════════════════════════
+
+PADRÃO DAS CÓPIAS (IMPLEMENTADO):
+
+1. ORIGINAIS (.tres): Nunca mudam
+2. CÓPIAS (attacks[]): Modificadas durante o jogo
+3. VALORES BASE: Guardados para recalcular cópias
+
+QUANDO UPGRADE MUDA:
+- apply_upgrades_to_attack() MODIFICA A CÓPIA
+- _spawn_attack() USA A CÓPIA diretamente
+- Timer atualizado automaticamente
+
+TODOS OS UPGRADES FUNCIONAM:
+✅ Projectile Count
+✅ Damage Bonus
+✅ Speed Bonus
+✅ Max Hits
+✅ Cooldown Reduction
+
+═══════════════════════════════════════════════════════════════
+TESTE
+═══════════════════════════════════════════════════════════════
+
+1. Rodar (F5)
+   ✅ Max Health = 100 (não 120)
+   ✅ Fire não spawna (level 0 locked)
+
+2. [E] Level 0→1
+   ✅ Fire spawna 1 projétil
+
+3. [E] Level 1→2
+   ✅ Fire spawna 2 projéteis
+
+4. [E] Level 2→3→4→5
+   ✅ 3, 4, 5 projéteis
+
+5. [1] Vitality Level 1
+   ✅ Max Health = 120
+   ✅ Barra de vida correta
+
+6. [R] Reset
+   ✅ Max Health volta para 100
+   ✅ Barra de vida correta
+
+═══════════════════════════════════════════════════════════════
+ARQUIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════
+
+CORRIGIDO:
+* data/powerup_data/powerup_vitality.tres (current_level removido)
+
+ADICIONADOS:
++ data/attack_upgrade_data/attack_upgrade_data.gd
++ data/attack_upgrade_data/attack_01_fire_upgrades.tres
++ scripts/test_attack_upgrades.gd
+
+MODIFICADOS:
+* scripts/attack_controller.gd (sistema de upgrade)
+* entities/players/major_heat.tscn (TestAttackUpgrades node)
+
+═══════════════════════════════════════════════════════════════

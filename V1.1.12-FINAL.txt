@@ -1,0 +1,77 @@
+=============================================================================
+SURVIVOR HERO - v1.1.12 FINAL
+=============================================================================
+
+✅ PADRÃO CORRETO IMPLEMENTADO
+
+power_01_fire: Attack Sound → AudioManager (one-shot)
+power_03_electricity: Attack Sound → AudioStreamPlayer2D dinâmico (loop)
+power_05_gear: Attack Sound → AudioManager (one-shot)
+
+TODOS usam AttackData.attack_sound ✅
+SEM nodes na cena ✅
+Trocar áudio = editar AttackData ✅
+
+=============================================================================
+MUDANÇAS
+=============================================================================
+
+ARQUIVO 1: scripts/power_03_electricity.gd
+───────────────────────────────────────────────────────────────────────────
+
+• Removido @onready (não há node na cena)
+• Criado AudioStreamPlayer2D dinamicamente em _setup_audio()
+• Adicionado handles_own_audio() para impedir attack_controller
+• stop() antes de queue_free()
+
+ARQUIVO 2: entities/powers/power_03_electricity.tscn
+───────────────────────────────────────────────────────────────────────────
+
+• AudioStreamPlayer2D DELETADO da cena
+• ExtResource do áudio REMOVIDO
+
+ARQUIVO 3: scripts/attack_controller.gd
+───────────────────────────────────────────────────────────────────────────
+
+• Verifica handles_own_audio() antes de tocar via AudioManager
+• Se power gerencia áudio, AudioManager não toca
+
+=============================================================================
+CONFIGURAÇÃO (OBRIGATÓRIA)
+=============================================================================
+
+Abrir: data/attack_data/attack_03_electricity.tres
+
+Inspector:
+├─ Attack Sound: power_03_electricity_sound.mp3 ← OBRIGATÓRIO!
+├─ Attack Sound Volume Db: 0.0
+└─ Attack Sound Pitch Scale: 1.0
+
+=============================================================================
+COMO FUNCIONA
+=============================================================================
+
+1. attack_controller spawna power_03
+2. Verifica: tem handles_own_audio()? SIM → não toca via AudioManager
+3. power_03._setup_audio() cria AudioStreamPlayer2D dinamicamente
+4. Configura stream do AttackData.attack_sound
+5. play() → áudio em loop (MP3 tem loop=true no import)
+6. on_life_time_end() → stop() → queue_free()
+
+=============================================================================
+TESTE
+=============================================================================
+
+1. Configurar Attack Sound no AttackData
+2. Rodar jogo
+3. Habilitar power_03
+4. Verificar: áudio toca em loop ✅
+5. Aguardar Life Time (~4.3s)
+6. Verificar: áudio PARA ✅
+
+=============================================================================
+
+Status: IMPLEMENTADO ✅
+Padrão correto ✅
+SEM nodes na cena ✅
+Pronto para produção! 🎯

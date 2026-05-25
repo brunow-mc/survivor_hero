@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://ua5b370b4dgt"]
+
+[ext_resource type="Script" uid="uid://cv0hxndt37s8k" path="res://scripts/player02.gd" id="1_1ykaj"]
+[ext_resource type="SpriteFrames" uid="uid://bu0jmsn3ja0aw" path="res://sprites/girl/player02.tres" id="2_8kgvp"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8kgvp"]
+radius = 5.0
+height = 24.0
+
+[node name="Player02" type="CharacterBody2D" groups=["Player"]]
+script = ExtResource("1_1ykaj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_8kgvp")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+position = Vector2(0, -1)
+sprite_frames = ExtResource("2_8kgvp")
+animation = &"walk"
+frame = 3
+frame_progress = 0.261336

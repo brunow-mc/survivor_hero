@@ -1,0 +1,419 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.1.19 (CORRIGIDA v2)
+=============================================================================
+
+🎮 FASE 2: POWERUPCONTROLLER COMPLETO
+✅ PowerUpController.tscn (cena criada pelo usuário)
+✅ power_up_controller.gd (preenchido com código completo)
+✅ PlayerStatsGlobal (autoload - JÁ CONFIGURADO AUTOMATICAMENTE)
+✅ PowerUpData (Resource - Opção C)
+✅ 5 powerups de exemplo
+✅ Sistema de testes completo
+🔧 CORREÇÃO v1: Valores base do player salvos corretamente
+🔧 CORREÇÃO v2: UI atualiza corretamente quando HP diminui (reset)
+
+Base: v1.1.18 (fornecida pelo usuário com PowerUpController.tscn vazio)
+Data: 22/03/2026
+Status: COMPLETO E CORRIGIDO v2 - REQUER 3 PASSOS MANUAIS
+
+=============================================================================
+🔧 CORREÇÕES CRÍTICAS APLICADAS
+=============================================================================
+
+CORREÇÃO v1 - VALORES BASE HARDCODED:
+PROBLEMA: PowerUpController usava 100 HP hardcoded, ignorava Inspector
+SOLUÇÃO: Valores base salvos do player no _ready()
+RESULTADO: Player com 1000 HP funciona corretamente ✓
+
+CORREÇÃO v2 - UI NÃO ATUALIZAVA NO RESET:
+PROBLEMA: Quando HP máximo diminui, UI não atualiza (HealthLabel fica errado)
+DETALHES:
+  - Remove powerup → max_health diminui (1015 → 1000)
+  - MAS player_health ficava 1035 (acima do máximo!)
+  - Signal não era emitido
+  - HealthLabel não atualizava!
+  
+SOLUÇÃO: 
+  - Se HP atual > novo HP máximo, ajustar (cap)
+  - SEMPRE emitir signal quando max_health muda
+  - UI atualiza SEMPRE (aumentando OU diminuindo HP)
+
+EXEMPLO PRÁTICO:
+  ANTES (BUGADO):
+    [5] Warrior: HealthLabel "1000" → "1015" ✓
+    [R] Reset: HealthLabel "1015" → "1015" (não muda!) ✗
+    
+  DEPOIS (CORRIGIDO):
+    [5] Warrior: HealthLabel "1000" → "1015" ✓
+    [R] Reset: HealthLabel "1015" → "1000" (volta!) ✅
+
+=============================================================================
+⚠️ IMPORTANTE - 3 PASSOS MANUAIS NECESSÁRIOS
+=============================================================================
+
+Alguns passos EU NÃO POSSO FAZER automaticamente.
+Você precisa fazer MANUALMENTE no Godot:
+
+1. ADICIONAR POWERUPCONTROLLER.TSCN AO MAJOR_HEAT.TSCN
+2. CONFIGURAR ARRAY DE POWERUPS NO INSPECTOR
+3. (OPCIONAL) ADICIONAR TESTPOWERUPS PARA DEBUG
+
+Instruções detalhadas abaixo ↓
+
+=============================================================================
+PASSO 1: ADICIONAR POWERUPCONTROLLER AO MAJOR_HEAT
+=============================================================================
+
+NO GODOT:
+
+1. Abra a cena: entities/players/major_heat.tscn
+
+2. Na árvore de cena (Scene tree), clique em "Major_Heat" (raiz)
+
+3. Clique no ícone "+" ou clique direito → "Instantiate Child Scene"
+
+4. Navegue até: entities/power_up_controller.tscn
+
+5. Selecione e clique "Open"
+
+6. A cena PowerUpController deve aparecer como FILHO de Major_Heat:
+   
+   Major_Heat (CharacterBody2D)
+   ├─ AttackController
+   ├─ PowerUpController ← NOVO
+   └─ (outros nodes)
+
+7. Salve a cena (Ctrl+S)
+
+VERIFICAR:
+- PowerUpController está FILHO DIRETO de Major_Heat
+- PowerUpController tem o ícone de cena instanciada (não node solto)
+
+=============================================================================
+PASSO 2: CONFIGURAR ARRAY DE POWERUPS
+=============================================================================
+
+NO GODOT (com major_heat.tscn aberta):
+
+1. Selecione "PowerUpController" na árvore de cena
+
+2. No Inspector (lado direito), procure "Powerups"
+
+3. Clique em "Powerups" para expandir
+
+4. Mude "Array[PowerUpData] (size 0)" para "size 5"
+
+5. Preencha os slots:
+   [0] = powerup_vitality.tres
+   [1] = powerup_swift_feet.tres
+   [2] = powerup_raw_power.tres
+   [3] = powerup_iron_skin.tres
+   [4] = powerup_warrior.tres
+
+COMO PREENCHER CADA SLOT:
+- Clique no slot [0]
+- Clique no ícone de pasta (Browse)
+- Navegue até: data/powerup_data/powerup_vitality.tres
+- Selecione e clique "Open"
+- Repita para os outros 4 slots
+
+6. Salve a cena (Ctrl+S)
+
+VERIFICAR NO INSPECTOR:
+Powerups ▼
+├─ [0]: powerup_vitality.tres
+├─ [1]: powerup_swift_feet.tres
+├─ [2]: powerup_raw_power.tres
+├─ [3]: powerup_iron_skin.tres
+└─ [4]: powerup_warrior.tres
+
+=============================================================================
+PASSO 3 (OPCIONAL): ADICIONAR TESTPOWERUPS PARA DEBUG
+=============================================================================
+
+NO GODOT (com major_heat.tscn aberta):
+
+1. Clique direito em "Major_Heat"
+
+2. "Add Child Node"
+
+3. Busque "Node" e selecione
+
+4. Renomeie para "TestPowerups"
+
+5. Com TestPowerups selecionado, no Inspector:
+   - Attach Script
+   - Navegue até: scripts/test_powerups.gd
+   - Clique "Open"
+
+6. Salve a cena (Ctrl+S)
+
+ÁRVORE FINAL:
+Major_Heat
+├─ AttackController
+├─ PowerUpController
+├─ TestPowerups ← NOVO (opcional)
+└─ (outros)
+
+=============================================================================
+TESTANDO
+=============================================================================
+
+1. Rode o jogo (F5)
+
+2. Observe o console:
+   ✅ "🔷 PowerUpController: Initializing..."
+   ✅ "🔄 PowerUpController: Resources duplicated"
+   ✅ "✅ PowerUpController: Player reference acquired"
+   ✅ "📊 PLAYER STATS GLOBAL - UPDATED"
+
+3. Pressione teclas (se adicionou TestPowerups):
+   [1] = Vitality (Max Health)
+   [2] = Swift Feet (Move Speed)
+   [3] = Raw Power (Damage)
+   [4] = Iron Skin (Armor)
+   [5] = Warrior's Might (HP + Damage)
+   [R] = Reset All
+   [L] = List Active
+   [S] = Show Stats
+
+4. COPIE TODO O OUTPUT DO CONSOLE E ME ENVIE!
+
+=============================================================================
+OUTPUT ESPERADO
+=============================================================================
+
+Ao pressionar [1] (Vitality):
+
+```
+🔑 KEY [1] PRESSED
+
+✨ PowerUp UNLOCKED: 'Vitality' (Level 1)
+
+🔄 Recalculating all stats...
+  📦 'Vitality' (Lv1): HP+20.0/+0%, Speed+0.0/+0%, Dmg+0%, Armor+0.0
+
+═══════════════════════════════════════════════════
+📊 PLAYER STATS GLOBAL - UPDATED
+═══════════════════════════════════════════════════
+💥 Damage Multiplier:      ×1.00
+❤️  Max Health Flat:       +20.0
+❤️  Max Health Percent:    +0%
+🏃 Move Speed Flat:        +0.0
+🏃 Move Speed Percent:     +0%
+🛡️  Armor:                  0.0
+🧲 Magnet Range Bonus:     +0.0
+⚡ Attack Speed Multiplier: ×1.00
+═══════════════════════════════════════════════════
+
+🎯 Applying stats to player systems...
+  ❤️  Max Health: 100.0 → 120.0 (healed proportionally)
+  🏃 Move Speed: 90.0
+  💥 Damage Multiplier: ×1.00 (applied on hit)
+  🛡️  Armor: 0.0 (0% damage reduction)
+  🧲 Magnet Range: +0.0 (applied in XP items)
+  ⚡ Attack Speed: ×1.00 (applied in timers)
+✅ Stats applied!
+```
+
+=============================================================================
+TESTES SUGERIDOS
+=============================================================================
+
+TESTE 1: PROGRESSÃO VITALITY
+- Pressione [1] cinco vezes
+- Observe HP: 100 → 120 → 140 → 176 → 202.4 → 250
+
+TESTE 2: MÚLTIPLOS POWERUPS
+- [1] Vitality
+- [3] Raw Power  
+- [2] Swift Feet
+- [L] List Active
+- Ver stats combinados
+
+TESTE 3: DAMAGE (RAW POWER)
+- [3] cinco vezes (Lv 1-5)
+- Ataque inimigos
+- Damage aumenta progressivamente
+
+TESTE 4: ARMOR (IRON SKIN)
+- [4] quatro vezes (Lv 1-4)
+- Deixe inimigos te atacarem
+- Dano reduz progressivamente
+
+TESTE 5: MULTI-STAT (WARRIOR)
+- [5] três vezes
+- HP E Damage aumentam juntos
+
+TESTE 6: RESET
+- [R] Reset All
+- Stats voltam ao normal
+
+=============================================================================
+ARQUITETURA - SISTEMA DE 3 CAMADAS
+=============================================================================
+
+CAMADA 1 - POWERUPCONTROLLER (Calcula):
+├─ Gerencia Array[PowerUpData]
+├─ Duplica resources (reset automático)
+├─ Soma bonuses de todos powerups ativos
+└─ Envia stats para PlayerStatsGlobal
+
+CAMADA 2 - PLAYERSTATS GLOBAL (Armazena):
+├─ Autoload acessível de qualquer lugar
+├─ Armazena stats finais calculados
+├─ Emite signal quando stats mudam
+└─ Fornece helpers (damage_multiplier, armor_reduction)
+
+CAMADA 3 - SISTEMAS ESPECÍFICOS (Aplicam):
+├─ PlayerBase: max_health, move_speed, armor
+├─ BasePower: damage_multiplier
+├─ XPItem (futuro): magnet_range
+└─ AttackController (futuro): attack_speed
+
+=============================================================================
+POWERUPS CRIADOS
+=============================================================================
+
+1. VITALITY (Max Health):
+   Lv1: +20 HP
+   Lv2: +40 HP
+   Lv3: +60 HP, +10%
+   Lv4: +80 HP, +15%
+   Lv5: +100 HP, +25%
+
+2. SWIFT FEET (Move Speed):
+   Lv1: +10% speed
+   Lv2: +20% speed
+   Lv3: +35% speed
+
+3. RAW POWER (Damage):
+   Lv1: +10% damage
+   Lv2: +20% damage
+   Lv3: +30% damage
+   Lv4: +45% damage
+   Lv5: +65% damage
+
+4. IRON SKIN (Armor):
+   Lv1: 10 armor (9% reduction)
+   Lv2: 25 armor (20% reduction)
+   Lv3: 45 armor (31% reduction)
+   Lv4: 75 armor (43% reduction)
+
+5. WARRIOR'S MIGHT (HP + Damage):
+   Lv1: +15 HP, +5% damage
+   Lv2: +30 HP, +10% damage
+   Lv3: +50 HP, +20% damage
+
+=============================================================================
+ARQUIVOS CRIADOS/MODIFICADOS
+=============================================================================
+
+NOVOS:
+├─ autoload/player_stats.gd (autoload - PRECISA CONFIGURAR)
+├─ data/powerup_data/powerup_data.gd (resource)
+├─ data/powerup_data/powerup_vitality.tres
+├─ data/powerup_data/powerup_swift_feet.tres
+├─ data/powerup_data/powerup_raw_power.tres
+├─ data/powerup_data/powerup_iron_skin.tres
+├─ data/powerup_data/powerup_warrior.tres
+└─ scripts/test_powerups.gd (debug)
+
+PREENCHIDOS:
+└─ scripts/power_up_controller.gd (estava vazio)
+
+MODIFICADOS:
+├─ scripts/player_base.gd (armor em take_damage)
+└─ scripts/base_power.gd (damage multiplier)
+
+JÁ EXISTIAM (criados pelo usuário):
+├─ entities/power_up_controller.tscn (cena)
+└─ scripts/power_up_controller.gd (script vazio - agora preenchido)
+
+=============================================================================
+TROUBLESHOOTING
+=============================================================================
+
+ERRO: "Could not resolve class 'PlayerBase'" ou "BasePower"
+SOLUÇÃO: Feche e reabra o projeto no Godot. Esses erros devem desaparecer 
+         após o Godot recarregar os scripts.
+
+ERRO: "Identifier 'PlayerStatsGlobal' not declared"
+SOLUÇÃO: PlayerStatsGlobal já está configurado no project.godot. Feche e 
+         reabra o projeto.
+
+ERRO: "PowerUpController: Parent is not PlayerBase!"
+SOLUÇÃO: PowerUpController não está filho direto de Major_Heat (Passo 1)
+
+ERRO: "PowerUp ID X não encontrado"
+SOLUÇÃO: Array de powerups não configurado no Inspector (Passo 2)
+
+NENHUM PRINT APARECE:
+SOLUÇÃO: PowerUpController não foi adicionado ao major_heat.tscn (Passo 1)
+
+TECLAS NÃO FUNCIONAM:
+SOLUÇÃO: TestPowerups não foi adicionado como filho de Major_Heat (Passo 3)
+
+=============================================================================
+
+Status: FASE 2 COMPLETA ✅
+Código implementado ✅
+PlayerStatsGlobal configurado automaticamente ✅
+CORREÇÃO v1: Valores base salvos ✅
+CORREÇÃO v2: UI atualiza no reset ✅
+REQUER 3 PASSOS MANUAIS ⚠️
+Depois de configurar = FUNCIONAL ✅
+
+=============================================================================
+📋 VISUALIZAÇÃO DE STATS NO JOGO
+=============================================================================
+
+Consulte o arquivo "GUIA-VISUALIZACAO-STATS.txt" para detalhes completos.
+
+RESUMO RÁPIDO:
+
+✅ MAX HEALTH:
+   - HealthLabel mostra diretamente (ex: "1000 / 1000")
+   - HealthBar visual
+   - AGORA ATUALIZA CORRETAMENTE NO RESET! ✅
+
+✅ MOVE SPEED:
+   - Sente diferença ao mover o player
+   - +10% = visivelmente mais rápido
+
+⚠️  DAMAGE:
+   - Conte hits necessários para matar inimigos
+   - Ex: Red Gator 30 HP, Fire 4 dmg = 8 hits
+   - Com +10% damage = 7 hits
+
+⚠️  ARMOR:
+   - Observe HP caindo ao ser atacado
+   - Ex: Inimigo 3 dmg/tick
+   - Com 10 armor (9% redução) = 2.73 dmg/tick
+
+⏳ MAGNET RANGE: Não implementado ainda (futuro)
+⏳ ATTACK SPEED: Não implementado ainda (futuro)
+
+=============================================================================
+🔄 RESET DO PAUSE MENU
+=============================================================================
+
+PERGUNTA: "O reset do pause menu zera os powerups?"
+
+RESPOSTA: SIM! Automaticamente.
+
+COMO FUNCIONA:
+1. Pause menu chama get_tree().reload_current_scene()
+2. Toda a cena é RECARREGADA do zero
+3. PowerUpController inicializa novamente
+4. Resources duplicados com current_level = 0
+5. TODOS os stats voltam ao base
+
+NÃO PRECISA FAZER NADA MANUALMENTE!
+O reset de cena JÁ limpa tudo automaticamente.
+
+COMO CONFIRMAR:
+- HealthLabel volta ao valor base (ex: 1000)
+- Move Speed volta ao normal
+- Damage volta ao base (conta hits novamente)
+- Armor zerado (dano recebido volta ao normal)

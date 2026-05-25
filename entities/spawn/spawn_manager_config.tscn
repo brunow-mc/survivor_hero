@@ -1,0 +1,11 @@
+[gd_scene load_steps=5 format=3 uid="uid://bq81qryqfwvjq"]
+
+[ext_resource type="Script" uid="uid://cl4wdc13kj8pi" path="res://scripts/spawn_manager_config.gd" id="1_config_script"]
+[ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/spawn_data.gd" id="2_5imrm"]
+[ext_resource type="Resource" path="res://data/enemy_spawn/spawn_gator.tres" id="2_gator"]
+[ext_resource type="Resource" uid="uid://dx6mbqr3ckl8y" path="res://data/enemy_spawn/spawn_red_gator.tres" id="3_red_gator"]
+
+[node name="SpawnManagerConfig" type="Node"]
+script = ExtResource("1_config_script")
+enemy_definitions = Array[ExtResource("2_5imrm")]([ExtResource("2_gator"), ExtResource("3_red_gator")])
+min_distance_between_enemies = 80.0

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://cjk7ut73hedh5"]
+
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cdv7avxc66ebe" path="res://sprites/icons/powerup_icons/power_up_08_lethal_impact_icon.png" id="1_jsmyi"]
+
+[resource]
+script = ExtResource("1")
+powerup_id = 8
+powerup_name = "Lethal Impact"
+description = "High-velocity projectiles with devastating force"
+icon = ExtResource("1_jsmyi")
+display_name_per_level = Array[String](["Lethal Impact Lv1", "Lethal Impact Lv2", "Lethal Impact Lv3", "Lethal Impact Lv4", "Lethal Impact Lv5"])
+description_per_level = Array[String](["test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest", "test%\\ntest"])
+damage_percent_per_level = Array[float]([0.08, 0.08, 0.08, 0.08, 0.1])
+projectile_speed_percent_per_level = Array[float]([0.1, 0.1, 0.1, 0.1, 0.1])
+knockback_percent_per_level = Array[float]([0.12, 0.12, 0.12, 0.12, 0.12])

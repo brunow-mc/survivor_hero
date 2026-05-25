@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://4yo4qoaxymxa"]
+
+[ext_resource type="Resource" uid="uid://b1n0yqubqsnmf" path="res://data/hit_data/hit_06_snowflake.tres" id="1_u2eqb"]
+[ext_resource type="AudioStream" uid="uid://1aj2r75dnlwj" path="res://audio/effects/powers/power_06_snowflake_sound_01.mp3" id="1_y6618"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="1_ygr40"]
+[ext_resource type="PackedScene" uid="uid://74agvfx4kaac" path="res://entities/powers/power_06_snowflake.tscn" id="2_n4rkm"]
+[ext_resource type="Texture2D" uid="uid://bor3fbxrd8ure" path="res://sprites/icons/attack_icons/power_06_snowflake_icon.png" id="3_64fqj"]
+[ext_resource type="AudioStream" uid="uid://dyns82jabe78e" path="res://audio/effects/powers/power_06_snowflake_sound_02.mp3" id="5_64fqj"]
+
+[resource]
+script = ExtResource("1_ygr40")
+attack_id = 6
+attack_name = "Snow Flake"
+icon = ExtResource("3_64fqj")
+packed_scene = ExtResource("2_n4rkm")
+hit_data = ExtResource("1_u2eqb")
+interval = 2.5
+life_time = 2.0
+attack_delay = 0.4
+damage_interval = 0.2
+activation_delay = 0.3
+projectile_stagger_delay = 0.2
+max_hits = -1
+attack_sound = ExtResource("1_y6618")
+attack_sound_pitch_scale = 2.0
+secondary_sound = ExtResource("5_64fqj")
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

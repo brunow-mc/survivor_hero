@@ -1,0 +1,94 @@
+===============================================
+SURVIVOR HERO - v1.3.5
+Correção: Iron Skin Level 5
+===============================================
+
+MUDANÇAS NESTA VERSÃO:
+----------------------
+
+1. BUGFIX: Iron Skin agora alcança Level 5 corretamente
+
+   ARQUIVO MODIFICADO:
+   • data/power_up_data/power_up_iron_skin.tres
+   
+   PROBLEMA:
+   • max_level não estava salvo explicitamente no .tres
+   • Godot estava usando valor cacheado antigo (4)
+   • Resultado: só alcançava 4 levels (0→3) em vez de 5 levels (0→4)
+   
+   SOLUÇÃO:
+   • Adicionada linha explícita: max_level = 5
+   • Array já tinha 5 elementos: [15.0, 25.0, 45.0, 75.0, 0.99]
+   • Agora funciona corretamente: Level 0→1→2→3→4→5
+
+
+VALIDAÇÃO APÓS CORREÇÃO:
+-------------------------
+
+Teste Iron Skin apertando [4] durante o jogo:
+• 1ª vez: 0 → 1 (Armor: 0 → 15)
+• 2ª vez: 1 → 2 (Armor: 15 → 25)
+• 3ª vez: 2 → 3 (Armor: 25 → 45)
+• 4ª vez: 3 → 4 (Armor: 45 → 75)
+• 5ª vez: 4 → 5 (Armor: 75 → 0.99) ✅ AGORA FUNCIONA
+• 6ª vez: "⚠️ 'Iron Skin' já está no max level 5"
+
+
+REGRA PARA EDITAR LEVELS DE QUALQUER POWERUP:
+----------------------------------------------
+
+Para mudar número de levels de um powerup no Inspector:
+
+1. Abrir o arquivo .tres do powerup
+2. Editar DOIS campos:
+   • max_level = [número desejado]
+   • Array correspondente = [tamanho igual a max_level]
+3. Salvar e testar no jogo
+
+EXEMPLO: Aumentar Iron Skin para 6 levels:
+   max_level = 6
+   armor_flat_per_level = [15.0, 25.0, 45.0, 75.0, 100.0, 150.0]
+
+
+IMPORTANTE - SALVAR EXPLICITAMENTE:
+------------------------------------
+
+• Se editar max_level no Inspector mas ele não aparecer no .tres,
+  o Godot pode estar usando cache antigo
+  
+• SOLUÇÃO: Adicionar a linha manualmente no .tres:
+  max_level = [valor]
+  
+• Isso garante que o arquivo tem o valor explícito e força reload
+
+
+LEMBRETE FASE 2 (próximo milestone):
+-------------------------------------
+
+Padronizar PowerUpData para método ACUMULATIVO:
+• Mudar power_up_data.gd (_get_value para somar valores)
+• Reconfigurar arrays dos 8 .tres (valores incrementais)
+• Testar progressão de cada powerup
+
+Exemplo de conversão:
+  ANTES (substituição): [20, 40, 60, 80, 100]
+  DEPOIS (acumulativo): [20, 20, 20, 20, 20]
+  
+  Level 1 = 20
+  Level 2 = 20+20 = 40
+  Level 3 = 20+20+20 = 60
+  etc.
+
+
+ARQUIVOS DESTA VERSÃO:
+-----------------------
+MODIFICADOS:
+• data/power_up_data/power_up_iron_skin.tres (+ max_level = 5)
+
+NÃO MODIFICADOS:
+• Todos outros scripts e recursos mantidos de v1.3.4
+
+
+===============================================
+Data: 29/03/2026
+===============================================

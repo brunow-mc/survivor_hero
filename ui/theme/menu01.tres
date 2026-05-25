@@ -1,0 +1,24 @@
+[gd_resource type="Theme" format=3 uid="uid://doe86ai6jpdu"]
+
+[ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="1_iqlsx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tnrsn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhw3w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_163qp"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cjgqd"]
+
+[resource]
+Button/colors/font_focus_color = Color(1, 0.725, 0, 1)
+Button/colors/font_hover_color = Color(1, 0.725, 0, 1)
+Button/colors/font_hover_pressed_color = Color(1, 0.725, 0, 1)
+Button/colors/font_pressed_color = Color(1, 0.5568628, 0, 1)
+Button/constants/outline_size = 5
+Button/font_sizes/font_size = 15
+Button/fonts/font = ExtResource("1_iqlsx")
+Button/styles/focus = SubResource("StyleBoxEmpty_tnrsn")
+Button/styles/hover = SubResource("StyleBoxEmpty_mhw3w")
+Button/styles/normal = SubResource("StyleBoxEmpty_163qp")
+Button/styles/pressed = SubResource("StyleBoxEmpty_cjgqd")

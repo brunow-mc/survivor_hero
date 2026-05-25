@@ -1,0 +1,310 @@
+═══════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.2.6
+═══════════════════════════════════════════════════════════════════
+Data: 26/03/2026
+Tipo: Feature (Novo Powerup - Lethal Impact)
+
+═══════════════════════════════════════════════════════════════════
+📋 RESUMO DAS MUDANÇAS
+═══════════════════════════════════════════════════════════════════
+
+NOVO POWERUP: Lethal Impact
+├─ Combina 3 stats em um único powerup
+├─ Projectile Speed: +10/20/30/40/50% (levels 1-5)
+├─ Knockback Force: +12/24/36/48/60% (levels 1-5)
+└─ Damage: +8/16/24/32/40% (levels 1-5)
+
+Cada stat aumenta ~50% do valor de powerups individuais dedicados.
+
+═══════════════════════════════════════════════════════════════════
+🎯 JUSTIFICATIVA - DESIGN DO LETHAL IMPACT
+═══════════════════════════════════════════════════════════════════
+
+CONCEITO: Projéteis de alta velocidade com força devastadora
+
+SINERGIA FÍSICA:
+   Velocidade → Maior impulso → Mais knockback → Maior impacto
+   
+   É logicamente coerente que projéteis mais rápidos:
+   1. Empurrem inimigos com mais força
+   2. Causem mais dano pelo impacto
+   3. Tenham maior alcance efetivo
+
+BALANCEAMENTO:
+   Valores individuais hipotéticos:
+   - Speed Only: +20% por level
+   - Knockback Only: +25% por level  
+   - Damage Only: +15% por level
+   
+   Lethal Impact (combinado):
+   - Speed: +10% por level (~50% do individual)
+   - Knockback: +12% por level (~48% do individual)
+   - Damage: +8% por level (~53% do individual)
+   
+   Total de bonus = ~150% de um powerup
+   Se fossem 3 separados = 300%
+   ∴ Combo é forte mas não OP
+
+═══════════════════════════════════════════════════════════════════
+🔧 IMPLEMENTAÇÃO TÉCNICA
+═══════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│ 1. PowerUpStatsGlobal (autoload/player_stats.gd)            │
+├──────────────────────────────────────────────────────────────┤
+│ NOVO: var projectile_speed_multiplier: float = 1.0          │
+│ NOVO: var knockback_multiplier: float = 1.0                 │
+│                                                              │
+│ Centraliza multiplicadores globais que afetam TODOS ataques │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│ 2. AttackData (data/attack_data/attack_data.gd)             │
+├──────────────────────────────────────────────────────────────┤
+│ NOVO: var orbit_speed_effectiveness: float = 0.5            │
+│                                                              │
+│ Controla quanto projectile_speed_multiplier afeta gear:     │
+│ - 1.0 = 100% do efeito (muito rápido)                       │
+│ - 0.5 = 50% do efeito (recomendado)                         │
+│ - 0.0 = sem efeito                                          │
+│                                                              │
+│ RAZÃO: Gear giraria MUITO rápido sem limitação              │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│ 3. Powers - Aplicação de Speed Multiplier                   │
+├──────────────────────────────────────────────────────────────┤
+│ power_01_fire.gd:                                            │
+│   speed = data.speed * PowerUpStatsGlobal.projectile_speed  │
+│                                                              │
+│ power_02_ring.gd:                                            │
+│   speed = data.speed * PowerUpStatsGlobal.projectile_speed  │
+│                                                              │
+│ power_04_bo.gd:                                              │
+│   speed = data.speed * PowerUpStatsGlobal.projectile_speed  │
+│   current_speed = speed                                     │
+│                                                              │
+│ power_05_gear.gd (COM EFFECTIVENESS):                        │
+│   var speed_bonus = projectile_speed_multiplier - 1.0       │
+│   var effective = speed_bonus * orbit_speed_effectiveness   │
+│   orbit_speed = data.orbit_speed * (1.0 + effective)        │
+│                                                              │
+│ Exemplo: speed_mult = 1.5 (+50%), effectiveness = 0.5       │
+│   → bonus = 0.5                                             │
+│   → effective_bonus = 0.5 * 0.5 = 0.25                      │
+│   → orbit_speed *= 1.25 (só +25% em vez de +50%)           │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│ 4. BasePower - Aplicação de Knockback Multiplier            │
+├──────────────────────────────────────────────────────────────┤
+│ Linha 93 (base_power.gd):                                   │
+│   modified_hit_data.knockback_force =                        │
+│       hit_data.knockback_force * knockback_multiplier        │
+│                                                              │
+│ Aplicado JUNTO com damage multiplier ao causar dano         │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│ 5. PowerUpData - Novos Arrays                               │
+├──────────────────────────────────────────────────────────────┤
+│ @export var projectile_speed_percent_per_level: Array       │
+│ @export var knockback_percent_per_level: Array              │
+│                                                              │
+│ + get_projectile_speed_bonus() -> Dictionary                │
+│ + get_knockback_bonus() -> Dictionary                       │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│ 6. PowerUpController - Recalculate Stats                    │
+├──────────────────────────────────────────────────────────────┤
+│ Loop adiciona:                                               │
+│   total_projectile_speed_percent += bonus["percent"]        │
+│   total_knockback_percent += bonus["percent"]               │
+│                                                              │
+│ Stats Dictionary:                                            │
+│   "projectile_speed_multiplier": 1.0 + total_proj_speed     │
+│   "knockback_multiplier": 1.0 + total_knockback             │
+└──────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+📊 ARQUIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════════
+
+[AUTOLOAD]
+✅ autoload/player_stats.gd
+   - Cabeçalho: "POWERUP STATS GLOBAL" (corrigido v1.2.5)
+   - +projectile_speed_multiplier
+   - +knockback_multiplier
+   - update_stats(), reset(), _print_stats_debug() atualizados
+
+[DATA]
+✅ data/attack_data/attack_data.gd
+   - +orbit_speed_effectiveness: float = 0.5
+
+✅ data/powerup_data/powerup_data.gd
+   - +projectile_speed_percent_per_level array
+   - +knockback_percent_per_level array
+   - +get_projectile_speed_bonus()
+   - +get_knockback_bonus()
+
+🆕 data/powerup_data/powerup_lethal_impact.tres (NOVO)
+   - powerup_id = 8
+   - max_level = 5
+   - damage: [8%, 16%, 24%, 32%, 40%]
+   - projectile_speed: [10%, 20%, 30%, 40%, 50%]
+   - knockback: [12%, 24%, 36%, 48%, 60%]
+
+[SCRIPTS - POWERS]
+✅ scripts/power_01_fire.gd
+   - Aplica projectile_speed_multiplier
+
+✅ scripts/power_02_ring.gd
+   - Aplica projectile_speed_multiplier
+
+✅ scripts/power_04_bo.gd
+   - Aplica projectile_speed_multiplier
+   - Atualiza current_speed
+
+✅ scripts/power_05_gear.gd
+   - Aplica projectile_speed_multiplier COM effectiveness
+   - Fórmula: orbit_speed * (1 + bonus * effectiveness)
+
+✅ scripts/base_power.gd
+   - Aplica knockback_multiplier junto com damage
+
+[SCRIPTS - SISTEMA]
+✅ scripts/power_up_controller.gd
+   - _recalculate_all_stats(): soma speed/knockback
+   - _duplicate_powerup_resources(): duplica novos arrays
+   - _apply_stats_to_player(): prints de debug
+
+✅ scripts/test_powerups.gd
+   - Adicionado KEY_8 para Lethal Impact
+   - Atualizado cabeçalho v1.2.6
+
+[SCENES]
+✅ entities/power_up_controller.tscn
+   - Adicionado ExtResource do Lethal Impact
+   - Incluído no array de powerups
+
+═══════════════════════════════════════════════════════════════════
+🎮 COMO TESTAR
+═══════════════════════════════════════════════════════════════════
+
+1. Rodar jogo (F5)
+
+2. Pressionar [8] cinco vezes (level 1 → 5)
+   Observar no console:
+   ✅ "Lethal Impact" unlocked/upgraded
+   ✅ Stats atualizados:
+      - Damage Multiplier: +40%
+      - Projectile Speed: +50%
+      - Knockback: +60%
+
+3. TESTAR VISUALMENTE:
+   
+   a) SPEED:
+      - Projéteis voam MUITO mais rápido
+      - Fire, Ring, Bo mais velozes
+      - Gear gira mais rápido (mas controlado)
+   
+   b) KNOCKBACK:
+      - Inimigos são empurrados com MAIS FORÇA
+      - Especialmente visível com Bo
+   
+   c) DAMAGE:
+      - Inimigos morrem mais rápido
+      - Combine com Raw Power para efeito total
+
+4. TESTAR COMBO:
+   [3] x5 = Raw Power (+65%)
+   [8] x5 = Lethal Impact (+40%)
+   TOTAL: ×2.05 damage (mais que o dobro!)
+
+═══════════════════════════════════════════════════════════════════
+⚙️ DETALHES TÉCNICOS - ORBIT SPEED EFFECTIVENESS
+═══════════════════════════════════════════════════════════════════
+
+SEM effectiveness (problema):
+   projectile_speed_multiplier = 1.5 (+50%)
+   orbit_speed = 3.0 * 1.5 = 4.5
+   → Gear gira MUITO rápido (difícil de ver/jogar)
+
+COM effectiveness = 0.5 (solução):
+   speed_bonus = 1.5 - 1.0 = 0.5
+   effective_bonus = 0.5 * 0.5 = 0.25
+   orbit_speed = 3.0 * 1.25 = 3.75
+   → Gear gira +25% (equilibrado)
+
+CONFIGURÁVEL por ataque:
+   - Pode ajustar effectiveness no Inspector
+   - 1.0 = efeito total
+   - 0.5 = efeito reduzido (default)
+   - 0.0 = sem efeito
+
+═══════════════════════════════════════════════════════════════════
+📈 PROGRESSÃO DE STATS - LETHAL IMPACT
+═══════════════════════════════════════════════════════════════════
+
+Level 1: +10% speed, +12% knockback, +8% damage
+Level 2: +20% speed, +24% knockback, +16% damage
+Level 3: +30% speed, +36% knockback, +24% damage
+Level 4: +40% speed, +48% knockback, +32% damage
+Level 5: +50% speed, +60% knockback, +40% damage ← MAX
+
+Exemplo combinado (Level 5):
+   Fire speed base: 150
+   Com Lethal 5: 150 * 1.5 = 225 (+50%)
+   
+   Knockback base: 150
+   Com Lethal 5: 150 * 1.6 = 240 (+60%)
+   
+   Damage base: 4
+   Com Lethal 5: 4 * 1.4 = 5.6 (+40%)
+
+═══════════════════════════════════════════════════════════════════
+✅ VERIFICAÇÕES DE QUALIDADE
+═══════════════════════════════════════════════════════════════════
+
+[✅] Código compilado sem erros
+[✅] Todos arrays duplicados manualmente
+[✅] Stats aplicados corretamente
+[✅] Debug prints atualizados
+[✅] Tecla [8] configurada
+[✅] powerup_lethal_impact.tres criado
+[✅] ExtResource adicionado ao .tscn
+[✅] Orbit effectiveness implementado
+[✅] Compatibilidade v1.2.5 mantida
+
+═══════════════════════════════════════════════════════════════════
+🚀 PRÓXIMOS PASSOS (NÃO IMPLEMENTADOS)
+═══════════════════════════════════════════════════════════════════
+
+v1.3.0 (planejada):
+   - Sistema de Attack Upgrades
+     ├─ AttackUpgradeData.gd (novo resource)
+     ├─ Expansão do AttackController
+     └─ Upgrades específicos por ataque
+   
+   Exemplo: Fire Level 3
+     - +2 projectile_count
+     - +30% damage (só Fire)
+     - +pierce (+1 max_hits)
+
+═══════════════════════════════════════════════════════════════════
+📝 NOTAS DO DESENVOLVEDOR
+═══════════════════════════════════════════════════════════════════
+
+O nome "orbit_speed_effectiveness" foi escolhido por:
+   1. Clareza semântica (quão efetivo é o bonus)
+   2. Extensibilidade (pode aplicar a outros sistemas)
+   3. Convenção (similar a "damage_effectiveness" em outros jogos)
+
+Valores de Lethal Impact (~50% individual) permitem:
+   - Stacking com outros powerups
+   - Build diversity (escolher Lethal OU especializados)
+   - Menos OP que 3 powerups separados
+   - Mais interessante que 1 stat sozinho
+
+═══════════════════════════════════════════════════════════════════

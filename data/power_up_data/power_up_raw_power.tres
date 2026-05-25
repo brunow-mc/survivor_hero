@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://p0ff7nws3hm2"]
+
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://be7vkr66a4b8d" path="res://sprites/icons/powerup_icons/power_up_03_raw_power_icon.png" id="1_nd1h5"]
+
+[resource]
+script = ExtResource("1")
+powerup_id = 3
+powerup_name = "Raw Power"
+description = "Increases damage dealt"
+icon = ExtResource("1_nd1h5")
+display_name_per_level = Array[String](["Raw Power Lv1", "Raw Power Lv2", "Raw Power Lv3", "Raw Power Lv4", "Raw Power Lv5"])
+description_per_level = Array[String](["test%\\ntest%", "test%\\ntest%", "test%\\ntest%", "test%\\ntest%", "test%\\ntest%"])
+damage_percent_per_level = Array[float]([0.1, 0.1, 0.1, 0.15, 0.15])

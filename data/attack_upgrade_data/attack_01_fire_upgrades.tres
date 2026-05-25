@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AttackUpgradeData" format=3 uid="uid://cr4hu6ewcufpy"]
+
+[ext_resource type="Script" uid="uid://c0rqddrmydg2d" path="res://data/attack_upgrade_data/attack_upgrade_data.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+attack_id = 1
+attack_name = "Fire Power"
+description = "Fireball upgrades"
+max_level = 8
+display_name_per_level = Array[String](["Fire Power Lv1", "Fire Power Lv2", "Fire Power Lv3", "Fire Power Lv4", "Fire Power Lv5", "Fire Power Lv6", "Fire Power Lv7", "Fire Power Lv8"])
+description_per_level = Array[String](["Unlock Fire Power", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale", "+1 Projectile\\n+2% Scale"])
+projectile_count_per_level = Array[int]([0, 1, 0, 1, 0, 1, 0, 1])
+damage_bonus_per_level = Array[float]([0.0, 0.0, 0.05, 0.0, 0.05, 0.0, 0.05, 0.1])
+speed_bonus_per_level = Array[float]([0.0, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025])
+max_hits_per_level = Array[int]([0, 0, 0, 0, 0, 0, 0, 0])
+cooldown_reduction_per_level = Array[float]([0.0, 0.0, 0.05, 0.0, 0.05, 0.0, 0.05, 0.05])
+projectile_angle_spread_per_level = Array[float]([0.0, 7.5, 0.0, -5.5, 0.0, 0.0, 0.0, 0.0])
+life_time_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+attack_scale_bonus_per_level = Array[float]([0.0, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02])

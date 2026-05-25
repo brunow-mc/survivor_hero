@@ -1,0 +1,209 @@
+=============================================================================
+SURVIVOR HERO - v1.2.0 - DEBUG MAGNET SYSTEM
+=============================================================================
+
+🐛 PROBLEMA: Magnet não funciona mesmo após correção
+🔍 SOLUÇÃO: Sistema de debug completo adicionado
+
+=============================================================================
+🎯 COMO USAR O DEBUG
+=============================================================================
+
+1. RODE O JOGO (F5)
+
+2. PRESSIONE [M] DURANTE O JOGO
+   
+   Isso executa um diagnóstico completo que testa:
+   ✅ PowerUpController existe?
+   ✅ Array de powerups está correto?
+   ✅ Magnet (ID 6) está no array?
+   ✅ get_magnet_bonus() funciona?
+   ✅ PlayerStatsGlobal recebe o valor?
+   ✅ XP items aplicam o bonus?
+
+3. LEIA O OUTPUT NO CONSOLE
+   
+   O debug mostra exatamente onde está falhando:
+   
+   ✅ = Passou no teste
+   ❌ = FALHOU (problema encontrado!)
+   ⚠️ = Atenção (possível problema)
+
+=============================================================================
+📋 EXEMPLO DE OUTPUT
+=============================================================================
+
+======================================================================
+🔍 DIAGNÓSTICO COMPLETO - MAGNET SYSTEM
+======================================================================
+
+📋 TESTE 1: PowerUpController
+✅ PowerUpController encontrado
+
+📋 TESTE 2: Array de Powerups
+   Total de powerups: 6
+   [0] ID=1, Name='Vitality', Level=0/5
+   [1] ID=2, Name='Swift Feet', Level=0/3
+   [2] ID=3, Name='Raw Power', Level=0/5
+   [3] ID=4, Name='Iron Skin', Level=0/4
+   [4] ID=5, Name="Warrior's Might", Level=0/3
+   [5] ID=6, Name='Magnetic Field', Level=0/4    ← MAGNET AQUI!
+
+📋 TESTE 3: Buscar Magnet (ID 6)
+✅ Magnet encontrado: 'Magnetic Field'
+   Level atual: 0/4
+   Array size: 4
+   Valores: [25, 60, 105, 160]
+
+📋 TESTE 4: get_magnet_bonus()
+   Flat: 0.0
+   Percent: 0.0
+   ⚠️ Level = 0, bonus deve ser 0
+
+📋 TESTE 5: PlayerStatsGlobal
+   magnet_range_bonus = 0.0
+
+📋 TESTE 6: XP Items na cena
+   Total de XP items: 3
+   Exemplo XP Item:
+   - Base magnet_range: 50.0
+   - Bonus aplicado: 0.0
+   - Range efetivo: 50.0
+
+📋 TESTE 7: Aplicando Magnet Lv1
+✅ apply_powerup(6) retornou TRUE
+   Novo level: 1
+   Novo bonus: 25.0                              ← FUNCIONOU!
+
+📊 RESUMO:
+   PowerUpController: ✅ OK
+   Magnet no array: ✅ OK
+   Magnet Level: 1/4
+   PlayerStatsGlobal.magnet_range_bonus: 25.0
+   XP Items na cena: 3
+
+======================================================================
+
+=============================================================================
+❌ POSSÍVEIS PROBLEMAS E SOLUÇÕES
+=============================================================================
+
+PROBLEMA 1: "PowerUp ID 6 NÃO ENCONTRADO!"
+────────────────────────────────────────────────
+CAUSA: power_up_magnet.tres não tem powerup_id = 6
+
+SOLUÇÃO:
+1. Abra data/powerup_data/power_up_magnet.tres no editor de texto
+2. Verifique se tem esta linha:
+   powerup_id = 6
+3. Se não tem, adicione após "script = ..."
+
+PROBLEMA 2: "Magnet não está no array"
+────────────────────────────────────────────────
+CAUSA: PowerUpController.tscn não referencia power_up_magnet.tres
+
+SOLUÇÃO:
+1. Abra entities/power_up_controller.tscn
+2. Procure a linha:
+   powerups = Array[ExtResource(...)][...]
+3. Verifique se tem ExtResource("8_wim2b") no final
+4. Se não tem, adicione power_up_magnet.tres ao array
+
+PROBLEMA 3: "Array size: 0" ou valores vazios
+────────────────────────────────────────────────
+CAUSA: magnet_range_flat_per_level está vazio
+
+SOLUÇÃO:
+1. Abra power_up_magnet.tres
+2. Verifique linha:
+   magnet_range_flat_per_level = Array[float]([25.0, 60.0, 105.0, 160.0])
+3. Se está vazio, substitua pelo valor acima
+
+PROBLEMA 4: "apply_powerup(6) retornou FALSE"
+────────────────────────────────────────────────
+CAUSA: Já está no max level OU powerup_id errado
+
+SOLUÇÃO:
+1. Se Level = 4/4: Já está no máximo!
+2. Pressione [R] para resetar
+3. Tente [6] novamente
+
+PROBLEMA 5: Bonus = 0 mesmo com Level > 0
+────────────────────────────────────────────────
+CAUSA: Arrays não foram duplicados corretamente
+
+SOLUÇÃO:
+1. Verifique se _duplicate_powerup_resources() está sendo chamado
+2. Verifique console no início do jogo:
+   "🔄 PowerUpController: Resources duplicated for runtime"
+
+=============================================================================
+🧪 TESTE MANUAL PASSO A PASSO
+=============================================================================
+
+PASSO 1: Verificar arquivo power_up_magnet.tres
+────────────────────────────────────────────────
+Abra: data/powerup_data/power_up_magnet.tres
+
+DEVE CONTER:
+[resource]
+script = ExtResource("1_221pq")
+powerup_id = 6                                    ← OBRIGATÓRIO!
+powerup_name = "Magnetic Field"                   ← OBRIGATÓRIO!
+description = "Increases XP collection range"     ← OBRIGATÓRIO!
+max_level = 4                                     ← OBRIGATÓRIO!
+magnet_range_flat_per_level = Array[float]([25.0, 60.0, 105.0, 160.0])
+metadata/_custom_type_script = "uid://cixgfjaoi4ito"
+
+PASSO 2: Rodar o jogo
+────────────────────────────────────────────────
+1. F5 para rodar
+2. Observe console no início:
+   "✅ PowerUpController: Player reference acquired"
+   "🔄 PowerUpController: Resources duplicated for runtime"
+
+PASSO 3: Pressionar [M] para debug
+────────────────────────────────────────────────
+1. Durante o jogo, pressione [M]
+2. Leia TODO o output no console
+3. Procure por ❌ ou ⚠️
+
+PASSO 4: Interpretar resultado
+────────────────────────────────────────────────
+Se TUDO ✅:
+   → Magnet está configurado corretamente!
+   → Pressione [6] para ativar
+   → Mate inimigos e observe XP sendo atraído de mais longe
+
+Se algum ❌:
+   → Leia a mensagem de erro
+   → Consulte seção "POSSÍVEIS PROBLEMAS" acima
+   → Aplique a solução correspondente
+
+=============================================================================
+📤 ENVIE PARA MIM
+=============================================================================
+
+Se continuar não funcionando, ME ENVIE:
+
+1. OUTPUT COMPLETO do debug [M]
+   (copie TODO o texto do console após pressionar M)
+
+2. Conteúdo do arquivo power_up_magnet.tres
+   (abra no editor de texto e copie tudo)
+
+3. Console desde o início do jogo
+   (procure por "PowerUpController: Initializing...")
+
+Com essas informações, posso identificar EXATAMENTE onde está o problema!
+
+=============================================================================
+🎯 ARQUIVO ADICIONADO
+=============================================================================
+
+scripts/debug_magnet.gd
+   → Script de diagnóstico completo
+   → Adicionado automaticamente ao Major_Heat
+   → Pressione [M] durante o jogo para usar
+
+=============================================================================

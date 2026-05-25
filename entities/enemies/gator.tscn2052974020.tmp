@@ -1,0 +1,134 @@
+[gd_scene load_steps=17 format=3 uid="uid://cpjj1dgsuaw28"]
+
+[ext_resource type="Script" uid="uid://ccvqovyhnp2i3" path="res://scripts/enemy.gd" id="1_p7g5j"]
+[ext_resource type="Texture2D" uid="uid://cxvudp2drytpw" path="res://sprites/enemies/gator/gator.png" id="2_pqhw6"]
+[ext_resource type="Texture2D" uid="uid://co03sj7spnphf" path="res://sprites/enemies/gator/gator_walk_attack.png" id="2_u5jqn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
+radius = 16.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p8ncp"]
+atlas = ExtResource("2_pqhw6")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b4nis"]
+atlas = ExtResource("2_pqhw6")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uvc0s"]
+atlas = ExtResource("2_pqhw6")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8e4v"]
+atlas = ExtResource("2_pqhw6")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rrp0o"]
+atlas = ExtResource("2_pqhw6")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_im8yg"]
+atlas = ExtResource("2_u5jqn")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3rau8"]
+atlas = ExtResource("2_u5jqn")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r4tcw"]
+atlas = ExtResource("2_u5jqn")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rp1ac"]
+atlas = ExtResource("2_u5jqn")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jq0pf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p8ncp")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b4nis")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uvc0s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x8e4v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rrp0o")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_im8yg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3rau8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r4tcw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rp1ac")
+}],
+"loop": true,
+"name": &"walk_attack",
+"speed": 6.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
+radius = 8.0
+height = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u5jqn"]
+radius = 11.0
+
+[node name="Gator" type="CharacterBody2D" groups=["Enemies"]]
+collision_layer = 4
+collision_mask = 13
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_p7g5j")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_c8u6y")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_jq0pf")
+animation = &"walk_attack"
+frame = 3
+frame_progress = 0.9105627
+
+[node name="Hitbox" type="Area2D" parent="." groups=["EnemiHitbox"]]
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(0, -3)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_u5jqn")
+debug_color = Color(1, 0, 0, 0.41960785)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_u5jqn")
+debug_color = Color(2.5027991e-06, 0.5867503, 0.22500402, 0.41960785)
+
+[connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
+[connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]

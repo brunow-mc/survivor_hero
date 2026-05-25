@@ -1,0 +1,98 @@
+═══════════════════════════════════════════════════════════════
+SURVIVOR HERO v1.3.12
+ADICIONADOS: attack_03_electricity_upgrades e attack_04_bo_upgrades
+═══════════════════════════════════════════════════════════════
+
+✅ ARQUIVOS CRIADOS:
+   data/attack_upgrade_data/attack_03_electricity_upgrades.tres
+   data/attack_upgrade_data/attack_04_bo_upgrades.tres
+
+═══════════════════════════════════════════════════════════════
+COMO ADICIONAR NO INSPECTOR
+═══════════════════════════════════════════════════════════════
+
+1. Abrir: scenes/player.tscn
+
+2. Selecionar: Player > AttackController
+
+3. No Inspector, na seção "Attack Controller":
+   - Encontrar: "Attack Upgrades" (Array)
+   - Clicar no dropdown
+
+4. ORDEM CORRETA (por attack_id):
+   [0] attack_01_fire_upgrades.tres       (ID 1)
+   [1] attack_02_ring_upgrades.tres       (ID 2)
+   [2] attack_03_electricity_upgrades.tres (ID 3) ← NOVO
+   [3] attack_04_bo_upgrades.tres         (ID 4) ← NOVO
+   [4] attack_05_gear_upgrades.tres       (ID 5)
+
+5. Para adicionar os novos:
+   a) Aumentar Size de 3 para 5
+   b) Arrastar os .tres para os slots [2] e [3]:
+      - Slot [2]: attack_03_electricity_upgrades.tres
+      - Slot [3]: attack_04_bo_upgrades.tres
+
+6. Salvar: Ctrl+S
+
+═══════════════════════════════════════════════════════════════
+TESTES BÁSICOS
+═══════════════════════════════════════════════════════════════
+
+TESTE 1: Remote Inspector
+--------------------------
+1. Play (F5)
+2. Remote Inspector: Scene > Remote > Remote Inspector
+3. Root > Player > AttackController > attack_upgrades
+
+VERIFICAR:
+✅ [0] Fire (attack_id=1)
+✅ [1] Ring (attack_id=2)
+✅ [2] Electricity (attack_id=3) ← NOVO
+✅ [3] Boomerang (attack_id=4)  ← NOVO
+✅ [4] Gear (attack_id=5)
+
+TESTE 2: Ligar Electricity
+---------------------------
+1. Remote Inspector > attack_upgrades > [2] Electricity
+2. Modificar current_level: 0 → 1
+   ✅ Attack deve começar (raios na área)
+   ✅ Console: "🔓 Upgrade 'Electricity' UNLOCKED at Lv1"
+
+TESTE 3: Ligar Boomerang
+------------------------
+1. Remote Inspector > attack_upgrades > [3] Boomerang
+2. Modificar current_level: 0 → 1
+   ✅ Attack deve começar (boomerang dispara)
+   ✅ Console: "🔓 Upgrade 'Boomerang' UNLOCKED at Lv1"
+
+TESTE 4: Upgrades Progressivos
+-------------------------------
+1. Electricity: 0 → 1 → 2 → 3 → 4 → 5
+   ✅ Damage aumenta: +10%, +15%, +25%, +35%
+   ✅ Cooldown reduz: -8%, -12%, -18%, -25%
+   ✅ Escala aumenta: +15%, +20%, +25%, +35%
+
+2. Boomerang: 0 → 1 → 2 → 3 → 4 → 5
+   ✅ Projectiles: +1 no Lv1, +1 no Lv3, +1 no Lv4
+   ✅ Max hits: +1 no Lv2, +1 no Lv3, +2 no Lv4
+   ✅ Cooldown reduz: -6%, -10%, -15%, -22%
+
+═══════════════════════════════════════════════════════════════
+VALORES DOS UPGRADES
+═══════════════════════════════════════════════════════════════
+
+ELECTRICITY (Area/Lightning):
+- Foco: Dano e área
+- Damage: +10% → +35% (crescente)
+- Scale: +15% → +35% (área maior)
+- Life time: +20% → +70% (dura mais)
+- Cooldown: -8% → -25%
+
+BOOMERANG (Projectile):
+- Foco: Múltiplos hits e velocidade
+- Projectiles: +1, +1, +1 (total +3)
+- Hits: +1, +1, +2 (total +4)
+- Speed: +8% → +20%
+- Cooldown: -6% → -22%
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://dncopudppo8iv"]
+
+[ext_resource type="Script" uid="uid://5p1inehxkdsj" path="res://scripts/power_05_gear.gd" id="1_5stop"]
+[ext_resource type="Texture2D" uid="uid://eet8a30nkc2y" path="res://sprites/powers/power_05_gear.png" id="1_vd52t"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_h4qhj"]
+radius = 15.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5stop"]
+atlas = ExtResource("1_vd52t")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_aw3dw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5stop")
+}],
+"loop": false,
+"name": &"spin",
+"speed": 7.0
+}]
+
+[node name="Power05Gear" type="Area2D" groups=["Power"]]
+z_index = 4
+collision_layer = 8
+collision_mask = 256
+monitorable = false
+script = ExtResource("1_5stop")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_h4qhj")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+self_modulate = Color(0.7923846, 0.9607386, 0.9776916, 1)
+sprite_frames = SubResource("SpriteFrames_aw3dw")
+animation = &"spin"
+frame_progress = 0.13500501
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

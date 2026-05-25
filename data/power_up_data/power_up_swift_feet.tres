@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PowerUpData" format=3 uid="uid://dto11lmqgrgnu"]
+
+[ext_resource type="Script" uid="uid://cixgfjaoi4ito" path="res://data/power_up_data/power_up_data.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bgv7jdmd6ry3f" path="res://sprites/icons/powerup_icons/power_up_02_swift_feet_icon.png" id="1_2lhop"]
+
+[resource]
+script = ExtResource("1")
+powerup_id = 2
+powerup_name = "Swift Feet"
+description = "Increases movement speed"
+icon = ExtResource("1_2lhop")
+display_name_per_level = Array[String](["Swift Feet Lv1", "Swift Feet Lv2", "Swift Feet Lv3", "Swift Feet Lv4", "Swift Feet Lv5"])
+description_per_level = Array[String](["+100 Move Speed", "+70 Move Speed", "+75 Move Speed", "+80 Move Speed", "+90 Move Speed"])
+move_speed_flat_per_level = Array[float]([100.0, -30.0, 5.0, 5.0, 10.0])
+move_speed_percent_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])

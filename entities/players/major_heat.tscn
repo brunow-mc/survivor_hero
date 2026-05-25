@@ -1,0 +1,212 @@
+[gd_scene format=3 uid="uid://cefydgegqsrfo"]
+
+[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player01.gd" id="1_b0kkn"]
+[ext_resource type="Texture2D" uid="uid://bf8ywq2nam8y7" path="res://sprites/heroes/major_heat/attack_MH/attack01_MH.png" id="2_vecp2"]
+[ext_resource type="Texture2D" uid="uid://bjs4bxn030qxc" path="res://sprites/heroes/major_heat/attack_MH/attack02_MH.png" id="3_1txx1"]
+[ext_resource type="Texture2D" uid="uid://bxjbd84dya6ta" path="res://sprites/heroes/major_heat/attack_MH/attack03_MH.png" id="4_ufsp2"]
+[ext_resource type="PackedScene" uid="uid://dlqhld5x854vn" path="res://ui/health_bar.tscn" id="4_uuxwp"]
+[ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_yipme"]
+[ext_resource type="Texture2D" uid="uid://c6deojw0hnioc" path="res://sprites/heroes/major_heat/attack_MH/attack04_MH.png" id="5_4uf8l"]
+[ext_resource type="Texture2D" uid="uid://buagbmpvky5yd" path="res://sprites/heroes/major_heat/idle_MH/idle01_MH.png" id="6_cvfnq"]
+[ext_resource type="PackedScene" uid="uid://bo5tc8icd75ql" path="res://entities/controllers/attack_controller.tscn" id="6_s4hlh"]
+[ext_resource type="Texture2D" uid="uid://cy1am7hyv7y1j" path="res://sprites/heroes/major_heat/idle_MH/idle02_MH.png" id="7_r3fxp"]
+[ext_resource type="Texture2D" uid="uid://phf2yb0ojfi1" path="res://sprites/heroes/major_heat/idle_MH/idle03_MH.png" id="8_g728n"]
+[ext_resource type="Texture2D" uid="uid://8usavnah0aib" path="res://sprites/heroes/major_heat/idle_MH/idle04_MH.png" id="9_0a2ce"]
+[ext_resource type="PackedScene" uid="uid://kcb5x3rnrxnf" path="res://ui/health_label.tscn" id="10_fppcu"]
+[ext_resource type="Texture2D" uid="uid://doeymgcddrxxv" path="res://sprites/heroes/major_heat/walk_MH/walk01_MH.png" id="10_lwuy0"]
+[ext_resource type="Texture2D" uid="uid://dakwhncxpbugs" path="res://sprites/heroes/major_heat/walk_MH/walk02_MH.png" id="11_i2ta7"]
+[ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch01.mp3" id="12_eo2hn"]
+[ext_resource type="Texture2D" uid="uid://ctbo0rxutm5yf" path="res://sprites/heroes/major_heat/walk_MH/walk03_MH.png" id="12_skm2m"]
+[ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death01.mp3" id="13_eo2hn"]
+[ext_resource type="Texture2D" uid="uid://dgic5uemch0sp" path="res://sprites/heroes/major_heat/walk_MH/walk04_MH.png" id="13_hqjte"]
+[ext_resource type="Texture2D" uid="uid://dma6jks01xxx0" path="res://sprites/heroes/major_heat/walk_attack_MH/walk_attack01_MH.png" id="14_yipme"]
+[ext_resource type="Texture2D" uid="uid://dyhjq420fluqe" path="res://sprites/heroes/major_heat/walk_attack_MH/walk_attack02_MH.png" id="15_uebbv"]
+[ext_resource type="Texture2D" uid="uid://d34cxekqpiw6d" path="res://sprites/heroes/major_heat/walk_attack_MH/walk_attack03_MH.png" id="16_g1kn3"]
+[ext_resource type="Texture2D" uid="uid://bbwuxugg84p16" path="res://sprites/heroes/major_heat/walk_attack_MH/walk_attack04_MH.png" id="17_3mgrr"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="21_ufsp2"]
+[ext_resource type="Resource" uid="uid://bbclnnndnvs3j" path="res://data/attack_data/attack_01_fire.tres" id="23_yipme"]
+[ext_resource type="Resource" uid="uid://ckvmf44l62iit" path="res://data/attack_data/attack_02_ring.tres" id="25_g728n"]
+[ext_resource type="Resource" uid="uid://cj7onj8ncd4fr" path="res://data/attack_data/attack_03_electricity.tres" id="26_0a2ce"]
+[ext_resource type="Script" uid="uid://c0rqddrmydg2d" path="res://data/attack_upgrade_data/attack_upgrade_data.gd" id="27_g728n"]
+[ext_resource type="Resource" uid="uid://b6xnifqudo26l" path="res://data/attack_data/attack_04_bo.tres" id="27_lwuy0"]
+[ext_resource type="Resource" uid="uid://cr4hu6ewcufpy" path="res://data/attack_upgrade_data/attack_01_fire_upgrades.tres" id="28_0a2ce"]
+[ext_resource type="Resource" uid="uid://dqncptp6yegrl" path="res://data/attack_data/attack_05_gear.tres" id="28_i2ta7"]
+[ext_resource type="Resource" uid="uid://4yo4qoaxymxa" path="res://data/attack_data/attack_06_snowflake.tres" id="28_yipme"]
+[ext_resource type="Resource" uid="uid://c2nak4p7hxb3q" path="res://data/attack_upgrade_data/attack_02_ring_upgrades.tres" id="29_lwuy0"]
+[ext_resource type="PackedScene" uid="uid://bva3jhodc5h5u" path="res://entities/controllers/power_up_controller.tscn" id="30_1txx1"]
+[ext_resource type="Resource" uid="uid://dkw8h5n3jxr2p" path="res://data/attack_upgrade_data/attack_05_gear_upgrades.tres" id="30_i2ta7"]
+[ext_resource type="Resource" uid="uid://dm3xp5y8vwcne" path="res://data/attack_upgrade_data/attack_03_electricity_upgrades.tres" id="30_skm2m"]
+[ext_resource type="Resource" uid="uid://byq3cq1u04c7j" path="res://data/attack_upgrade_data/attack_04_bo_upgrades.tres" id="31_hqjte"]
+[ext_resource type="Script" uid="uid://bjse65mxy6dld" path="res://scripts/test_powerups.gd" id="31_ufsp2"]
+[ext_resource type="Script" uid="uid://d4m4yptp77s6n" path="res://scripts/test_attack_upgrades.gd" id="33_atk_test"]
+[ext_resource type="Resource" uid="uid://dpke014m70efa" path="res://data/attack_upgrade_data/attack_06_snowflake_upgrades.tres" id="35_uebbv"]
+
+[sub_resource type="Animation" id="Animation_22j44"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_vecp2")]
+}
+
+[sub_resource type="Animation" id="Animation_aacg7"]
+resource_name = "attack"
+length = 0.6
+step = 0.143
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("2_vecp2"), ExtResource("3_1txx1"), ExtResource("4_ufsp2"), ExtResource("5_4uf8l")]
+}
+
+[sub_resource type="Animation" id="Animation_bi81l"]
+resource_name = "idle"
+length = 0.6
+loop_mode = 1
+step = 0.143
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("6_cvfnq"), ExtResource("7_r3fxp"), ExtResource("8_g728n"), ExtResource("9_0a2ce")]
+}
+
+[sub_resource type="Animation" id="Animation_dghas"]
+resource_name = "walk"
+length = 0.6
+loop_mode = 1
+step = 0.143
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("10_lwuy0"), ExtResource("11_i2ta7"), ExtResource("12_skm2m"), ExtResource("13_hqjte")]
+}
+
+[sub_resource type="Animation" id="Animation_tb7ne"]
+resource_name = "walk_attack"
+length = 0.6
+step = 0.143
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_yipme"), ExtResource("15_uebbv"), ExtResource("16_g1kn3"), ExtResource("17_3mgrr")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_10c06"]
+_data = {
+&"RESET": SubResource("Animation_22j44"),
+&"attack": SubResource("Animation_aacg7"),
+&"idle": SubResource("Animation_bi81l"),
+&"walk": SubResource("Animation_dghas"),
+&"walk_attack": SubResource("Animation_tb7ne")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ldj1t"]
+radius = 5.0
+height = 18.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b0kkn"]
+radius = 3.0
+height = 14.0
+
+[node name="Player01" type="CharacterBody2D" unique_id=1271785084 groups=["Player"]]
+z_index = 2
+collision_layer = 2
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_b0kkn")
+hit_sound = ExtResource("12_eo2hn")
+death_sound = ExtResource("13_eo2hn")
+hit_volume_db = -4.0
+death_volume_db = 1.75
+
+[node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_yipme")]
+position = Vector2(0, 12)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
+position = Vector2(0, -1)
+texture = ExtResource("2_vecp2")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
+libraries/ = SubResource("AnimationLibrary_10c06")
+
+[node name="AttackController" parent="." unique_id=536803343 instance=ExtResource("6_s4hlh")]
+attacks = Array[ExtResource("21_ufsp2")]([ExtResource("23_yipme"), ExtResource("25_g728n"), ExtResource("26_0a2ce"), ExtResource("27_lwuy0"), ExtResource("28_i2ta7"), ExtResource("28_yipme")])
+attack_upgrades = Array[ExtResource("27_g728n")]([ExtResource("28_0a2ce"), ExtResource("29_lwuy0"), ExtResource("30_skm2m"), ExtResource("31_hqjte"), ExtResource("30_i2ta7"), ExtResource("35_uebbv")])
+
+[node name="PowerUpController" parent="." unique_id=82605970 instance=ExtResource("30_1txx1")]
+
+[node name="AttackPositionRight" type="Node2D" parent="." unique_id=2015214172]
+position = Vector2(18, -2)
+
+[node name="AttackPositionLeft" type="Node2D" parent="." unique_id=1503537839]
+position = Vector2(-18, -2)
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=565431735]
+visible = false
+position = Vector2(0, -1)
+shape = SubResource("CapsuleShape2D_ldj1t")
+debug_color = Color(0, 0.6862745, 0, 0.41960785)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=993337978]
+visible = false
+position = Vector2(0, 9)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_b0kkn")
+
+[node name="HealthBar" parent="." unique_id=2097574813 instance=ExtResource("4_uuxwp")]
+z_index = 5
+offset_left = -11.0
+offset_top = -21.0
+offset_right = 11.0
+offset_bottom = -18.0
+
+[node name="HealthLabel" parent="." unique_id=617375228 instance=ExtResource("10_fppcu")]
+offset_left = -14.0
+offset_top = -31.0
+offset_right = 3.0
+offset_bottom = -20.0
+
+[node name="TestPowerups" type="Node" parent="." unique_id=1931299609]
+script = ExtResource("31_ufsp2")
+
+[node name="TestAttackUpgrades" type="Node" parent="." unique_id=602593704]
+script = ExtResource("33_atk_test")

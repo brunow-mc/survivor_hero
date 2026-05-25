@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="AttackUpgradeData" format=3 uid="uid://byq3cq1u04c7j"]
+
+[ext_resource type="Script" uid="uid://c0rqddrmydg2d" path="res://data/attack_upgrade_data/attack_upgrade_data.gd" id="1_upgrade"]
+
+[resource]
+script = ExtResource("1_upgrade")
+attack_id = 4
+attack_name = "Boomerang"
+description = "Boomerang upgrades"
+display_name_per_level = Array[String](["Bo Lv1", "Bo Lv2", "Bo Lv3", "Bo Lv4", "Bo Lv5"])
+description_per_level = Array[String](["+1 Projectile\\n+2% Scale", "test\\ntest%", "test%\\ntest", "test\\ntest%", "test%\\ntest"])
+projectile_count_per_level = Array[int]([0, 0, 0, 0, 0])
+damage_bonus_per_level = Array[float]([0.0, 0.06, 0.12, 0.18, 0.25])
+speed_bonus_per_level = Array[float]([0.0, 0.07, 0.1, 0.125, 0.15])
+max_hits_per_level = Array[int]([0, 0, 0, 0, 0])
+cooldown_reduction_per_level = Array[float]([0.0, 0.06, 0.1, 0.15, 0.18])
+projectile_angle_spread_per_level = Array[float]([0.0, 5.0, 5.0, 5.0, 10.0])
+life_time_bonus_per_level = Array[float]([0.0, 0.15, 0.25, 0.35, 0.5])
+attack_scale_bonus_per_level = Array[float]([0.0, 0.08, 0.12, 0.15, 0.3])
+projectile_stagger_delay_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
+orbit_radius_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
+orbit_speed_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])

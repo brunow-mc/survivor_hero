@@ -1,0 +1,119 @@
+═══════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.2.5
+═══════════════════════════════════════════════════════════════════
+Data: 26/03/2026
+Tipo: Refatoração (Rename)
+
+═══════════════════════════════════════════════════════════════════
+📋 RESUMO DAS MUDANÇAS
+═══════════════════════════════════════════════════════════════════
+
+ÚNICO MUDANÇA: Renomeação do singleton PlayerStatsGlobal
+
+    ANTES: PlayerStatsGlobal
+    DEPOIS: PowerUpStatsGlobal
+
+═══════════════════════════════════════════════════════════════════
+🎯 JUSTIFICATIVA
+═══════════════════════════════════════════════════════════════════
+
+O nome "PlayerStatsGlobal" estava semanticamente INCORRETO, pois:
+
+❌ NÃO gerencia apenas stats do player
+✅ Gerencia stats de POWERUPS que afetam:
+   - Player (health, speed, armor)
+   - Ataques (damage, attack speed)
+   - Sistemas (magnet range)
+
+Novo nome "PowerUpStatsGlobal" reflete o propósito REAL:
+   "Stats derivados de PowerUps que afetam o combate globalmente"
+
+═══════════════════════════════════════════════════════════════════
+📊 ARQUIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════════
+
+TOTAL: 10 arquivos (38 referências substituídas)
+
+[CRÍTICO]
+✅ project.godot (linha 28)
+   PowerUpStatsGlobal="*res://autoload/player_stats.gd"
+
+[CÓDIGO FUNCIONAL]
+✅ autoload/player_stats.gd (1 ref)
+✅ scripts/base_power.gd (1 ref)
+✅ scripts/player_base.gd (1 ref)
+✅ scripts/attack_controller.gd (5 refs)
+✅ scripts/xp_item_01.gd (2 refs)
+✅ scripts/power_up_controller.gd (11 refs)
+
+[DEBUG/TESTE]
+✅ scripts/test_powerups.gd (8 refs)
+✅ scripts/debug_magnet.gd (9 refs)
+
+═══════════════════════════════════════════════════════════════════
+🔍 VERIFICAÇÃO
+═══════════════════════════════════════════════════════════════════
+
+Para confirmar que a mudança foi aplicada corretamente:
+
+1. Abrir projeto no Godot 4
+2. Verificar console (sem erros de "PlayerStatsGlobal não existe")
+3. Rodar jogo (F5)
+4. Pressionar [1] para ativar Raw Power
+5. Verificar que dano aumentou
+6. Console deve mostrar stats com nome correto
+
+ESPERADO: Tudo funciona EXATAMENTE como antes.
+
+═══════════════════════════════════════════════════════════════════
+⚠️ MUDANÇAS IMPORTANTES
+═══════════════════════════════════════════════════════════════════
+
+NENHUMA mudança de lógica ou funcionalidade!
+
+Esta versão é uma REFATORAÇÃO PURA:
+- Código: IDÊNTICO
+- Gameplay: IDÊNTICO
+- Apenas: Nome do singleton mudou
+
+═══════════════════════════════════════════════════════════════════
+🚀 COMPATIBILIDADE
+═══════════════════════════════════════════════════════════════════
+
+✅ Totalmente compatível com saves da v1.2.4
+✅ Não quebra nada existente
+✅ Preparação para futuras features:
+   - Lethal Impact (knockback + speed + damage)
+   - Attack Upgrades (sistema de upgrade por ataque)
+
+═══════════════════════════════════════════════════════════════════
+📝 NOTAS TÉCNICAS
+═══════════════════════════════════════════════════════════════════
+
+Método de substituição:
+    find . -type f \( -name "*.gd" -o -name "*.godot" \) | \
+    xargs sed -i 's/PlayerStatsGlobal/PowerUpStatsGlobal/g'
+
+Validação:
+    ✅ 0 referências antigas (PlayerStatsGlobal)
+    ✅ 38 referências novas (PowerUpStatsGlobal)
+    ✅ project.godot atualizado
+    ✅ Todos arquivos verificados
+
+═══════════════════════════════════════════════════════════════════
+🎯 PRÓXIMOS PASSOS (NÃO IMPLEMENTADOS AINDA)
+═══════════════════════════════════════════════════════════════════
+
+v1.2.6 (planejada):
+    - Implementar Lethal Impact powerup
+      ├─ projectile_speed_multiplier
+      ├─ knockback_multiplier
+      └─ damage_multiplier combinados
+
+v1.3.0 (planejada):
+    - Sistema de Attack Upgrades
+      ├─ AttackUpgradeData.gd
+      ├─ Expansão do AttackController
+      └─ Upgrades específicos por ataque
+
+═══════════════════════════════════════════════════════════════════

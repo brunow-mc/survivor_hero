@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://ck2bejwemkxi6"]
+
+[ext_resource type="Script" uid="uid://ucngpp73ujeg" path="res://scripts/power_04_bo.gd" id="1_3tuho"]
+[ext_resource type="Texture2D" uid="uid://clpakfopesob" path="res://sprites/powers/power_04_bo.png" id="2_ontom"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ry2fh"]
+radius = 16.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qwra5"]
+atlas = ExtResource("2_ontom")
+region = Rect2(0, 0, 33, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rj5he"]
+atlas = ExtResource("2_ontom")
+region = Rect2(33, 0, 33, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g18c7"]
+atlas = ExtResource("2_ontom")
+region = Rect2(66, 0, 33, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7hjn5"]
+atlas = ExtResource("2_ontom")
+region = Rect2(99, 0, 33, 33)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ookiw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qwra5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rj5he")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g18c7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7hjn5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
+
+[node name="Power04Bo" type="Area2D" unique_id=2044941789]
+z_index = 4
+collision_layer = 8
+collision_mask = 260
+script = ExtResource("1_3tuho")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=567650037]
+visible = false
+shape = SubResource("CircleShape2D_ry2fh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1170640385]
+sprite_frames = SubResource("SpriteFrames_ookiw")
+autoplay = "default"
+frame_progress = 0.14828001
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

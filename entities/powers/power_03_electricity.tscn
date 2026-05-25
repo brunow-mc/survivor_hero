@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://unvtaukujfo1"]
+
+[ext_resource type="Script" uid="uid://d4msbfduwji7e" path="res://scripts/power_03_electricity.gd" id="1_yd12f"]
+[ext_resource type="Shader" uid="uid://w1oe15goa56u" path="res://entities/powers/power_03_electricity.gdshader" id="2_1lees"]
+[ext_resource type="Texture2D" uid="uid://b0o7e7tur2c44" path="res://sprites/powers/power_03_electricity.png" id="3_pdhe2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_olyes"]
+radius = 62.008064
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rpmsq"]
+shader = ExtResource("2_1lees")
+shader_parameter/pulse_speed = 9.0
+shader_parameter/brightness_min = 1.0
+shader_parameter/brightness_max = 1.0
+shader_parameter/alpha_min = 0.45
+shader_parameter/alpha_max = 0.6
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qc7vb"]
+atlas = ExtResource("3_pdhe2")
+region = Rect2(0, 0, 176, 176)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dabuh"]
+atlas = ExtResource("3_pdhe2")
+region = Rect2(176, 0, 176, 176)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5km1v"]
+atlas = ExtResource("3_pdhe2")
+region = Rect2(352, 0, 176, 176)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_04n5o"]
+atlas = ExtResource("3_pdhe2")
+region = Rect2(528, 0, 176, 176)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fpj76"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qc7vb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dabuh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5km1v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_04n5o")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
+
+[node name="Power03Electricity" type="Area2D" unique_id=371763589 groups=["Power"]]
+z_index = 4
+collision_layer = 8
+collision_mask = 260
+script = ExtResource("1_yd12f")
+
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=715359230]
+visible = false
+scale = Vector2(0.3327835, 0.3327835)
+color = Color(0.2627451, 0.5882353, 0.8862745, 0)
+polygon = PackedVector2Array(0, -192, 49, -185, 96, -166, 136, -135, 166, -96, 185, -50, 192, 0, 185, 51, 167, 96, 136, 135, 97, 166, 52, 185, 0, 192, -50, 186, -97, 167, -136, 136, -166, 98, -186, 50, -192, 0, -185, -51, -166, -96, -136, -135, -98, -165, -51, -185)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1512287834]
+shape = SubResource("CircleShape2D_olyes")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=323282978]
+material = SubResource("ShaderMaterial_rpmsq")
+sprite_frames = SubResource("SpriteFrames_fpj76")
+autoplay = "default"
+frame = 1
+frame_progress = 0.2913372
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

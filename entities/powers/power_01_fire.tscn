@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://docetmttkaemm"]
+
+[ext_resource type="Script" uid="uid://cokm2x4ls8nql" path="res://scripts/power_01_fire.gd" id="1_ixwjt"]
+[ext_resource type="Texture2D" uid="uid://cgfiadel4ox3j" path="res://sprites/powers/power_01_fire.png" id="2_ve4mb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ve4mb"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mvwmq"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 96, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8237h"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 128, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bgk6m"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 160, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p307x"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 192, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_itbn3"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 224, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ve4mb"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 0, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ppw1m"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 32, 160, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kb55i"]
+atlas = ExtResource("2_ve4mb")
+region = Rect2(0, 64, 160, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_54j2w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mvwmq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8237h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bgk6m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p307x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_itbn3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ve4mb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ppw1m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kb55i")
+}],
+"loop": true,
+"name": &"default",
+"speed": 17.0
+}]
+
+[node name="Power01Fire" type="Area2D" unique_id=889816477 groups=["Power"]]
+z_index = 4
+collision_layer = 8
+collision_mask = 256
+script = ExtResource("1_ixwjt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1273315361]
+shape = SubResource("CircleShape2D_ve4mb")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2076333830]
+self_modulate = Color(1, 1, 1, 0.7647059)
+sprite_frames = SubResource("SpriteFrames_54j2w")
+autoplay = "default"
+frame = 6
+frame_progress = 0.13784552
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

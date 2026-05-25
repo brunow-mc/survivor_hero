@@ -1,0 +1,175 @@
+=============================================================================
+SURVIVOR HERO - VERSÃO 1.1.14
+=============================================================================
+
+✅ SISTEMA DE DISPARO SEQUENCIAL IMPLEMENTADO
+✅ power_02_ring migrado para sistema de áudio via AttackData
+✅ Sistema genérico permite uso futuro em outros ataques
+
+Base: v1.1.13
+Data: 10/03/2026
+Status: PRONTO PARA TESTE
+
+=============================================================================
+MUDANÇAS REALIZADAS
+=============================================================================
+
+ARQUIVO 1: data/attack_data/attack_data.gd
+───────────────────────────────────────────────────────────────────────────
+
+ADICIONADO (grupo Projectile):
+```gdscript
+# NOVO v1.1.14: Delay entre disparos sequenciais (metralhadora)
+# 0.0 = disparos simultâneos (padrão atual para power_01, power_05)
+# > 0.0 = disparos sequenciais com delay entre cada um (power_02_ring)
+@export var projectile_stagger_delay: float = 0.0
+```
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 2: scripts/attack_controller.gd
+───────────────────────────────────────────────────────────────────────────
+
+MODIFICADO (_spawn_attack):
+Sistema genérico com duas modalidades:
+
+1. Se projectile_stagger_delay = 0.0:
+   - Disparo SIMULTÂNEO (comportamento atual)
+   - Todos projéteis spawnados ao mesmo tempo
+   - AudioManager limita sobreposição via MIN_INTERVAL
+   
+2. Se projectile_stagger_delay > 0.0:
+   - Disparo SEQUENCIAL (metralhadora)
+   - Cada projétil spawna após delay
+   - Cada projétil toca seu próprio áudio
+   - await entre cada spawn
+
+───────────────────────────────────────────────────────────────────────────
+
+ARQUIVO 3: entities/powers/power_02_ring.tscn
+───────────────────────────────────────────────────────────────────────────
+
+REMOVIDO:
+- ExtResource do áudio (power_02_ring_sound.mp3)
+- Node AudioStreamPlayer2D completo
+- load_steps ajustado: 10 → 9
+
+Áudio agora vem do AttackData!
+
+=============================================================================
+CONFIGURAÇÃO NECESSÁRIA (MANUAL NO GODOT)
+=============================================================================
+
+Abrir: data/attack_data/attack_02_ring.tres
+
+Inspector:
+├─ Projectile Count: 3 (ou conforme desejado)
+├─ Projectile Stagger Delay: 0.15 (ajustar ao gosto)
+│
+├─ Audio ▼
+│  ├─ Attack Sound: power_02_ring_sound.mp3 ← OBRIGATÓRIO!
+│  ├─ Attack Sound Volume Db: 0.0
+│  └─ Attack Sound Pitch Scale: 1.0
+
+IMPORTANTE: 
+- projectile_stagger_delay NUNCA deve ser 0.0 para power_02_ring
+- Valor recomendado: 0.15 segundos (ajustável)
+
+=============================================================================
+COMO FUNCIONA - POWER_02_RING
+=============================================================================
+
+TIMELINE DE DISPARO (exemplo):
+```
+Configuração:
+├─ Attack Delay: 0.143s
+├─ Projectile Count: 3
+└─ Projectile Stagger Delay: 0.15s
+
+Execução:
+0.000s: _spawn_attack() chamado
+0.143s: Attack Delay cumprido
+        ├─ Projétil 1 spawna
+        └─ Áudio 1 toca
+0.293s: (+0.15s) Projétil 2 spawna + Áudio 2 toca
+0.443s: (+0.15s) Projétil 3 spawna + Áudio 3 toca
+```
+
+COMPORTAMENTO TELEGUIADO:
+Cada projétil busca inimigo mais próximo NO MOMENTO DO SEU SPAWN:
+- Projétil 1: busca inimigo A (mais próximo em 0.143s)
+- Projétil 2: busca inimigo B (mais próximo em 0.293s)
+- Projétil 3: busca inimigo C (mais próximo em 0.443s)
+
+Efeito visual: Metralhadora atacando alvos diferentes!
+
+=============================================================================
+COMPATIBILIDADE - OUTROS ATAQUES
+=============================================================================
+
+power_01_fire:
+├─ projectile_stagger_delay: 0.0 (padrão)
+├─ Comportamento: SIMULTÂNEO (como sempre foi)
+└─ Status: Não afetado ✅
+
+power_03_electricity:
+├─ projectile_count: 1
+├─ Comportamento: Campo único
+└─ Status: Não afetado ✅
+
+power_05_gear:
+├─ projectile_stagger_delay: 0.0 (padrão)
+├─ Comportamento: SIMULTÂNEO (como sempre foi)
+└─ Status: Não afetado ✅
+
+power_02_ring:
+├─ projectile_stagger_delay: 0.15 (novo!)
+├─ Comportamento: SEQUENCIAL (metralhadora)
+└─ Status: NOVO SISTEMA ✅
+
+=============================================================================
+USO FUTURO - SISTEMA GENÉRICO
+=============================================================================
+
+Qualquer ataque pode usar disparo sequencial:
+
+Exemplo: power_01_fire com leque sequencial
+├─ Projectile Count: 5
+├─ Projectile Angle Spread: 30.0
+├─ Projectile Stagger Delay: 0.1
+└─ Resultado: Leque disparado em sequência (não simultâneo)
+
+Flexibilidade total para design futuro!
+
+=============================================================================
+TESTE
+=============================================================================
+
+1. Configurar attack_02_ring.tres (Attack Sound + Stagger Delay)
+2. Rodar jogo (F5)
+3. Habilitar power_02_ring
+4. Verificar:
+   ✅ Múltiplos projéteis spawnam em sequência
+   ✅ Cada projétil toca áudio
+   ✅ Delay visível entre cada disparo
+   ✅ Cada projétil busca alvo diferente
+
+=============================================================================
+ARQUIVOS MODIFICADOS
+=============================================================================
+
+data/attack_data/attack_data.gd:
+└─ Adicionado projectile_stagger_delay
+
+scripts/attack_controller.gd:
+└─ Sistema sequencial/simultâneo implementado
+
+entities/powers/power_02_ring.tscn:
+└─ AudioStreamPlayer2D removido
+
+=============================================================================
+
+Status: IMPLEMENTADO ✅
+Sistema genérico ✅
+power_02_ring migrado ✅
+Pronto para configuração e teste! 🎯

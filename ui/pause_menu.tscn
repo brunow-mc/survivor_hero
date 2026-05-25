@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://d1mfsbxkoj7t5"]
+
+[ext_resource type="Theme" uid="uid://doe86ai6jpdu" path="res://ui/theme/menu01.tres" id="1_5mxpo"]
+[ext_resource type="Script" uid="uid://dsb5rtshe01e5" path="res://scripts/pause_menu.gd" id="1_mhw3w"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_mhw3w"]
+action = &"pause"
+
+[sub_resource type="Shortcut" id="Shortcut_163qp"]
+events = [SubResource("InputEventAction_mhw3w")]
+
+[node name="PauseMenu" type="CanvasLayer" unique_id=186137169]
+process_mode = 3
+script = ExtResource("1_mhw3w")
+
+[node name="Reload_Timer" type="Timer" parent="." unique_id=459683122]
+wait_time = 0.75
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1091836301]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.627451)
+
+[node name="Menu_Holder" type="VBoxContainer" parent="." unique_id=214392735]
+offset_left = 171.5
+offset_top = 93.5
+offset_right = 309.5
+offset_bottom = 162.5
+theme_override_constants/separation = 12
+
+[node name="Resume_Btn" type="Button" parent="Menu_Holder" unique_id=1731909565]
+layout_mode = 2
+theme = ExtResource("1_5mxpo")
+shortcut = SubResource("Shortcut_163qp")
+text = "RESUME"
+
+[node name="Restart_Btn" type="Button" parent="Menu_Holder" unique_id=797832533]
+layout_mode = 2
+theme = ExtResource("1_5mxpo")
+text = "RESTART"
+
+[node name="Quit_Btn" type="Button" parent="Menu_Holder" unique_id=315523037]
+layout_mode = 2
+theme = ExtResource("1_5mxpo")
+text = "QUIT GAME"
+
+[connection signal="timeout" from="Reload_Timer" to="." method="_on_reload_timer_timeout"]
+[connection signal="pressed" from="Menu_Holder/Resume_Btn" to="." method="_on_resume_btn_pressed"]
+[connection signal="pressed" from="Menu_Holder/Restart_Btn" to="." method="_on_restart_btn_pressed"]
+[connection signal="pressed" from="Menu_Holder/Quit_Btn" to="." method="_on_quit_btn_pressed"]

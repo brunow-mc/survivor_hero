@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://ckvmf44l62iit"]
+
+[ext_resource type="AudioStream" uid="uid://biprmsypmncdl" path="res://audio/effects/powers/power_02_ring_sound.mp3" id="1_a5d6v"]
+[ext_resource type="Resource" uid="uid://d2tva4kmi6jkx" path="res://data/hit_data/hit_02_ring.tres" id="1_mkrs6"]
+[ext_resource type="Script" uid="uid://cic4g8p3sqyeu" path="res://data/attack_data/attack_data.gd" id="1_oq0dy"]
+[ext_resource type="PackedScene" uid="uid://cwhbsdbdnra8g" path="res://entities/powers/power_02_ring.tscn" id="2_k0oh4"]
+[ext_resource type="Texture2D" uid="uid://eekkfe02erxo" path="res://sprites/icons/attack_icons/power_02_ring_icon.png" id="3_2hwwq"]
+
+[resource]
+script = ExtResource("1_oq0dy")
+attack_id = 2
+attack_name = "Ring Burst"
+description = "Fires projectiles in a ring pattern"
+icon = ExtResource("3_2hwwq")
+packed_scene = ExtResource("2_k0oh4")
+hit_data = ExtResource("1_mkrs6")
+interval = 1.75
+life_time = 1.7
+attack_delay = 0.325
+speed = 175.0
+projectile_stagger_delay = 0.2
+attack_sound = ExtResource("1_a5d6v")
+attack_sound_volume_db = -8.0
+metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

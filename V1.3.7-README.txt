@@ -1,0 +1,151 @@
+═══════════════════════════════════════════════════════════════════════
+SURVIVOR HERO - VERSÃO 1.3.7
+═══════════════════════════════════════════════════════════════════════
+
+## 🐛 BUG CRÍTICO CORRIGIDO: SINCRONIZAÇÃO DE ATTACK UPGRADES
+
+### PROBLEMA IDENTIFICADO
+
+Quando um attack estava configurado com `current_level = 1` no arquivo .tres:
+
+**COMPORTAMENTO ERRADO:**
+1. Attack começa em Level 1
+2. Aperta E primeira vez:
+   - AttackData.current_level = 1
+   - AttackUpgradeData.current_level: 0 → 1
+   - Aplica bonuses de arr[0] = 0 (nada acontece)
+   - **Usuário esperava: Level 1 → 2**
+
+3. Aperta E segunda vez:
+   - AttackData.current_level = 1
+   - AttackUpgradeData.current_level: 1 → 2
+   - Aplica bonuses de arr[0] + arr[1] = 0 + 1 = 1 projétil
+   - **Usuário esperava: Level 2 → 3**
+
+**CAUSA RAIZ:**
+- AttackData.current_level = 1 (configurado no .tres)
+- AttackUpgradeData.current_level = 0 (valor padrão)
+- ❌ DESSINCRONIZADOS desde o início!
+- ❌ Upgrades nunca eram aplicados no _ready()
+
+### SOLUÇÃO IMPLEMENTADA (v1.3.7)
+
+**ARQUIVO MODIFICADO:** `/scripts/attack_controller.gd`
+
+#### 1. Nova função `_sync_initial_levels()`
+
+Chamada no `_ready()` para sincronizar levels iniciais:
+
+```gdscript
+func _sync_initial_levels() -> void:
+    """
+    Sincroniza AttackUpgradeData.current_level com AttackData.current_level.
+    Garante que ambos começam no mesmo level.
+    """
+    for attack in attacks:
+        if not attack or attack.current_level == 0:
+            continue
+        
+        var upgrade = find_upgrade(attack.attack_id)
+        if not upgrade:
+            continue
+        
+        # Se upgrade está em level diferente do attack, sincronizar
+        if upgrade.current_level != attack.current_level:
+            var old_level = upgrade.current_level
+            upgrade.current_level = attack.current_level
+            print("🔄 Synced '%s' upgrade: Lv%d → Lv%d" % [attack.attack_name, old_level, attack.current_level])
+```
+
+#### 2. Nova função `_apply_initial_upgrades()`
+
+Chamada no `_ready()` para aplicar upgrades iniciais:
+
+```gdscript
+func _apply_initial_upgrades() -> void:
+    """
+    Aplica upgrades iniciais para attacks que já começam com level > 0.
+    Garante que bonuses do level inicial sejam aplicados desde o início.
+    """
+    for attack in attacks:
+        if not attack or attack.current_level == 0:
+            continue
+        
+        var upgrade = find_upgrade(attack.attack_id)
+        if not upgrade or upgrade.current_level == 0:
+            continue
+        
+        # Aplicar upgrades iniciais
+        apply_upgrades_to_attack(attack.attack_id)
+        print("⚡ Applied initial upgrades for '%s' (Lv%d)" % [attack.attack_name, upgrade.current_level])
+```
+
+#### 3. Modificação em `_ready()`
+
+```gdscript
+func _ready():
+    _duplicate_attack_resources()
+    _duplicate_upgrade_resources()
+    _sync_initial_levels()       # ← NOVO v1.3.7
+    _apply_initial_upgrades()    # ← NOVO v1.3.7
+    PowerUpStatsGlobal.stats_changed.connect(_on_stats_changed)
+```
+
+#### 4. Modificação em `upgrade_attack()`
+
+Agora aplica upgrades imediatamente após incrementar level:
+
+```gdscript
+func upgrade_attack(attack_id: int) -> bool:
+    # ... validações ...
+    
+    attack.current_level += 1
+    print("⬆️ Attack '%s' upgraded to level %d" % [attack.attack_name, attack.current_level])
+    
+    # v1.3.7: Aplicar upgrades imediatamente
+    var upgrade = find_upgrade(attack_id)
+    if upgrade:
+        upgrade.current_level = attack.current_level
+        apply_upgrades_to_attack(attack_id)
+    
+    return true
+```
+
+### COMPORTAMENTO CORRIGIDO
+
+**Cenário 1: Attack começa em Level 1**
+1. `_ready()` executa:
+   - `_sync_initial_levels()`: AttackUpgradeData.current_level = 1 (sincronizado)
+   - `_apply_initial_upgrades()`: Aplica bonuses do level 1
+2. Aperta E primeira vez:
+   - AttackData.current_level: 1 → 2 ✅
+   - AttackUpgradeData.current_level: 1 → 2 ✅
+   - Aplica bonuses de arr[0] + arr[1] = 0 + 1 = 1 projétil ✅
+
+**Cenário 2: Attack começa em Level 0**
+1. `_ready()` executa:
+   - `_sync_initial_levels()`: Nada a fazer (level = 0)
+   - `_apply_initial_upgrades()`: Nada a fazer (level = 0)
+2. Aperta E primeira vez:
+   - AttackData.current_level: 0 → 1 ✅
+   - AttackUpgradeData.current_level: 0 → 1 ✅
+   - Aplica bonuses de arr[0] = 0 (correto, level 1 é base) ✅
+
+### VALIDAÇÃO
+
+✅ Attack começa em Level 0: funciona corretamente
+✅ Attack começa em Level 1: bonuses do level 1 aplicados desde o início
+✅ Attack começa em Level 1: primeira vez que aperta E vai 1 → 2
+✅ Upgrades são aplicados imediatamente após incrementar level
+
+═══════════════════════════════════════════════════════════════════════
+ARQUIVOS MODIFICADOS v1.3.7:
+═══════════════════════════════════════════════════════════════════════
+
+1. `/scripts/attack_controller.gd`
+   - ✅ Adicionado `_sync_initial_levels()`
+   - ✅ Adicionado `_apply_initial_upgrades()`
+   - ✅ Modificado `_ready()` para chamar novas funções
+   - ✅ Modificado `upgrade_attack()` para aplicar upgrades imediatamente
+
+═══════════════════════════════════════════════════════════════════════

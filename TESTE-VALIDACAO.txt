@@ -1,0 +1,102 @@
+=============================================================================
+GUIA DE TESTE - VALIDAÇÃO DA CORREÇÃO v1.1.19
+=============================================================================
+
+Este guia mostra EXATAMENTE o que você deve observar no console para
+confirmar que a correção do bug foi aplicada com sucesso.
+
+=============================================================================
+TESTE 1: VERIFICAR INICIALIZAÇÃO
+=============================================================================
+
+AO RODAR O JOGO (F5), PROCURE NO CONSOLE:
+
+VERSÃO ANTIGA (BUGADA):
+✅ PowerUpController: Player reference acquired
+
+VERSÃO NOVA (CORRIGIDA):
+✅ PowerUpController: Player reference acquired
+   📊 Base Max Health: 1000.0  ← ESTA LINHA É NOVA!
+   📊 Base Move Speed: 90.0    ← ESTA LINHA É NOVA!
+
+SE VOCÊ VIR AS 2 LINHAS COM "📊 Base", A CORREÇÃO FUNCIONOU! ✅
+
+E DEPOIS:
+🎯 Applying stats to player systems...
+  ❤️  Max Health: 1000.0  ← DEVE SER 1000, NÃO 100!
+  🏃 Move Speed: 90.0
+
+=============================================================================
+TESTE 2: APLICAR VITALITY [1]
+=============================================================================
+
+PRESSIONE [1] UMA VEZ:
+
+VERSÃO ANTIGA (BUGADA):
+❤️  Max Health: 100.0 → 120.0
+
+VERSÃO NOVA (CORRIGIDA):
+❤️  Max Health: 1000.0 → 1020.0  ← +20 em cima de 1000!
+
+=============================================================================
+TESTE 3: APLICAR WARRIOR [5]
+=============================================================================
+
+COM VITALITY JÁ ATIVO, PRESSIONE [5] UMA VEZ:
+
+VERSÃO ANTIGA (BUGADA):
+❤️  Max Health: 120.0 → 135.0
+(Cálculo: 100 base + 20 Vitality + 15 Warrior = 135)
+
+VERSÃO NOVA (CORRIGIDA):
+❤️  Max Health: 1020.0 → 1035.0  ← +15 em cima de 1020!
+(Cálculo: 1000 base + 20 Vitality + 15 Warrior = 1035)
+
+=============================================================================
+TESTE 4: RESET [R]
+=============================================================================
+
+PRESSIONE [R] PARA RESETAR TUDO:
+
+VERSÃO ANTIGA (BUGADA):
+❤️  Max Health: 100.0  ← Volta para 100 (ERRADO!)
+
+VERSÃO NOVA (CORRIGIDA):
+❤️  Max Health: 1000.0  ← Volta para 1000 (CORRETO!)
+
+=============================================================================
+TESTE 5: MOVE SPEED (SEMPRE FUNCIONOU)
+=============================================================================
+
+Este sempre funcionou porque major_heat tem move_speed = 90.0 (padrão).
+Mas agora o sistema é consistente para AMBOS os stats.
+
+PRESSIONE [2] (Swift Feet):
+🏃 Move Speed: 90.0 → 99.0  (+10%)
+
+=============================================================================
+RESUMO - O QUE OBSERVAR
+=============================================================================
+
+1. Na inicialização, DEVE aparecer:
+   📊 Base Max Health: 1000.0
+   📊 Base Move Speed: 90.0
+
+2. TODOS os valores de Max Health devem ser baseados em 1000, não 100:
+   - Inicial: 1000
+   - Vitality Lv1: 1020 (+20)
+   - Warrior Lv1: 1035 (+15 adicional)
+   - Reset: 1000 (volta ao original)
+
+3. Se você vir 100, 120, 135, etc. = VERSÃO ANTIGA (BUGADA)
+   Se você vir 1000, 1020, 1035, etc. = VERSÃO NOVA (CORRIGIDA) ✅
+
+=============================================================================
+
+COPIE TODO O OUTPUT DO CONSOLE E ME ENVIE!
+
+Especialmente procure por:
+- "📊 Base Max Health: 1000.0"
+- "❤️  Max Health: 1000.0 → 1020.0"
+
+Se esses valores aparecerem = CORREÇÃO FUNCIONOU! ✅
