@@ -134,7 +134,7 @@ collision_mask = 13
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_cvy10")
-max_health = 30.0
+max_health = 20.0
 move_speed = 30.0
 damage_per_tick = 3.0
 knockback_decay = 5.5
@@ -144,7 +144,7 @@ drop_chance = 0.5
 position = Vector2(0, 13)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=688458282]
-self_modulate = Color(1, 0.49803922, 0.8235294, 1)
+self_modulate = Color(0.7038545, 0.39892706, 0.31528327, 1)
 sprite_frames = SubResource("SpriteFrames_jq0pf")
 animation = &"idle"
 
