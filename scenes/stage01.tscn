@@ -35,7 +35,7 @@ attenuation = 1e-05
 [node name="XPBar" parent="." unique_id=1852906834 instance=ExtResource("9_dpt3t")]
 visible = false
 
-[node name="Pause_Menu" parent="." unique_id=1587197452 instance=ExtResource("6_spj00")]
+[node name="PauseMenu" parent="." unique_id=1587197452 instance=ExtResource("6_spj00")]
 visible = false
 
 [node name="GameOverMenu" parent="." unique_id=2038781857 instance=ExtResource("7_ydume")]
