@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c0dmv7da3ciwo"]
+[gd_scene format=3 uid="uid://c0dmv7da3ciwo"]
 
 [ext_resource type="Script" uid="uid://dd4cgewmpp14v" path="res://scripts/xp_bar.gd" id="1_i6net"]
 [ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="2_i6net"]
@@ -28,11 +28,11 @@ font_color = Color(1, 0.725, 0, 1)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
-[node name="XPBar" type="CanvasLayer"]
+[node name="XPBar" type="CanvasLayer" unique_id=313583345]
 script = ExtResource("1_i6net")
 fill_speed = 20.0
 
-[node name="LevelLabel" type="Label" parent="."]
+[node name="LevelLabel" type="Label" parent="." unique_id=958432553]
 offset_left = 16.0
 offset_top = 7.0
 offset_right = 95.0
@@ -43,7 +43,7 @@ theme_override_font_sizes/font_size = 12
 text = "LEVEL 1"
 label_settings = SubResource("LabelSettings_ywxey")
 
-[node name="ProgressBar" type="ProgressBar" parent="."]
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1641174144]
 custom_minimum_size = Vector2(200, 8)
 offset_left = 15.0
 offset_top = 22.0
@@ -54,7 +54,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_eknrq")
 step = 1.0
 show_percentage = false
 
-[node name="XPLabel" type="Label" parent="."]
+[node name="XPLabel" type="Label" parent="." unique_id=487394799]
 custom_minimum_size = Vector2(50, 0)
 offset_left = 222.0
 offset_top = 19.0
