@@ -1,3 +1,224 @@
 [gd_scene format=3 uid="uid://cxeqfoj7lg4ui"]
 
+[ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="1_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+
 [node name="LoadoutBar" type="CanvasLayer" unique_id=813362526]
+
+[node name="Control" type="Control" parent="." unique_id=181319122]
+layout_mode = 3
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -208.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 36.0
+grow_horizontal = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control" unique_id=2103229152]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 8
+
+[node name="AttacksGroup" type="VBoxContainer" parent="Control/HBoxContainer" unique_id=97543304]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AttacksLabel" type="Label" parent="Control/HBoxContainer/AttacksGroup" unique_id=430838636]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.725, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 8
+text = "ATTACKS"
+
+[node name="AttackSlots" type="HBoxContainer" parent="Control/HBoxContainer/AttacksGroup" unique_id=554026014]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AttackSlot1" type="Panel" parent="Control/HBoxContainer/AttacksGroup/AttackSlots" unique_id=559945590]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/AttacksGroup/AttackSlots/AttackSlot1" unique_id=1822399072]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="AttackSlot2" type="Panel" parent="Control/HBoxContainer/AttacksGroup/AttackSlots" unique_id=172205366]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/AttacksGroup/AttackSlots/AttackSlot2" unique_id=299222251]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="AttackSlot3" type="Panel" parent="Control/HBoxContainer/AttacksGroup/AttackSlots" unique_id=327129630]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/AttacksGroup/AttackSlots/AttackSlot3" unique_id=341932259]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="AttackSlot4" type="Panel" parent="Control/HBoxContainer/AttacksGroup/AttackSlots" unique_id=877677984]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/AttacksGroup/AttackSlots/AttackSlot4" unique_id=1617390503]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="AttackSlot5" type="Panel" parent="Control/HBoxContainer/AttacksGroup/AttackSlots" unique_id=1376447742]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/AttacksGroup/AttackSlots/AttackSlot5" unique_id=1741021816]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="PowerupsGroup" type="VBoxContainer" parent="Control/HBoxContainer" unique_id=1457343180]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PowerupsLabel" type="Label" parent="Control/HBoxContainer/PowerupsGroup" unique_id=816217533]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.725, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 8
+text = "POWERUPS"
+
+[node name="PowerupSlots" type="HBoxContainer" parent="Control/HBoxContainer/PowerupsGroup" unique_id=1698070958]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PowerupSlot1" type="Panel" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots" unique_id=373330267]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots/PowerupSlot1" unique_id=1220079849]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="PowerupSlot2" type="Panel" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots" unique_id=110364293]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots/PowerupSlot2" unique_id=765728614]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="PowerupSlot3" type="Panel" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots" unique_id=299926728]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots/PowerupSlot3" unique_id=2031684924]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="PowerupSlot4" type="Panel" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots" unique_id=592695543]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots/PowerupSlot4" unique_id=2086778650]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
+
+[node name="PowerupSlot5" type="Panel" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots" unique_id=72066085]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Icon" type="TextureRect" parent="Control/HBoxContainer/PowerupsGroup/PowerupSlots/PowerupSlot5" unique_id=1968371426]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+stretch_mode = 5
