@@ -2,6 +2,7 @@ extends Node
 class_name AttackController
 
 signal primary_attack_started
+signal attack_unlocked(attack_id: int, icon: Texture2D)  # v1.4.7: emitido por qualquer fonte
 
 var player: CharacterBody2D
 var attack_position_right: Node2D
@@ -262,16 +263,7 @@ func _physics_process(_delta: float) -> void:
 func _check_upgrade_changes() -> void:
 	"""
 	v1.3.11: Detecta mudanças em upgrade.current_level (ÚNICA fonte de verdade).
-	
-	RESPONSABILIDADES:
-	- Detecta mudanças em upgrade.current_level
-	- Liga/desliga timers baseado no level
-	- Aplica upgrades automaticamente
-	
-	FUNCIONA PARA:
-	- Mudanças via código (test_attack_upgrades.gd)
-	- Mudanças no Remote Inspector
-	- Qualquer outra fonte de mudança
+	v1.4.7: Emite attack_unlocked para qualquer fonte de desbloqueio.
 	"""
 	for upgrade in attack_upgrades:
 		if not upgrade:
@@ -297,6 +289,8 @@ func _check_upgrade_changes() -> void:
 					if att_data and att_data.start_immediately:
 						_spawn_attack.call_deferred(att_data)
 						print("⚡ Attack '%s' fired immediately (start_immediately)" % upgrade.attack_name)
+					# v1.4.7: notifica loadout_bar (e qualquer outro listener)
+					attack_unlocked.emit(attack_id, att_data.icon if att_data else null)
 				elif current_level == 0 and last_level > 0:
 					# Passou de > 0 para 0 → DESLIGAR timer
 					timer.stop()
@@ -342,51 +336,35 @@ func _spawn_attack(attack_data: AttackData) -> void:
 		return
 
 	# v1.3.24: Criar cópia TEMPORÁRIA com upgrades aplicados
-	# AttackData original permanece intocado (valores base)
 	var attack_with_upgrades = create_attack_data_with_upgrades(attack_data)
 
-	# Sistema genérico de disparo sequencial/simultâneo
-	# - Se projectile_stagger_delay = 0.0: disparo simultâneo (todos ao mesmo tempo)
-	# - Se projectile_stagger_delay > 0.0: disparo sequencial (metralhadora)
-	
 	if attack_with_upgrades.projectile_stagger_delay > 0.0:
 		# DISPARO SEQUENCIAL (metralhadora)
 		for i in range(attack_with_upgrades.projectile_count):
-			# TOCAR ÁUDIO no momento do spawn
 			if attack_with_upgrades.attack_sound and not attack_with_upgrades.handles_own_audio:
 				AudioManagerGlobal.play_sound(
 					attack_with_upgrades.attack_sound,
 					attack_with_upgrades.attack_sound_volume_db,
 					attack_with_upgrades.attack_sound_pitch_scale
 				)
-			
-			# SPAWNAR PROJÉTIL
 			_spawn_single_projectile(attack_with_upgrades, i)
-			
-			# AGUARDAR antes do próximo (exceto no último)
 			if i < attack_with_upgrades.projectile_count - 1:
 				await get_tree().create_timer(attack_with_upgrades.projectile_stagger_delay, false).timeout
 	else:
-		# DISPARO SIMULTÂNEO (todos ao mesmo tempo)
+		# DISPARO SIMULTÂNEO
 		for i in range(attack_with_upgrades.projectile_count):
-			# TOCAR ÁUDIO no momento do spawn (AudioManager limita automaticamente)
 			if attack_with_upgrades.attack_sound and not attack_with_upgrades.handles_own_audio:
 				AudioManagerGlobal.play_sound(
 					attack_with_upgrades.attack_sound,
 					attack_with_upgrades.attack_sound_volume_db,
 					attack_with_upgrades.attack_sound_pitch_scale
 				)
-			
-			# SPAWNAR PROJÉTIL
 			_spawn_single_projectile(attack_with_upgrades, i)
 
 # -------------------------------------------------
 # SPAWN SINGLE PROJECTILE
 # -------------------------------------------------
-# SPAWN SINGLE PROJECTILE - v1.3.0: SIMPLIFICADO
-# -------------------------------------------------
 func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
-	# v1.3.0: Upgrades já aplicados em _spawn_attack
 	var attack = attack_data.packed_scene.instantiate()
 
 	if attack_data.attach_to_player:
@@ -415,15 +393,7 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 # TIMER - v1.3.11
 # -------------------------------------------------
 func _create_attack_timer(attack_data: AttackData) -> void:
-	"""
-	Cria timer que só roda quando enabled = true.
-	Timer inicia do ZERO quando enabled muda para true.
-	v1.2.1: Aplica attack_speed_multiplier do PowerUpStatsGlobal.
-	v1.3.11: Consulta upgrade.current_level (fonte única).
-	"""
 	var timer := Timer.new()
-	# v1.2.1: Divide interval por attack_speed_multiplier
-	# Exemplo: interval 2.0s, multiplier 1.5 → wait_time 1.33s (50% mais rápido!)
 	timer.wait_time = attack_data.interval / PowerUpStatsGlobal.attack_speed_multiplier
 	timer.one_shot = false
 	timer.autostart = false
@@ -434,11 +404,9 @@ func _create_attack_timer(attack_data: AttackData) -> void:
 	
 	add_child(timer)
 	
-	# v1.3.11: Inicia timer APENAS se upgrade já começa ativo (current_level > 0)
 	var upgrade = find_upgrade(attack_data.attack_id)
 	if upgrade and upgrade.current_level > 0:
 		timer.start()
-		# v1.4.2: start_immediately — disparo único imediato, timer segue normal
 		if attack_data.start_immediately:
 			_spawn_attack.call_deferred(attack_data)
 			print("⚡ Attack '%s' fired immediately on game start (start_immediately)" % attack_data.attack_name)
@@ -446,16 +414,9 @@ func _create_attack_timer(attack_data: AttackData) -> void:
 	attack_timers[attack_data.attack_id] = timer
 
 # -------------------------------------------------
-# CONTROL - v1.1.18 | v1.3.11: Sistema de levels | v1.3.26: Unificado
+# CONTROL - v1.3.26: Unificado
 # -------------------------------------------------
 func apply_upgrade(attack_id: int) -> bool:
-	"""
-	v1.3.26: MÉTODO UNIFICADO para unlock e upgrade.
-	Incrementa level do ataque (0→1, 1→2, 2→3, etc).
-	Retorna true se sucesso, false se já está no max_level.
-	
-	PADRÃO: Mesma assinatura de PowerUpController.apply_upgrade()
-	"""
 	var upgrade = find_upgrade(attack_id)
 	if not upgrade:
 		push_warning("AttackController: Upgrade not found for attack_id %d" % attack_id)
@@ -477,42 +438,26 @@ func apply_upgrade(attack_id: int) -> bool:
 
 
 func enable_attack(attack_id: int) -> void:
-	"""
-	DEPRECATED v1.3.26: Use apply_upgrade() instead.
-	Mantido para compatibilidade com scripts de teste.
-	"""
+	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
 	apply_upgrade(attack_id)
 
 func disable_attack(attack_id: int) -> void:
-	"""
-	v1.3.11: Bloqueia ataque (level → 0).
-	Modifica upgrade.current_level (fonte única).
-	Timer será parado automaticamente por _check_upgrade_changes().
-	"""
 	var upgrade = find_upgrade(attack_id)
 	if not upgrade:
 		push_warning("AttackController: Upgrade not found for attack_id %d" % attack_id)
 		return
-	
 	upgrade.current_level = 0
 	print("🛑 Attack '%s' locked" % upgrade.attack_name)
 
 func upgrade_attack(attack_id: int) -> bool:
-	"""
-	DEPRECATED v1.3.26: Use apply_upgrade() instead.
-	Mantido para compatibilidade com scripts de teste.
-	"""
+	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
 	return apply_upgrade(attack_id)
 
 
 # -------------------------------------------------
-# v1.2.1: ATTACK SPEED - Atualiza timers em tempo real
+# v1.2.1: ATTACK SPEED
 # -------------------------------------------------
 func _on_stats_changed() -> void:
-	"""
-	Chamado quando PowerUpStatsGlobal muda (ex: powerup aplicado).
-	Atualiza wait_time de todos os timers para refletir novo attack_speed_multiplier.
-	"""
 	for attack_data in attacks:
 		if not attack_data:
 			continue
@@ -521,9 +466,7 @@ func _on_stats_changed() -> void:
 		if not timer:
 			continue
 		
-		# Recalcula wait_time com novo multiplier
 		var new_wait_time = attack_data.interval / PowerUpStatsGlobal.attack_speed_multiplier
 		
-		# Só atualiza se realmente mudou (evita spam de atualizações)
 		if abs(timer.wait_time - new_wait_time) > 0.001:
 			timer.wait_time = new_wait_time

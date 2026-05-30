@@ -3,6 +3,10 @@ extends CanvasLayer
 # =================================================
 # LOADOUT BAR
 # =================================================
+# Exibe ataques e powerups possuídos pelo Player.
+# Escuta sinais dos controllers diretamente —
+# funciona para level up, debug e qualquer fonte futura.
+# =================================================
 
 # =================================================
 # NODES
@@ -23,8 +27,6 @@ func _ready() -> void:
 	_collect_slots(attack_slots, attack_icons)
 	_collect_slots(powerup_slots, powerup_icons)
 
-	LevelUpManagerGlobal.upgrade_applied.connect(_on_upgrade_applied)
-
 	await get_tree().process_frame
 	_initialize_from_player()
 
@@ -34,14 +36,12 @@ func _ready() -> void:
 func _collect_slots(container: HBoxContainer, icons: Array[TextureRect]) -> void:
 	for slot in container.get_children():
 		var icon_rect := slot.get_node("Icon") as TextureRect
-		# EXPAND_IGNORE_SIZE: mínimo reportado = 0, Panel fica em 18×18
-		# STRETCH_SCALE: textura escala para preencher o TextureRect
 		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon_rect.stretch_mode = TextureRect.STRETCH_SCALE
 		icons.append(icon_rect)
 
 # =================================================
-# INICIALIZAÇÃO — lê estado atual do Player
+# INICIALIZAÇÃO — lê estado atual e conecta sinais
 # =================================================
 func _initialize_from_player() -> void:
 	var player = get_tree().get_first_node_in_group("Player")
@@ -56,6 +56,11 @@ func _initialize_from_player() -> void:
 		push_error("❌ LoadoutBar: Controllers não encontrados!")
 		return
 
+	# Conectar sinais dos controllers — cobre todas as fontes de desbloqueio
+	attack_controller.attack_unlocked.connect(_on_attack_unlocked)
+	powerup_controller.powerup_unlocked.connect(_on_powerup_unlocked)
+
+	# Preencher estado inicial (ataques já ativos ao iniciar)
 	var attack_index := 0
 	for upgrade in attack_controller.attack_upgrades:
 		if upgrade.current_level > 0 and attack_index < attack_icons.size():
@@ -64,24 +69,16 @@ func _initialize_from_player() -> void:
 				attack_icons[attack_index].texture = attack_data.icon
 			attack_index += 1
 
-	var powerup_index := 0
-	for powerup in powerup_controller.powerups:
-		if powerup.current_level > 0 and powerup_index < powerup_icons.size():
-			if powerup.icon:
-				powerup_icons[powerup_index].texture = powerup.icon
-			powerup_index += 1
+	# Powerups começam sempre vazios — sem estado inicial a preencher
 
 # =================================================
-# ATUALIZAÇÃO — chamado a cada upgrade aplicado
+# CALLBACKS DOS CONTROLLERS
 # =================================================
-func _on_upgrade_applied(choice: Dictionary) -> void:
-	if choice.current_level != 0:
-		return
+func _on_attack_unlocked(_attack_id: int, icon: Texture2D) -> void:
+	_fill_next_empty_slot(attack_icons, icon)
 
-	if choice.type == "attack":
-		_fill_next_empty_slot(attack_icons, choice.icon)
-	elif choice.type == "powerup":
-		_fill_next_empty_slot(powerup_icons, choice.icon)
+func _on_powerup_unlocked(_powerup_id: int, icon: Texture2D) -> void:
+	_fill_next_empty_slot(powerup_icons, icon)
 
 # =================================================
 # PREENCHE O PRÓXIMO SLOT VAZIO

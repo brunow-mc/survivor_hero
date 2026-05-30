@@ -4,34 +4,28 @@ class_name PowerUpController
 # =================================================
 # POWERUP CONTROLLER - v1.1.19 v3 | v1.3.2
 # =================================================
-# Gerencia powerups do player (similar ao AttackController).
-# Calcula stats e atualiza PowerUpStatsGlobal.
-# =================================================
+
+signal powerup_unlocked(powerup_id: int, icon: Texture2D)  # v1.4.7: emitido por qualquer fonte
 
 @export var powerups: Array[PowerUpData] = []
 
 var player: PlayerBase = null
 
-# Valores base do player (salvos no _ready)
-# v1.3.4: Padronizado para Dictionary (mesmo padrão de AttackController)
 var player_base_values: Dictionary = {}
 
 
 # =================================================
-# READY - DUPLICAR RESOURCES
+# READY
 # =================================================
 func _ready() -> void:
 	print("\n🔷 PowerUpController: Initializing...")
 	_duplicate_powerup_resources()
 	
-	# Aguarda 1 frame para garantir que player já foi configurado
 	await get_tree().process_frame
 	
 	player = get_parent() as PlayerBase
 	
 	if player:
-		# CRITICAL: Salvar valores base ANTES de aplicar modificadores
-		# v1.3.4: Guardados em Dictionary (padrão do AttackController)
 		player_base_values = {
 			"max_health": player.max_health,
 			"move_speed": player.move_speed
@@ -47,19 +41,12 @@ func _ready() -> void:
 
 
 func _duplicate_powerup_resources() -> void:
-	"""
-	Cria cópias dos Resources em runtime.
-	Reset automático: reload scene = novas cópias com valores originais.
-	Mesmo padrão do AttackController.
-	"""
 	var duplicated: Array[PowerUpData] = []
 	
 	for powerup in powerups:
 		if powerup:
-			# Duplicar PowerUpData
 			var dup_powerup = powerup.duplicate(true)
 			
-			# Duplicar arrays manualmente (workaround Godot)
 			dup_powerup.max_health_flat_per_level = _duplicate_float_array(dup_powerup.max_health_flat_per_level)
 			dup_powerup.max_health_percent_per_level = _duplicate_float_array(dup_powerup.max_health_percent_per_level)
 			dup_powerup.move_speed_flat_per_level = _duplicate_float_array(dup_powerup.move_speed_flat_per_level)
@@ -68,7 +55,6 @@ func _duplicate_powerup_resources() -> void:
 			dup_powerup.armor_flat_per_level = _duplicate_float_array(dup_powerup.armor_flat_per_level)
 			dup_powerup.magnet_range_flat_per_level = _duplicate_float_array(dup_powerup.magnet_range_flat_per_level)
 			dup_powerup.attack_speed_percent_per_level = _duplicate_float_array(dup_powerup.attack_speed_percent_per_level)
-			# NOVO v1.2.6 - Lethal Impact
 			dup_powerup.projectile_speed_percent_per_level = _duplicate_float_array(dup_powerup.projectile_speed_percent_per_level)
 			dup_powerup.knockback_percent_per_level = _duplicate_float_array(dup_powerup.knockback_percent_per_level)
 			
@@ -89,16 +75,9 @@ func _duplicate_float_array(arr: Array[float]) -> Array[float]:
 
 
 # =================================================
-# APPLY UPGRADE - v1.3.26: Unificado com AttackController
+# APPLY UPGRADE - v1.3.26 | v1.4.7
 # =================================================
 func apply_upgrade(powerup_id: int) -> bool:
-	"""
-	v1.3.26: MÉTODO UNIFICADO para unlock e upgrade.
-	Incrementa level do powerup (0→1, 1→2, 2→3, etc).
-	Retorna true se sucesso, false se já está no max_level.
-	
-	PADRÃO: Mesma assinatura de AttackController.apply_upgrade()
-	"""
 	var powerup := _find_powerup(powerup_id)
 	
 	if not powerup:
@@ -108,11 +87,11 @@ func apply_upgrade(powerup_id: int) -> bool:
 	var was_level = powerup.current_level
 	
 	if not powerup.level_up():
-		# v1.3.2: Removido push_warning (validação prévia em TestPowerups)
 		return false
 	
 	if was_level == 0:
 		print("\n✨ PowerUp UNLOCKED: '%s' (Level %d)" % [powerup.powerup_name, powerup.current_level])
+		powerup_unlocked.emit(powerup_id, powerup.icon)  # v1.4.7
 	else:
 		print("\n⬆️ PowerUp UPGRADED: '%s' (Level %d → %d)" % [powerup.powerup_name, was_level, powerup.current_level])
 	
@@ -121,18 +100,11 @@ func apply_upgrade(powerup_id: int) -> bool:
 
 
 func apply_powerup(powerup_id: int) -> bool:
-	"""
-	DEPRECATED v1.3.26: Use apply_upgrade() instead.
-	Mantido para compatibilidade com scripts de teste.
-	"""
+	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
 	return apply_upgrade(powerup_id)
 
 
 func remove_powerup(powerup_id: int) -> bool:
-	"""
-	Remove powerup (seta level para 0).
-	Usado para testes ou reset.
-	"""
 	var powerup := _find_powerup(powerup_id)
 	
 	if not powerup:
@@ -158,7 +130,6 @@ func _find_powerup(id: int) -> PowerUpData:
 
 
 func get_powerup(powerup_id: int) -> PowerUpData:
-	"""v1.3.2: Método público para acessar powerup (usado por TestPowerups)"""
 	return _find_powerup(powerup_id)
 
 
@@ -166,13 +137,8 @@ func get_powerup(powerup_id: int) -> PowerUpData:
 # RECALCULAR STATS
 # =================================================
 func _recalculate_all_stats() -> void:
-	"""
-	Calcula TODOS os stats somando bonuses de TODOS os powerups ativos.
-	Atualiza PowerUpStatsGlobal.
-	"""
 	print("\n🔄 Recalculating all stats...")
 	
-	# Soma todos os bonuses
 	var total_max_health_flat := 0.0
 	var total_max_health_percent := 0.0
 	var total_move_speed_flat := 0.0
@@ -181,8 +147,8 @@ func _recalculate_all_stats() -> void:
 	var total_armor_flat := 0.0
 	var total_magnet_flat := 0.0
 	var total_attack_speed_percent := 0.0
-	var total_projectile_speed_percent := 0.0  # NOVO v1.2.6
-	var total_knockback_percent := 0.0  # NOVO v1.2.6
+	var total_projectile_speed_percent := 0.0
+	var total_knockback_percent := 0.0
 	
 	for powerup in powerups:
 		if not powerup or powerup.current_level == 0:
@@ -208,7 +174,6 @@ func _recalculate_all_stats() -> void:
 		var aspd_bonus = powerup.get_attack_speed_bonus()
 		total_attack_speed_percent += aspd_bonus["percent"]
 		
-		# NOVO v1.2.6 - Lethal Impact
 		var proj_speed_bonus = powerup.get_projectile_speed_bonus()
 		total_projectile_speed_percent += proj_speed_bonus["percent"]
 		
@@ -226,7 +191,6 @@ func _recalculate_all_stats() -> void:
 			armor_bonus["flat"]
 		])
 	
-	# Calcula multiplicadores finais
 	var stats = {
 		"damage_multiplier": 1.0 + total_damage_percent,
 		"max_health_bonus_flat": total_max_health_flat,
@@ -240,88 +204,56 @@ func _recalculate_all_stats() -> void:
 		"knockback_multiplier": 1.0 + total_knockback_percent
 	}
 	
-	# Atualiza global
 	PowerUpStatsGlobal.update_stats(stats)
-	
-	# Aplica nos sistemas
 	_apply_stats_to_player()
 
 
 # =================================================
-# APLICAR STATS NOS SISTEMAS
+# APLICAR STATS
 # =================================================
 func _apply_stats_to_player() -> void:
-	"""
-	Aplica stats calculados no player e outros sistemas.
-	"""
 	if not player:
 		return
 	
 	print("\n🎯 Applying stats to player systems...")
 	
-	# ===== MAX HEALTH =====
-	# v1.3.4: Usar player_base_values Dictionary (padrão do AttackController)
 	var new_max_health = (player_base_values["max_health"] + PowerUpStatsGlobal.max_health_bonus_flat) * (1.0 + PowerUpStatsGlobal.max_health_bonus_percent)
 	
 	var old_max = player.max_health
 	player.max_health = new_max_health
 	
-	# v1.1.19 v3 FIX: HP aumenta pelo valor EXATO do aumento (não proporção!)
 	if new_max_health > old_max:
-		# HP máximo AUMENTOU
 		var max_health_increase = new_max_health - old_max
-		
 		GameStateGlobal.player_max_health = new_max_health
-		GameStateGlobal.player_health += max_health_increase  # Adiciona diferença!
-		
-		# Cap no novo máximo (se ultrapassar)
+		GameStateGlobal.player_health += max_health_increase
 		if GameStateGlobal.player_health > new_max_health:
 			GameStateGlobal.player_health = new_max_health
-		
 		GameStateGlobal.player_health_changed.emit(GameStateGlobal.player_health, GameStateGlobal.player_max_health)
 		print("  ❤️  Max Health: %.1f → %.1f (+%.1f HP)" % [old_max, new_max_health, max_health_increase])
-	
 	elif new_max_health < old_max:
-		# HP máximo DIMINUIU (reset)
 		GameStateGlobal.player_max_health = new_max_health
-		
-		# Se HP atual está acima do novo máximo, ajustar (cap)
 		if GameStateGlobal.player_health > new_max_health:
 			GameStateGlobal.player_health = new_max_health
 			GameStateGlobal.player_health_changed.emit(GameStateGlobal.player_health, GameStateGlobal.player_max_health)
 			print("  ❤️  Max Health: %.1f → %.1f (HP capped to new max)" % [old_max, new_max_health])
 		else:
-			# HP atual está OK, só emite signal
 			GameStateGlobal.player_health_changed.emit(GameStateGlobal.player_health, GameStateGlobal.player_max_health)
 			print("  ❤️  Max Health: %.1f → %.1f" % [old_max, new_max_health])
-	
 	else:
-		# Max health não mudou (edge case)
 		print("  ❤️  Max Health: %.1f (unchanged)" % new_max_health)
 	
-	# ===== MOVE SPEED =====
-	# v1.3.4: Usar player_base_values Dictionary (padrão do AttackController)
 	var new_speed = (player_base_values["move_speed"] + PowerUpStatsGlobal.move_speed_bonus_flat) * (1.0 + PowerUpStatsGlobal.move_speed_bonus_percent)
 	player.move_speed = new_speed
 	print("  🏃 Move Speed: %.1f" % new_speed)
 	
-	# ===== DAMAGE (aplicado em BasePower ao dar hit) =====
 	print("  💥 Damage Multiplier: ×%.2f (applied on hit)" % PowerUpStatsGlobal.damage_multiplier)
 	
-	# ===== ARMOR =====
 	var reduction = PowerUpStatsGlobal.get_armor_damage_reduction()
 	print("  🛡️  Armor: %.1f (%.0f%% damage reduction)" % [PowerUpStatsGlobal.armor, reduction * 100])
 	
-	# ===== MAGNET =====
 	print("  🧲 Magnet Range: +%.1f (applied in XP items)" % PowerUpStatsGlobal.magnet_range_bonus)
-	
-	# ===== ATTACK SPEED =====
 	print("  ⚡ Attack Speed: ×%.2f (applied in timers)" % PowerUpStatsGlobal.attack_speed_multiplier)
-	
-	# ===== PROJECTILE SPEED - NOVO v1.2.6 =====
 	print("  🚀 Projectile Speed: ×%.2f (applied in powers)" % PowerUpStatsGlobal.projectile_speed_multiplier)
-	
-	# ===== KNOCKBACK - NOVO v1.2.6 =====
 	print("  💫 Knockback: ×%.2f (applied on hit)" % PowerUpStatsGlobal.knockback_multiplier)
 	
 	print("✅ Stats applied!\n")
@@ -335,14 +267,12 @@ func get_powerup_level(powerup_id: int) -> int:
 	return powerup.current_level if powerup else 0
 
 func list_active_powerups() -> void:
-	"""Debug: lista powerups ativos"""
 	print("\n📋 ACTIVE POWERUPS:")
 	var has_active = false
 	for powerup in powerups:
 		if powerup and powerup.current_level > 0:
 			print("  ✓ %s (Level %d/%d)" % [powerup.powerup_name, powerup.current_level, powerup.max_level])
 			has_active = true
-	
 	if not has_active:
 		print("  (none)")
 	print("")
