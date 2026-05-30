@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" uid="uid://dxfkvgluhmj15" path="res://audio/songs/Battle_in_the_Streets.mp3" id="5_jmh76"]
 [ext_resource type="PackedScene" uid="uid://c5m683ttqoa7k" path="res://entities/camera.tscn" id="5_t4y0q"]
 [ext_resource type="PackedScene" uid="uid://d1mfsbxkoj7t5" path="res://ui/pause_menu.tscn" id="6_spj00"]
+[ext_resource type="PackedScene" uid="uid://cxeqfoj7lg4ui" path="res://ui/loadout_bar.tscn" id="7_frfcc"]
 [ext_resource type="PackedScene" uid="uid://be5j45u2rjqv" path="res://ui/game_over_menu.tscn" id="7_ydume"]
 [ext_resource type="PackedScene" uid="uid://c0dmv7da3ciwo" path="res://ui/xp_bar.tscn" id="9_dpt3t"]
 [ext_resource type="PackedScene" uid="uid://bq81qryqfwvjq" path="res://entities/spawn/spawn_manager_config.tscn" id="10_spawn_config"]
@@ -34,6 +35,8 @@ attenuation = 1e-05
 
 [node name="XPBar" parent="." unique_id=1852906834 instance=ExtResource("9_dpt3t")]
 visible = false
+
+[node name="LoadoutBar" parent="." unique_id=813362526 instance=ExtResource("7_frfcc")]
 
 [node name="PauseMenu" parent="." unique_id=1587197452 instance=ExtResource("6_spj00")]
 visible = false
