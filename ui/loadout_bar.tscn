@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cxeqfoj7lg4ui"]
 
 [ext_resource type="LabelSettings" uid="uid://bv5gqqm54o74l" path="res://ui/theme/loadout_label.tres" id="1_0ki3e"]
+[ext_resource type="Script" uid="uid://b7siomx7k4we2" path="res://scripts/loadout_bar.gd" id="1_6xtmo"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 bg_color = Color(0, 0, 0, 0)
@@ -11,6 +12,7 @@ border_width_bottom = 1
 border_color = Color(0, 0, 0, 1)
 
 [node name="LoadoutBar" type="CanvasLayer" unique_id=813362526]
+script = ExtResource("1_6xtmo")
 
 [node name="Control" type="Control" parent="." unique_id=181319122]
 layout_mode = 3
