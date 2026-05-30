@@ -1,14 +1,7 @@
 [gd_scene format=3 uid="uid://c0dmv7da3ciwo"]
 
 [ext_resource type="Script" uid="uid://dd4cgewmpp14v" path="res://scripts/xp_bar.gd" id="1_i6net"]
-[ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="2_i6net"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_ywxey"]
-font = ExtResource("2_i6net")
-font_size = 12
-font_color = Color(1, 0.725, 0, 1)
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
+[ext_resource type="LabelSettings" uid="uid://c4piwpp40j7u5" path="res://ui/theme/level_label.tres" id="2_i6net"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c0rb"]
 bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
@@ -20,13 +13,6 @@ border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eknrq"]
 bg_color = Color(1, 0.725, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_8l8wv"]
-font = ExtResource("2_i6net")
-font_size = 12
-font_color = Color(1, 0.725, 0, 1)
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
 
 [node name="XPBar" type="CanvasLayer" unique_id=313583345]
 script = ExtResource("1_i6net")
@@ -41,7 +27,7 @@ size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 0.725, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "LEVEL 1"
-label_settings = SubResource("LabelSettings_ywxey")
+label_settings = ExtResource("2_i6net")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=1641174144]
 custom_minimum_size = Vector2(200, 8)
@@ -64,4 +50,4 @@ size_flags_horizontal = 6
 theme_override_colors/font_color = Color(1, 0.725, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "0 / 10"
-label_settings = SubResource("LabelSettings_8l8wv")
+label_settings = ExtResource("2_i6net")
