@@ -3,10 +3,6 @@ extends CanvasLayer
 # =================================================
 # LOADOUT BAR
 # =================================================
-# Exibe os ataques e powerups já possuídos pelo Player
-# em duas fileiras de slots no topo-direito da tela.
-# Atualiza automaticamente a cada novo desbloqueio.
-# =================================================
 
 # =================================================
 # NODES
@@ -24,19 +20,25 @@ var powerup_icons: Array[TextureRect] = []
 # READY
 # =================================================
 func _ready() -> void:
-	# Coletar TextureRects de cada slot na ordem da cena
-	for slot in attack_slots.get_children():
-		attack_icons.append(slot.get_node("Icon"))
+	_collect_slots(attack_slots, attack_icons)
+	_collect_slots(powerup_slots, powerup_icons)
 
-	for slot in powerup_slots.get_children():
-		powerup_icons.append(slot.get_node("Icon"))
-
-	# Conectar ao sinal de upgrade aplicado
 	LevelUpManagerGlobal.upgrade_applied.connect(_on_upgrade_applied)
 
-	# Aguardar um frame para garantir que Player e controllers estejam prontos
 	await get_tree().process_frame
 	_initialize_from_player()
+
+# =================================================
+# COLETA E CONFIGURA SLOTS
+# =================================================
+func _collect_slots(container: HBoxContainer, icons: Array[TextureRect]) -> void:
+	for slot in container.get_children():
+		var icon_rect := slot.get_node("Icon") as TextureRect
+		# EXPAND_IGNORE_SIZE: mínimo reportado = 0, Panel fica em 18×18
+		# STRETCH_SCALE: textura escala para preencher o TextureRect
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_SCALE
+		icons.append(icon_rect)
 
 # =================================================
 # INICIALIZAÇÃO — lê estado atual do Player
@@ -54,7 +56,6 @@ func _initialize_from_player() -> void:
 		push_error("❌ LoadoutBar: Controllers não encontrados!")
 		return
 
-	# Preencher slots de ataque já ativos (current_level > 0)
 	var attack_index := 0
 	for upgrade in attack_controller.attack_upgrades:
 		if upgrade.current_level > 0 and attack_index < attack_icons.size():
@@ -63,7 +64,6 @@ func _initialize_from_player() -> void:
 				attack_icons[attack_index].texture = attack_data.icon
 			attack_index += 1
 
-	# Preencher slots de powerup já ativos (current_level > 0)
 	var powerup_index := 0
 	for powerup in powerup_controller.powerups:
 		if powerup.current_level > 0 and powerup_index < powerup_icons.size():
@@ -75,8 +75,6 @@ func _initialize_from_player() -> void:
 # ATUALIZAÇÃO — chamado a cada upgrade aplicado
 # =================================================
 func _on_upgrade_applied(choice: Dictionary) -> void:
-	# Apenas novos desbloqueios (0 → 1) ocupam um slot novo
-	# Upgrades de itens já possuídos (current_level > 0) não alteram slots
 	if choice.current_level != 0:
 		return
 
