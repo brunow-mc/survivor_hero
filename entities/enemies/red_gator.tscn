@@ -118,14 +118,14 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
-radius = 13.038404
+radius = 19.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
-radius = 9.0
-height = 24.0
+radius = 14.0
+height = 36.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_u5jqn"]
-radius = 11.0
+radius = 16.0
 
 [node name="RedGator" type="CharacterBody2D" unique_id=1459565002 groups=["Enemies"]]
 z_index = 1
@@ -144,7 +144,7 @@ drop_chance = 0.5
 position = Vector2(0, 13)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=688458282]
-self_modulate = Color(0.7038545, 0.39892706, 0.31528327, 1)
+scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_jq0pf")
 animation = &"idle"
 
@@ -158,7 +158,7 @@ collision_layer = 4
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=697552730]
-position = Vector2(0, -2)
+position = Vector2(0, -4)
 rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_u5jqn")
 debug_color = Color(1, 0, 0, 0.41960785)

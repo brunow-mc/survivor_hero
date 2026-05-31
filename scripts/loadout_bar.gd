@@ -26,6 +26,7 @@ var powerup_icons: Array[TextureRect] = []
 func _ready() -> void:
 	_collect_slots(attack_slots, attack_icons)
 	_collect_slots(powerup_slots, powerup_icons)
+	show()
 
 	await get_tree().process_frame
 	_initialize_from_player()
