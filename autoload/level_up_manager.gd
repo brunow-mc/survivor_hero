@@ -24,6 +24,16 @@ signal upgrade_options_ready(options: Array[Dictionary])
 signal upgrade_applied(upgrade_data: Dictionary)
 
 # -------------------------------------------------
+# FIRST AID
+# -------------------------------------------------
+## Quantidade de HP recuperada pelo First Aid.
+## Capped no Max Health do Player (lógica em GameStateGlobal.heal).
+var heal_amount: float = 20.0
+
+## Ícone exibido no botão de First Aid no menu de level up.
+var heal_icon: Texture2D = preload("res://sprites/icons/bonus_icons/first_aid.png")
+
+# -------------------------------------------------
 # CONFIGURAÇÃO DE PESOS (preparado para FASE 4)
 # -------------------------------------------------
 @export_group("Weight System")
@@ -100,8 +110,10 @@ func _on_level_up(new_level: int) -> void:
 
 	for i in current_options.size():
 		var opt = current_options[i]
-		var type_icon = "⚔️" if opt.type == "attack" else "⭐"
-		var level_info = "NOVO!" if opt.current_level == 0 else ("Lv%d → Lv%d" % [opt.current_level, opt.current_level + 1])
+		var type_icon = "❤️" if opt.type == "bonus" else ("⚔️" if opt.type == "attack" else "⭐")
+		var level_info = "First Aid" if opt.type == "bonus" else (
+			"NOVO!" if opt.current_level == 0 else ("Lv%d → Lv%d" % [opt.current_level, opt.current_level + 1])
+		)
 		print("  [%d] %s %s (%s)" % [i + 1, type_icon, opt.name, level_info])
 		print("      ID: %d | Type: %s" % [opt.id, opt.type])
 
@@ -117,8 +129,8 @@ func generate_upgrade_options(level: int) -> Array[Dictionary]:
 	FASE 3: Consulta controllers reais e sorteia opções disponíveis.
 	Filtra por max_level e retorna até 3 opções aleatórias.
 	v1.4.7: Garante ao menos 1 ataque nas opções até early_game_threshold.
-	v1.4.7: Respeita attack_capacity e powerup_capacity — bloqueia novos
-	        desbloqueios quando cheio, mantém upgrades dos já possuídos.
+	v1.4.7: Respeita attack_capacity e powerup_capacity.
+	v1.4.7: Pool vazio → oferece First Aid como única opção.
 	"""
 
 	print("\n🔧 Gerando opções de upgrade (FASE 3)...")
@@ -168,7 +180,6 @@ func generate_upgrade_options(level: int) -> Array[Dictionary]:
 			continue
 		if upgrade_data.current_level >= upgrade_data.max_level:
 			continue
-		# Bloquear novo desbloqueio se capacidade atingida
 		if attacks_full and upgrade_data.current_level == 0:
 			continue
 
@@ -189,7 +200,6 @@ func generate_upgrade_options(level: int) -> Array[Dictionary]:
 			continue
 		if powerup_data.current_level >= powerup_data.max_level:
 			continue
-		# Bloquear novo desbloqueio se capacidade atingida
 		if powerups_full and powerup_data.current_level == 0:
 			continue
 
@@ -208,9 +218,10 @@ func generate_upgrade_options(level: int) -> Array[Dictionary]:
 	var pool: Array[Dictionary] = attack_pool + powerup_pool
 	print("   📦 Pool total: %d upgrades disponíveis (%d ataques, %d powerups)" % [pool.size(), attack_pool.size(), powerup_pool.size()])
 
+	# Pool vazio → First Aid como única opção (outros 2 botões ficam invisíveis)
 	if pool.size() == 0:
-		push_warning("⚠️ LevelUpManager: Nenhum upgrade disponível!")
-		return []
+		print("   ❤️ Nenhum upgrade disponível — oferecendo First Aid")
+		return [_make_heal_option()]
 
 	var max_options = min(options_count, pool.size())
 	var options: Array[Dictionary] = []
@@ -239,6 +250,21 @@ func generate_upgrade_options(level: int) -> Array[Dictionary]:
 	print("   ✅ %d opções sorteadas" % options.size())
 
 	return options
+
+# =================================================
+# FIRST AID — monta dicionário da opção de cura
+# =================================================
+func _make_heal_option() -> Dictionary:
+	return {
+		"type": "bonus",
+		"id": 0,
+		"name": "First Aid",
+		"current_level": 0,
+		"next_level": 0,
+		"display_name": "First Aid",
+		"description": "RECOVER +%d HP." % int(heal_amount),
+		"icon": heal_icon
+	}
 
 # =================================================
 # APLICAR UPGRADE
@@ -280,14 +306,20 @@ func apply_upgrade(choice_index: int) -> void:
 # =================================================
 # APLICAR UPGRADE - v1.3.26 | v1.3.27
 # =================================================
-func _apply_upgrade(player: Node, choice: Dictionary) -> void:
+func _apply_upgrade(_player: Node, choice: Dictionary) -> void:
+	# First Aid — delega ao GameStateGlobal que encapsula a lógica de cura
+	if choice.type == "bonus":
+		GameStateGlobal.heal(heal_amount)
+		return
+
+	# Attacks e Powerups — via controllers
 	var controller_name = "AttackController" if choice.type == "attack" else "PowerUpController"
 
-	if not player.has_node(controller_name):
+	if not _player.has_node(controller_name):
 		push_error("❌ %s não encontrado no player!" % controller_name)
 		return
 
-	var controller = player.get_node(controller_name)
+	var controller = _player.get_node(controller_name)
 	var level_before = _get_current_level(controller, choice)
 	var success = controller.apply_upgrade(choice.id)
 

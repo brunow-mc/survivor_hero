@@ -19,6 +19,7 @@ life_time = 2.0
 attack_delay = 0.4
 damage_interval = 0.2
 activation_delay = 0.3
+start_immediately = true
 projectile_stagger_delay = 0.2
 max_hits = -1
 attack_sound = ExtResource("1_y6618")
