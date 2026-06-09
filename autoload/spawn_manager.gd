@@ -282,7 +282,20 @@ func accumulate_budget(delta: float) -> void:
 	var budget_gain := base_budget_per_second * difficulty_multiplier * delta
 	spawn_budget += budget_gain
 
-
+# =================================================
+# NAV MESH SNAP
+# =================================================
+func _snap_to_nav_mesh(pos: Vector2) -> Vector2:
+	"""
+	Retorna o ponto mais próximo DENTRO da malha de navegação.
+	Elimina o salto visual causado quando o inimigo é colocado
+	levemente fora da malha (dentro da tolerância de validação).
+	O NavigationAgent parte de um ponto já válido — sem snap inicial.
+	"""
+	if not player or not is_instance_valid(player):
+		return pos
+	var nav_map: RID = player.get_world_2d().navigation_map
+	return NavigationServer2D.map_get_closest_point(nav_map, pos)
 
 # =================================================
 # TELEPORT SYSTEM
@@ -344,11 +357,12 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 				print("⚠️ CACHE ESGOTADO - ", enemies_to_teleport.size() - teleported_count, " inimigos aguardam próximo ciclo\n")
 			break
 
+		var pos: Vector2 = safe_teleport_positions.pop_back()
 		var pos_before: Vector2 = enemy.global_position
 
 		# Teleporta com snap para malha de navegação
 		# Evita salto inicial causado por posição fora da malha
-
+		enemy.global_position = _snap_to_nav_mesh(pos)
 		total_teleports += 1
 		teleported_count += 1
 
@@ -779,7 +793,7 @@ func is_position_navigable(check_pos: Vector2) -> bool:
 
 	# Tolerância apertada: 8px (era 16px).
 	# Reduz posições borderline fora da malha que causavam salto de navegação.
-	if distance_to_nav > 16.0:
+	if distance_to_nav > 8.0:
 		return false
 
 	var space_state := player.get_world_2d().direct_space_state
@@ -830,27 +844,21 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 
 	var enemy := enemy_data.enemy_scene.instantiate()
 
-	# Adiciona na cena atual — _ready() roda aqui, makepath() é chamado
-	# da posição padrão da cena (errada)
 	current_scene.add_child(enemy)
 
-	# Define posição real APÓS _ready()
-	enemy.global_position = spawn_pos
-
-	# Recalcula rota da posição real de spawn
-	# Sem isso, o inimigo navega para waypoints calculados da posição errada
-	# durante até 0.5s (path_recalc_interval) — causando saltos visíveis
-	if enemy.has_method("makepath"):
-		enemy.makepath()
+	# Posiciona com snap para malha de navegação
+	# Evita salto inicial causado por posição fora da malha
+	enemy.global_position = _snap_to_nav_mesh(spawn_pos)
 
 	if debug_enabled:
-		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos, " | Budget: ", spawn_budget)
+		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", enemy.global_position, " | Budget: ", spawn_budget)
+
 		if enemy_data.enemy_name == "Red Gator":
 			print("🔥🔥🔥 RED GATOR SPAWNED! 🔥🔥🔥")
 			print("   Game Time: ", game_time, "s")
 			print("   Budget antes: ", spawn_budget + enemy_data.spawn_cost)
 			print("   Budget depois: ", spawn_budget)
-			
+
 # =================================================
 # UTILITÁRIOS
 # =================================================

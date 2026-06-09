@@ -120,18 +120,26 @@ func _ready() -> void:
 	_setup_base()
 
 func _setup_base() -> void:
+	# Path timer
 	path_timer = Timer.new()
 	path_timer.wait_time = path_recalc_interval
 	path_timer.timeout.connect(_on_path_timer_timeout)
 	add_child(path_timer)
 	path_timer.start()
 
+	# Damage timer
 	damage_timer = Timer.new()
 	damage_timer.wait_time = damage_interval
 	damage_timer.timeout.connect(_on_damage_timer_timeout)
 	add_child(damage_timer)
 
+	# Busca player
 	player = get_tree().get_first_node_in_group("Player")
+
+	# NOTA: velocity_computed NÃO é conectado intencionalmente.
+	# O ORCA (avoidance) não conhece paredes estáticas e causa
+	# oscilação de posição quando inimigos convergem perto de paredes.
+	# Colisão entre inimigos é tratada pelo CharacterBody2D naturalmente.
 
 	makepath()
 
@@ -233,7 +241,14 @@ func go_to_dead_state() -> void:
 # =================================================
 func makepath() -> void:
 	if navigation_agent and player and is_instance_valid(player):
-		navigation_agent.target_position = player.global_position
+		# Snap do target para dentro da malha de navegação.
+		# Evita instabilidade de pathfinding quando o player
+		# está próximo de paredes (borda da nav mesh).
+		var nav_map: RID = player.get_world_2d().navigation_map
+		var safe_target := NavigationServer2D.map_get_closest_point(
+			nav_map, player.global_position
+		)
+		navigation_agent.target_position = safe_target
 
 func _on_path_timer_timeout() -> void:
 	makepath()
@@ -284,24 +299,31 @@ func die(hit_data: HitData) -> void:
 # =================================================
 func _try_spawn_drop_items() -> void:
 	var random_chance := randf()
+
 	if random_chance > drop_chance:
 		return
+
 	var amount := randi_range(min_drop_amount, max_drop_amount)
+
 	for i in range(amount):
 		_spawn_single_drop_item(i, amount)
 
 func _spawn_single_drop_item(index: int, total: int) -> void:
 	var item_scene := _get_drop_item_scene()
+
 	if not item_scene:
 		return
+
 	var item := item_scene.instantiate()
 	var spawn_pos := global_position
+
 	if total > 1:
 		var angle := (TAU / total) * index + randf_range(-0.3, 0.3)
 		var distance := randf_range(drop_spread_radius * 0.5, drop_spread_radius)
 		spawn_pos += Vector2(cos(angle), sin(angle)) * distance
 	else:
 		spawn_pos += Vector2(randf_range(-10, 10), randf_range(-10, 10))
+
 	get_tree().current_scene.call_deferred("add_child", item)
 	item.global_position = spawn_pos
 
@@ -314,6 +336,7 @@ func _get_drop_item_scene() -> PackedScene:
 func flash_red() -> void:
 	if not anim:
 		return
+
 	for i in range(flash_count):
 		anim.modulate = Color.RED
 		await get_tree().create_timer(flash_duration, false).timeout
@@ -326,14 +349,18 @@ func flash_red() -> void:
 func handle_knockback_transfer() -> void:
 	if knockback.length() < min_knockback_to_transfer:
 		return
+
 	for i in range(get_slide_collision_count()):
 		var col := get_slide_collision(i)
 		var other := col.get_collider()
+
 		if other and other.is_in_group("Enemy"):
 			if other.knockback != Vector2.ZERO:
 				continue
+
 			var push_dir := -col.get_normal()
 			var transferred := knockback.length() * knockback_transfer_ratio
+
 			other.knockback = push_dir * transferred
 			knockback *= 0.8
 			return
