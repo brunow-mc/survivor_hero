@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 
 ## =================================================
 ## SPAWN MANAGER (Singleton)
@@ -154,6 +154,9 @@ var last_scanned_clusters: Array = []
 # TELEPORT: Cache de posições pré-validadas (ABORDAGEM 1)
 # Preparado 1x por ciclo, consumido durante teleports
 var safe_teleport_positions: Array[Vector2] = []
+
+# PERFORMANCE: shape reutilizado em is_safe_from_walls
+var _wall_check_circle: CircleShape2D = CircleShape2D.new()
 
 # =================================================
 # REFERÊNCIAS
@@ -355,6 +358,12 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 		enemy.global_position = pos
 		total_teleports += 1
 		teleported_count += 1
+
+		# v1.4.x Passo 1: zera velocidade residual e força recálculo imediato de rota
+		if enemy is CharacterBody2D:
+			enemy.velocity = Vector2.ZERO
+		if enemy.has_method("makepath"):
+			enemy.makepath()
 		
 		# DEBUG: Log básico de teleport
 		if debug_enabled:
@@ -503,14 +512,15 @@ func is_safe_from_walls(pos: Vector2, safety_radius: float) -> bool:
 		true se área está livre (sem paredes)
 		false se detectar parede dentro do raio
 	"""
-	var space = get_world_2d().direct_space_state
+	if not player or not is_instance_valid(player):
+		return false
+
+	var space = player.get_world_2d().direct_space_state
 	var params = PhysicsShapeQueryParameters2D.new()
 	
-	# Define círculo de segurança
-	var circle = CircleShape2D.new()
-	circle.radius = safety_radius
-	
-	params.shape = circle
+	# Reutiliza shape cacheado — evita criar objeto novo a cada chamada
+	_wall_check_circle.radius = safety_radius
+	params.shape = _wall_check_circle
 	params.transform = Transform2D(0, pos)
 	params.collision_mask = 1  # Layer 1 = TileMap collision (paredes)
 	
@@ -932,7 +942,7 @@ func is_position_navigable(check_pos: Vector2) -> bool:
 	
 	# Se está muito longe de área navegável, não é válido
 	# Tolerância: 32 pixels (antes era 16)
-	if distance_to_nav > 32.0:
+	if distance_to_nav > 16.0:
 		return false
 	
 	# =========================================
