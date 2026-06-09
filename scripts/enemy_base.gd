@@ -136,10 +136,9 @@ func _setup_base() -> void:
 	# Busca player
 	player = get_tree().get_first_node_in_group("Player")
 
-	# NOTA: velocity_computed NÃO é conectado intencionalmente.
-	# O ORCA (avoidance) não conhece paredes estáticas e causa
-	# oscilação de posição quando inimigos convergem perto de paredes.
-	# Colisão entre inimigos é tratada pelo CharacterBody2D naturalmente.
+	# Conecta avoidance se habilitado — sem isso o RVO não afeta o movimento
+	if navigation_agent and navigation_agent.avoidance_enabled:
+		navigation_agent.velocity_computed.connect(_on_velocity_computed)
 
 	makepath()
 
@@ -162,23 +161,37 @@ func base_move() -> void:
 		velocity = direction_to_player * move_speed
 
 # =================================================
-# DIREÇÃO + ANTI-FLICKER
+# DIREÇÃO + AVOIDANCE + ANTI-FLICKER
 # =================================================
 func update_direction() -> void:
 	if not navigation_agent or not player or not is_instance_valid(player):
 		return
 
-	direction_to_player = to_local(
-		navigation_agent.get_next_path_position()
-	).normalized()
+	var next_pos := navigation_agent.get_next_path_position()
+	var desired_direction := to_local(next_pos).normalized()
 
 	distance_to_player = global_position.distance_to(player.global_position)
 
-	if abs(direction_to_player.x) > flip_deadzone:
-		facing_right = direction_to_player.x > 0
+	if abs(desired_direction.x) > flip_deadzone:
+		facing_right = desired_direction.x > 0
 
 	if anim:
 		anim.flip_h = not facing_right
+
+	if navigation_agent.avoidance_enabled:
+		# Envia velocidade desejada ao RVO — _on_velocity_computed recebe a versão segura
+		navigation_agent.velocity = desired_direction * move_speed
+	else:
+		# Sem avoidance: usa direção diretamente
+		direction_to_player = desired_direction
+
+# =================================================
+# AVOIDANCE CALLBACK
+# =================================================
+func _on_velocity_computed(safe_velocity: Vector2) -> void:
+	# Velocidade calculada pelo RVO já desvia dos outros agentes
+	# Usa como direção — magnitude mantida pelo move_speed em base_move()
+	direction_to_player = safe_velocity.normalized()
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE
@@ -241,14 +254,7 @@ func go_to_dead_state() -> void:
 # =================================================
 func makepath() -> void:
 	if navigation_agent and player and is_instance_valid(player):
-		# Snap do target para dentro da malha de navegação.
-		# Evita instabilidade de pathfinding quando o player
-		# está próximo de paredes (borda da nav mesh).
-		var nav_map: RID = player.get_world_2d().navigation_map
-		var safe_target := NavigationServer2D.map_get_closest_point(
-			nav_map, player.global_position
-		)
-		navigation_agent.target_position = safe_target
+		navigation_agent.target_position = player.global_position
 
 func _on_path_timer_timeout() -> void:
 	makepath()
