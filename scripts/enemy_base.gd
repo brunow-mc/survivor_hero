@@ -56,13 +56,13 @@ enum EnemyState {
 @export var walk_attack_anim: String = "walk_attack"
 
 # =================================================
-# ITEM DROP SYSTEM
+# ITEM DROP SYSTEM (NOVO!)
 # =================================================
 @export_group("Item Drop")
-@export_range(0.0, 1.0, 0.01) var drop_chance: float = 0.05
+@export_range(0.0, 1.0, 0.01) var drop_chance: float = 0.05  # 5% por padrão
 @export var min_drop_amount: int = 1
 @export var max_drop_amount: int = 1
-@export var drop_spread_radius: float = 20.0
+@export var drop_spread_radius: float = 20.0  # Raio de espalhamento dos items
 
 # =================================================
 # VISUAL EFFECTS
@@ -126,20 +126,16 @@ func _setup_base() -> void:
 	path_timer.timeout.connect(_on_path_timer_timeout)
 	add_child(path_timer)
 	path_timer.start()
-
+	
 	# Damage timer
 	damage_timer = Timer.new()
 	damage_timer.wait_time = damage_interval
 	damage_timer.timeout.connect(_on_damage_timer_timeout)
 	add_child(damage_timer)
-
+	
 	# Busca player
 	player = get_tree().get_first_node_in_group("Player")
-
-	# Conecta avoidance se habilitado — sem isso o RVO não afeta o movimento
-	if navigation_agent and navigation_agent.avoidance_enabled:
-		navigation_agent.velocity_computed.connect(_on_velocity_computed)
-
+	
 	makepath()
 
 # =================================================
@@ -147,12 +143,12 @@ func _setup_base() -> void:
 # =================================================
 func base_move() -> void:
 	update_direction()
-
+	
 	if knockback != Vector2.ZERO:
 		velocity = knockback
 		knockback = knockback.move_toward(Vector2.ZERO, knockback_decay)
 		return
-
+	
 	if distance_to_player <= stop_distance:
 		can_walk = false
 		velocity = Vector2.ZERO
@@ -161,44 +157,30 @@ func base_move() -> void:
 		velocity = direction_to_player * move_speed
 
 # =================================================
-# DIREÇÃO + AVOIDANCE + ANTI-FLICKER
+# DIREÇÃO + ANTI-FLICKER
 # =================================================
 func update_direction() -> void:
 	if not navigation_agent or not player or not is_instance_valid(player):
 		return
-
-	var next_pos := navigation_agent.get_next_path_position()
-	var desired_direction := to_local(next_pos).normalized()
-
+	
+	direction_to_player = to_local(
+		navigation_agent.get_next_path_position()
+	).normalized()
+	
 	distance_to_player = global_position.distance_to(player.global_position)
-
-	if abs(desired_direction.x) > flip_deadzone:
-		facing_right = desired_direction.x > 0
-
+	
+	if abs(direction_to_player.x) > flip_deadzone:
+		facing_right = direction_to_player.x > 0
+	
 	if anim:
 		anim.flip_h = not facing_right
-
-	if navigation_agent.avoidance_enabled:
-		# Envia velocidade desejada ao RVO — _on_velocity_computed recebe a versão segura
-		navigation_agent.velocity = desired_direction * move_speed
-	else:
-		# Sem avoidance: usa direção diretamente
-		direction_to_player = desired_direction
-
-# =================================================
-# AVOIDANCE CALLBACK
-# =================================================
-func _on_velocity_computed(safe_velocity: Vector2) -> void:
-	# Velocidade calculada pelo RVO já desvia dos outros agentes
-	# Usa como direção — magnitude mantida pelo move_speed em base_move()
-	direction_to_player = safe_velocity.normalized()
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE
 # =================================================
 func get_animation_for_state() -> String:
 	var is_attacking := distance_to_player <= attack_distance
-
+	
 	match status:
 		EnemyState.IDLE:
 			return attack_anim if is_attacking else idle_anim
@@ -210,13 +192,13 @@ func get_animation_for_state() -> String:
 func switch_animation(new_anim: String) -> void:
 	if not anim or anim.animation == new_anim:
 		return
-
+	
 	next_frame = anim.frame + 1
 	anim.play(new_anim)
-
+	
 	if next_frame >= anim.sprite_frames.get_frame_count(new_anim):
 		next_frame = 0
-
+	
 	anim.frame = next_frame
 
 # =================================================
@@ -224,20 +206,20 @@ func switch_animation(new_anim: String) -> void:
 # =================================================
 func base_idle_state() -> void:
 	base_move()
-
+	
 	if velocity != Vector2.ZERO:
 		go_to_walk_state()
 		return
-
+	
 	switch_animation(get_animation_for_state())
 
 func base_walk_state() -> void:
 	base_move()
-
+	
 	if velocity == Vector2.ZERO:
 		go_to_idle_state()
 		return
-
+	
 	switch_animation(get_animation_for_state())
 
 func go_to_idle_state() -> void:
@@ -260,15 +242,15 @@ func _on_path_timer_timeout() -> void:
 	makepath()
 
 # =================================================
-# HIT / DEATH
+# HIT / DEATH - MODIFICADO v1.1.12
 # =================================================
 func receive_hit(hit_data: HitData, source_pos: Vector2) -> void:
 	if not is_alive:
 		return
-
+	
 	life -= hit_data.damage
 	knockback = (global_position - source_pos).normalized() * hit_data.knockback_force
-
+	
 	if life <= 0:
 		die(hit_data)
 	else:
@@ -284,11 +266,11 @@ func receive_hit(hit_data: HitData, source_pos: Vector2) -> void:
 func die(hit_data: HitData) -> void:
 	if not is_alive:
 		return
-
+	
 	is_alive = false
 	can_walk = false
 	go_to_dead_state()
-
+	
 	if hit_data.death_sound:
 		AudioManagerGlobal.play_sound_2d(
 			hit_data.death_sound,
@@ -296,44 +278,56 @@ func die(hit_data: HitData) -> void:
 			hit_data.death_sound_volume_db,
 			hit_data.death_sound_pitch_scale
 		)
-
+	
 	_spawn_death_effect()
+	
+	# NOVO: Sistema de drop de items
 	_try_spawn_drop_items()
 
 # =================================================
-# ITEM DROP SYSTEM
+# ITEM DROP SYSTEM (NOVO!)
 # =================================================
 func _try_spawn_drop_items() -> void:
+	# Verifica chance de drop
 	var random_chance := randf()
-
+	
 	if random_chance > drop_chance:
-		return
-
+		return  # Não dropou nada
+	
+	# Determina quantidade de items a dropar
 	var amount := randi_range(min_drop_amount, max_drop_amount)
-
+	
+	# Spawna os items
 	for i in range(amount):
 		_spawn_single_drop_item(i, amount)
 
 func _spawn_single_drop_item(index: int, total: int) -> void:
 	var item_scene := _get_drop_item_scene()
-
+	
 	if not item_scene:
 		return
-
+	
 	var item := item_scene.instantiate()
+	
 	var spawn_pos := global_position
-
+	
 	if total > 1:
 		var angle := (TAU / total) * index + randf_range(-0.3, 0.3)
 		var distance := randf_range(drop_spread_radius * 0.5, drop_spread_radius)
 		spawn_pos += Vector2(cos(angle), sin(angle)) * distance
 	else:
 		spawn_pos += Vector2(randf_range(-10, 10), randf_range(-10, 10))
-
+	
+	# CORREÇÃO: Usa call_deferred para adicionar DEPOIS do frame de física
 	get_tree().current_scene.call_deferred("add_child", item)
 	item.global_position = spawn_pos
 
+# =================================================
+# MÉTODO VIRTUAL: CLASSES FILHAS DEFINEM O ITEM
+# =================================================
 func _get_drop_item_scene() -> PackedScene:
+	# Classes filhas sobrescrevem isso para definir qual item dropar
+	# Exemplo no Gator: return preload("res://entities/items/xp_item_01.tscn")
 	return null
 
 # =================================================
@@ -342,7 +336,7 @@ func _get_drop_item_scene() -> PackedScene:
 func flash_red() -> void:
 	if not anim:
 		return
-
+	
 	for i in range(flash_count):
 		anim.modulate = Color.RED
 		await get_tree().create_timer(flash_duration, false).timeout
@@ -355,18 +349,18 @@ func flash_red() -> void:
 func handle_knockback_transfer() -> void:
 	if knockback.length() < min_knockback_to_transfer:
 		return
-
+	
 	for i in range(get_slide_collision_count()):
 		var col := get_slide_collision(i)
 		var other := col.get_collider()
-
+		
 		if other and other.is_in_group("Enemy"):
 			if other.knockback != Vector2.ZERO:
 				continue
-
+			
 			var push_dir := -col.get_normal()
 			var transferred := knockback.length() * knockback_transfer_ratio
-
+			
 			other.knockback = push_dir * transferred
 			knockback *= 0.8
 			return
@@ -382,4 +376,4 @@ func _on_damage_timer_timeout() -> void:
 # MÉTODOS VIRTUAIS
 # =================================================
 func _spawn_death_effect() -> void:
-	pass
+	pass  # Implementar em classes filhas
