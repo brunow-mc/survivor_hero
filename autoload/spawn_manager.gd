@@ -1009,17 +1009,19 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	
 	var enemy := enemy_data.enemy_scene.instantiate()
 	
-	# Adiciona na cena atual
+	# Adiciona na cena — _ready() roda aqui, makepath() é chamado da posição errada
 	current_scene.add_child(enemy)
 	
-	# Posiciona
+	# Define posição real APÓS _ready()
 	enemy.global_position = spawn_pos
 	
-	# Debug específico para Red Gator
+	# Recalcula rota da posição correta de spawn
+	# Mesmo fix já aplicado aos teleportes (Passo 1)
+	if enemy.has_method("makepath"):
+		enemy.makepath()
+	
 	if debug_enabled:
 		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos, " | Budget: ", spawn_budget)
-		
-		# Destaque especial para Red Gator
 		if enemy_data.enemy_name == "Red Gator":
 			print("🔥🔥🔥 RED GATOR SPAWNED! 🔥🔥🔥")
 			print("   Game Time: ", game_time, "s")

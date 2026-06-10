@@ -49,6 +49,7 @@ visible = false
 max_enemies = 75
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
+teleport_enabled = false
 max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 grid_sample_spacing = 64.0
