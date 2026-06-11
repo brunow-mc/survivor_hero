@@ -25,7 +25,9 @@ func _ready() -> void:
 # =================================================
 # LOOP
 # =================================================
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	var pos_before: Vector2 = global_position
+	
 	match status:
 		EnemyState.IDLE:
 			base_idle_state()
@@ -38,6 +40,16 @@ func _physics_process(_delta: float) -> void:
 	
 	move_and_slide()
 	handle_knockback_transfer()
+	
+	# Proteção contra saltos anômalos de posição (correção de overlap do move_and_slide)
+	var displacement: float = global_position.distance_to(pos_before)
+	var expected: float = velocity.length() * delta
+	var max_allowed: float = expected * 3.0
+	if max_allowed < 2.0:
+		max_allowed = 2.0
+	
+	if displacement > max_allowed:
+		global_position = pos_before + velocity * delta
 
 # =================================================
 # DEAD STATE
