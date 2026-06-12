@@ -139,6 +139,41 @@ func _setup_base() -> void:
 	makepath()
 
 # =================================================
+# LOOP PRINCIPAL (CENTRALIZADO)
+# =================================================
+func _physics_process(delta: float) -> void:
+	var pos_before: Vector2 = global_position
+	
+	match status:
+		EnemyState.IDLE:
+			base_idle_state()
+		
+		EnemyState.WALK:
+			base_walk_state()
+		
+		EnemyState.DEAD:
+			dead_state()
+	
+	move_and_slide()
+	handle_knockback_transfer()
+	
+	_guard_against_position_jump(pos_before, delta)
+
+# =================================================
+# PROTEÇÃO CONTRA SALTOS ANÔMALOS DE POSIÇÃO
+# (correção de overlap do move_and_slide)
+# =================================================
+func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
+	var displacement: float = global_position.distance_to(pos_before)
+	var expected: float = velocity.length() * delta
+	var max_allowed: float = expected * 3.0
+	if max_allowed < 2.0:
+		max_allowed = 2.0
+	
+	if displacement > max_allowed:
+		global_position = pos_before + velocity * delta
+
+# =================================================
 # MOVIMENTO BASE
 # =================================================
 func base_move() -> void:
@@ -377,3 +412,6 @@ func _on_damage_timer_timeout() -> void:
 # =================================================
 func _spawn_death_effect() -> void:
 	pass  # Implementar em classes filhas
+
+func dead_state() -> void:
+	pass  # Implementar em classes filhas (ex: queue_free())
