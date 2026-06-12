@@ -22,6 +22,8 @@ var is_attacking: bool = false
 func _ready() -> void:
 	super()
 
+	sprite_node = sprite
+
 	_play_anim("idle")
 
 	attack_controller.primary_attack_started.connect(_on_primary_attack_started)
@@ -119,9 +121,3 @@ func _disable_collision() -> void:
 	# set_deferred evita erro de physics lock
 	hurtbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
-
-func flash_red() -> void:
-	for i in range(2):
-		sprite.modulate = Color(1, 0, 0)
-		await get_tree().create_timer(0.1, false).timeout
-		sprite.modulate = Color.WHITE

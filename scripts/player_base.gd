@@ -31,6 +31,14 @@ enum PlayerState {
 @export var death_pitch_scale: float = 1.0
 
 # =================================================
+# VISUAL EFFECTS
+# =================================================
+@export_group("Visual Effects")
+@export var flash_count: int = 2
+@export var flash_duration: float = 0.1
+@export var flash_color: Color = Color.RED
+
+# =================================================
 # ÁUDIO — PLAYERS INTERNOS
 # =================================================
 var audio_hit: AudioStreamPlayer
@@ -46,6 +54,11 @@ var movement_direction := Vector2.ZERO
 
 # Direção que o sprite está olhando (apenas horizontal: 1.0 ou -1.0)
 var facing_direction: float = 1.0
+
+# =================================================
+# VISUAL (configurado por classes filhas)
+# =================================================
+var sprite_node: CanvasItem
 
 # =================================================
 # ÁUDIO HIT (CONTROLE)
@@ -204,6 +217,19 @@ func _on_hit_delay_finished() -> void:
 	can_play_hit_sound = true
 
 # =================================================
+# FLASH DAMAGE BASE
+# =================================================
+func flash_red() -> void:
+	if not sprite_node:
+		return
+
+	for i in range(flash_count):
+		sprite_node.modulate = flash_color
+		await get_tree().create_timer(flash_duration, false).timeout
+		sprite_node.modulate = Color.WHITE
+		await get_tree().create_timer(flash_duration, false).timeout
+
+# =================================================
 # GAME STATE
 # =================================================
 func _on_game_state_changed(state: int) -> void:
@@ -214,9 +240,6 @@ func _on_game_state_changed(state: int) -> void:
 # HOOKS (para filhos)
 # =================================================
 func _disable_collision() -> void:
-	pass
-
-func flash_red() -> void:
 	pass
 
 func _on_death_animation() -> void:
