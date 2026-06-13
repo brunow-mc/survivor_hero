@@ -70,6 +70,7 @@ enum EnemyState {
 @export_group("Visual Effects")
 @export var flash_count: int = 3
 @export var flash_duration: float = 0.09
+@export var flash_color: Color = Color.RED
 
 # =================================================
 # ESTADO
@@ -373,7 +374,7 @@ func flash_red() -> void:
 		return
 	
 	for i in range(flash_count):
-		anim.modulate = Color.RED
+		anim.modulate = flash_color
 		await get_tree().create_timer(flash_duration, false).timeout
 		anim.modulate = Color.WHITE
 		await get_tree().create_timer(flash_duration, false).timeout

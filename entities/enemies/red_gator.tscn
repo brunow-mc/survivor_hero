@@ -149,6 +149,7 @@ sprite_frames = SubResource("SpriteFrames_jq0pf")
 animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
+visible = false
 shape = SubResource("CircleShape2D_c8u6y")
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=1612427453 groups=["EnemyHitbox"]]
