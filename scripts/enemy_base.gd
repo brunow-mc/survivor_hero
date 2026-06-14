@@ -165,14 +165,15 @@ func _physics_process(delta: float) -> void:
 # (correção de overlap do move_and_slide)
 # =================================================
 func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
-	var displacement: float = global_position.distance_to(pos_before)
+	var actual_delta: Vector2 = global_position - pos_before
+	var displacement: float = actual_delta.length()
 	var expected: float = velocity.length() * delta
 	var max_allowed: float = expected * 3.0
 	if max_allowed < 2.0:
 		max_allowed = 2.0
 	
 	if displacement > max_allowed:
-		global_position = pos_before + velocity * delta
+		global_position = pos_before + actual_delta.normalized() * max_allowed
 
 # =================================================
 # MOVIMENTO BASE
