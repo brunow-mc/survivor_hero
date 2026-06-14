@@ -445,29 +445,20 @@ func prepare_safe_teleport_cache() -> void:
 
 func validate_teleport_position(pos: Vector2) -> bool:
 	"""
-	Validação simplificada de posição de teleport (PRODUÇÃO).
-	Retorna true se posição é segura, false caso contrário.
+	Validação de posição de teleport (PRODUÇÃO).
+	Delega para is_valid_enemy_position, que é a mesma usada
+	na validação extra do spawn normal.
 	"""
-	# 1. Navegável básico
-	if not is_position_navigable(pos):
-		return false
-	
-	# 2. NOVO: Espaço livre ao redor (360° completo)
-	# Usa Physics Shape Query para detectar paredes em qualquer direção
-	if not is_safe_from_walls(pos, min_distance_from_walls):
-		return false
-	
-	# 3. Seguro de outros inimigos
-	if not is_safe_from_other_enemies(pos):
-		return false
-	
-	# Todas validações passaram
-	return true
+	return is_valid_enemy_position(pos)
 
 func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	"""
 	Validação DETALHADA com tracking (apenas para DEBUG).
 	Retorna Dictionary com resultado e motivos de rejeição.
+	
+	Mantém os 3 checks separados (incluindo navegabilidade) para
+	fins de diagnóstico/estatística, mesmo que na prática o ponto
+	já tenha vindo navegável do scan.
 	"""
 	var result = {
 		"approved": false,
@@ -481,7 +472,7 @@ func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	if not result.navigable:
 		return result
 	
-	# 2. NOVO: Espaço livre ao redor
+	# 2. Espaço livre ao redor
 	result.safe_from_walls = is_safe_from_walls(pos, min_distance_from_walls)
 	if not result.safe_from_walls:
 		return result
@@ -689,11 +680,12 @@ func find_spawn_position() -> Vector2:
 	# 5. Sorteia ponto dentro do cluster
 	var spawn_pos: Vector2 = chosen_cluster.pick_random()
 	
-	# 6. Validação extra: distância de outros inimigos
-	if not is_safe_from_other_enemies(spawn_pos):
+	# 6. Validação extra: distância de paredes e de outros inimigos
+	#    (navegabilidade já garantida por scan_navigable_grid)
+	if not is_valid_enemy_position(spawn_pos):
 		# Tenta outros pontos do mesmo cluster
 		for point in chosen_cluster:
-			if is_safe_from_other_enemies(point):
+			if is_valid_enemy_position(point):
 				spawn_pos = point
 				break
 	
@@ -994,6 +986,24 @@ func is_safe_from_other_enemies(check_pos: Vector2) -> bool:
 			return false
 	
 	# Nenhum inimigo muito próximo, é válido
+	return true
+
+func is_valid_enemy_position(pos: Vector2) -> bool:
+	"""
+	Validação extra de uma posição para inimigos (spawn normal ou teleport).
+	
+	PRECONDIÇÃO: pos deve vir de scan_navigable_grid() — a navegabilidade
+	básica já foi garantida ali (via is_position_navigable), então não é
+	re-checada aqui. Verificamos apenas:
+	1. Espaço livre ao redor (sem paredes dentro de min_distance_from_walls)
+	2. Distância segura de outros inimigos
+	"""
+	if not is_safe_from_walls(pos, min_distance_from_walls):
+		return false
+	
+	if not is_safe_from_other_enemies(pos):
+		return false
+	
 	return true
 
 # =================================================
