@@ -138,7 +138,8 @@ max_health = 20.0
 move_speed = 30.0
 damage_per_tick = 3.0
 knockback_decay = 5.5
-drop_chance = 0.5
+drop_chance = 1.0
+flash_color = Color(1, 0, 0, 0)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
 position = Vector2(0, 13)

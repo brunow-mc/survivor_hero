@@ -10,7 +10,7 @@
 script = ExtResource("1_oq0dy")
 attack_id = 2
 attack_name = "Ring Burst"
-description = "Fires projectiles in a ring pattern"
+description = "Fires guided rings"
 icon = ExtResource("3_2hwwq")
 packed_scene = ExtResource("2_k0oh4")
 hit_data = ExtResource("1_mkrs6")

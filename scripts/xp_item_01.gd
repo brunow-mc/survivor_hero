@@ -6,7 +6,7 @@ class_name XPItem01
 # ======================================
 @export var xp_value: int = 1
 @export var move_speed: float = 200.0
-@export var magnet_range: float = 50.0
+@export var magnet_range: float = 25.0
 @export var auto_collect_range: float = 10.0
 
 # ======================================

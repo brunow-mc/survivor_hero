@@ -135,6 +135,7 @@ motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_p7g5j")
 drop_chance = 1.0
+flash_color = Color(1, 0, 0, 0)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("2_r4tcw")]
 position = Vector2(0, 13)
