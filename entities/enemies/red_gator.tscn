@@ -137,7 +137,7 @@ script = ExtResource("1_cvy10")
 max_health = 20.0
 move_speed = 30.0
 damage_per_tick = 3.0
-knockback_decay = 5.5
+knockback_decay = 330.0
 drop_chance = 1.0
 flash_color = Color(1, 0, 0, 0)
 

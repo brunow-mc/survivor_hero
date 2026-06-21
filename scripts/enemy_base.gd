@@ -30,7 +30,7 @@ enum EnemyState {
 # KNOCKBACK
 # =================================================
 @export_group("Knockback")
-@export var knockback_decay: float = 2.8
+@export var knockback_decay: float = 168.0
 @export var knockback_transfer_ratio: float = 0.55
 @export var min_knockback_to_transfer: float = 8.0
 
@@ -121,6 +121,9 @@ func _ready() -> void:
 	_setup_base()
 
 func _setup_base() -> void:
+	# Física (CharacterBody2D)
+	max_slides = 6
+	
 	# Path timer
 	path_timer = Timer.new()
 	path_timer.wait_time = path_recalc_interval
@@ -147,10 +150,10 @@ func _physics_process(delta: float) -> void:
 	
 	match status:
 		EnemyState.IDLE:
-			base_idle_state()
+			base_idle_state(delta)
 		
 		EnemyState.WALK:
-			base_walk_state()
+			base_walk_state(delta)
 		
 		EnemyState.DEAD:
 			dead_state()
@@ -178,12 +181,12 @@ func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
 # =================================================
 # MOVIMENTO BASE
 # =================================================
-func base_move() -> void:
+func base_move(delta: float) -> void:
 	update_direction()
 	
 	if knockback != Vector2.ZERO:
 		velocity = knockback
-		knockback = knockback.move_toward(Vector2.ZERO, knockback_decay)
+		knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)
 		return
 	
 	if distance_to_player <= stop_distance:
@@ -241,8 +244,8 @@ func switch_animation(new_anim: String) -> void:
 # =================================================
 # STATES BASE
 # =================================================
-func base_idle_state() -> void:
-	base_move()
+func base_idle_state(delta: float) -> void:
+	base_move(delta)
 	
 	if velocity != Vector2.ZERO:
 		go_to_walk_state()
@@ -250,8 +253,8 @@ func base_idle_state() -> void:
 	
 	switch_animation(get_animation_for_state())
 
-func base_walk_state() -> void:
-	base_move()
+func base_walk_state(delta: float) -> void:
+	base_move(delta)
 	
 	if velocity == Vector2.ZERO:
 		go_to_idle_state()
