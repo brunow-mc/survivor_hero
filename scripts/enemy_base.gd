@@ -32,7 +32,9 @@ enum EnemyState {
 @export_group("Knockback")
 @export var knockback_decay: float = 168.0
 @export var knockback_transfer_ratio: float = 0.55
+@export var knockback_retention_after_transfer: float = 0.8
 @export var min_knockback_to_transfer: float = 8.0
+@export var max_knockback_magnitude: float = 200.0  # Teto de segurança (evita acúmulo explosivo)
 
 # =================================================
 # PATHFINDING
@@ -290,6 +292,7 @@ func receive_hit(hit_data: HitData, source_pos: Vector2) -> void:
 	
 	life -= hit_data.damage
 	knockback = (global_position - source_pos).normalized() * hit_data.knockback_force
+	knockback = knockback.limit_length(max_knockback_magnitude)
 	
 	if life <= 0:
 		die(hit_data)
@@ -384,26 +387,48 @@ func flash_red() -> void:
 		await get_tree().create_timer(flash_duration, false).timeout
 
 # =================================================
-# KNOCKBACK TRANSFER BASE
+# KNOCKBACK TRANSFER BASE (REDESENHADO v2 — anti-ressonância)
 # =================================================
 func handle_knockback_transfer() -> void:
 	if knockback.length() < min_knockback_to_transfer:
 		return
+	
+	# Coleta TODOS os vizinhos "Enemy" tocando neste frame (sem pré-filtrar por estado)
+	var touching_enemies: Array = []
+	var collision_normals: Array = []
 	
 	for i in range(get_slide_collision_count()):
 		var col := get_slide_collision(i)
 		var other := col.get_collider()
 		
 		if other and other.is_in_group("Enemy"):
-			if other.knockback != Vector2.ZERO:
-				continue
-			
-			var push_dir := -col.get_normal()
-			var transferred := knockback.length() * knockback_transfer_ratio
-			
-			other.knockback = push_dir * transferred
-			knockback *= 0.8
-			return
+			touching_enemies.append(other)
+			collision_normals.append(col.get_normal())
+	
+	if touching_enemies.is_empty():
+		return
+	
+	# Calcula a fatia que cada um receberia, dividindo o total entre todos os tocando
+	var transferred_total: float = knockback.length() * knockback_transfer_ratio
+	var share: float = transferred_total / touching_enemies.size()
+	
+	# Só transfere para quem teria GANHO REAL de magnitude
+	# (impede o "eco" de ida e volta entre dois inimigos já ativos,
+	# sem depender de um limiar fixo arbitrário)
+	var transferred_to_anyone: bool = false
+	
+	for i in range(touching_enemies.size()):
+		var other = touching_enemies[i]
+		if other.knockback.length() >= share:
+			continue  # contribuição não traria ganho real — ignora
+		
+		var push_dir: Vector2 = -collision_normals[i]
+		other.knockback += push_dir * share
+		other.knockback = other.knockback.limit_length(max_knockback_magnitude)
+		transferred_to_anyone = true
+	
+	if transferred_to_anyone:
+		knockback *= knockback_retention_after_transfer
 
 # =================================================
 # DAMAGE TO PLAYER
