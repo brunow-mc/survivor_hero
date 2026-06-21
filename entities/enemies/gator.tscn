@@ -134,6 +134,8 @@ collision_mask = 13
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_p7g5j")
+knockback_transfer_ratio = 0.85
+knockback_retention_after_transfer = 0.6
 drop_chance = 1.0
 flash_color = Color(1, 0, 0, 0)
 

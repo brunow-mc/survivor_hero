@@ -89,6 +89,8 @@ func restart_game() -> void:
 	state_changed.emit(current_state)
 	if XPManagerGlobal:
 		XPManagerGlobal.reset()
+	if SpawnManagerGlobal:
+		SpawnManagerGlobal.stop_spawning()
 	get_tree().reload_current_scene()
 
 # -------------------------------------------------
