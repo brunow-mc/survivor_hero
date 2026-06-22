@@ -18,6 +18,18 @@ var attack_timers: Dictionary = {}
 var upgrade_last_levels: Dictionary = {}  ## Rastrear último level de cada upgrade
 
 # -------------------------------------------------
+# CALIBRATION CONSTANTS
+# -------------------------------------------------
+# Cap de redução de cooldown por upgrade de ataque individual.
+# Garante que o intervalo nunca zere ou inverta, mesmo com valores absurdos.
+# Separado do ATTACK_SPEED_CAP_PERCENT de power_up_stats.gd porque são
+# fontes distintas: este é por ataque, aquele é global (powerup).
+const COOLDOWN_REDUCTION_CAP: float = 0.99
+
+# Intervalo mínimo absoluto (segundos) — piso de segurança do timer.
+const MIN_ATTACK_INTERVAL: float = 0.05
+
+# -------------------------------------------------
 # READY - v1.3.24: Sistema simplificado
 # -------------------------------------------------
 func _ready():
@@ -91,7 +103,6 @@ func _apply_initial_upgrades() -> void:
 		if not upgrade or upgrade.current_level == 0:
 			continue
 		
-		# Aplicar upgrades iniciais
 		apply_upgrades_to_attack(upgrade.attack_id)
 		print("⚡ Applied initial upgrades for '%s' (Lv%d)" % [upgrade.attack_name, upgrade.current_level])
 
@@ -139,7 +150,6 @@ func apply_upgrades_to_attack(attack_id: int) -> void:
 	v1.3.24: Calcula valores finais dinamicamente quando spawna ataque.
 	
 	NÃO modifica AttackData (permanece valores base).
-	Retorna objeto temporário com valores calculados (base + upgrade bonuses).
 	NOTA: Esta função agora é apenas para atualizar timers.
 	Cálculo real acontece em get_attack_stats_with_upgrades().
 	"""
@@ -149,16 +159,15 @@ func apply_upgrades_to_attack(attack_id: int) -> void:
 	
 	var upgrade = find_upgrade(attack_id)
 	
-	# Atualizar timer com interval correto
 	var final_interval: float
 	if upgrade and upgrade.current_level > 0:
-		final_interval = attack_data.interval * (1.0 - upgrade.get_cooldown_reduction())
+		final_interval = attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP))
 	else:
 		final_interval = attack_data.interval
 	
 	var timer = attack_timers.get(attack_id)
 	if timer:
-		timer.wait_time = final_interval / PowerUpStatsGlobal.attack_speed_multiplier
+		timer.wait_time = _calc_wait_time(final_interval)
 
 
 func get_attack_stats_with_upgrades(attack_data: AttackData) -> Dictionary:
@@ -170,7 +179,6 @@ func get_attack_stats_with_upgrades(attack_data: AttackData) -> Dictionary:
 	"""
 	var upgrade = find_upgrade(attack_data.attack_id)
 	
-	# Se não tem upgrade OU level = 0 → retorna valores base
 	if not upgrade or upgrade.current_level == 0:
 		return {
 			"projectile_count": attack_data.projectile_count,
@@ -186,10 +194,9 @@ func get_attack_stats_with_upgrades(attack_data: AttackData) -> Dictionary:
 			"orbit_speed": attack_data.orbit_speed
 		}
 	
-	# TEM upgrade E level > 0 → calcular com bonuses
 	return {
 		"projectile_count": attack_data.projectile_count + upgrade.get_projectile_count_bonus(),
-		"interval": attack_data.interval * (1.0 - upgrade.get_cooldown_reduction()),
+		"interval": attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP)),
 		"damage": attack_data.hit_data.damage * (1.0 + upgrade.get_damage_bonus()),
 		"speed": attack_data.speed * (1.0 + upgrade.get_speed_bonus()),
 		"max_hits": attack_data.max_hits + upgrade.get_max_hits_bonus(),
@@ -211,19 +218,16 @@ func create_attack_data_with_upgrades(attack_data: AttackData) -> AttackData:
 	"""
 	var temp_copy = attack_data.duplicate(true)
 	
-	# Duplicar HitData manualmente (workaround Godot)
 	if temp_copy.hit_data:
 		temp_copy.hit_data = temp_copy.hit_data.duplicate(true)
 	
 	var upgrade = find_upgrade(attack_data.attack_id)
 	
-	# Se não tem upgrade OU level = 0 → retorna cópia com valores base
 	if not upgrade or upgrade.current_level == 0:
 		return temp_copy
 	
-	# Aplicar upgrades na cópia temporária
 	temp_copy.projectile_count = attack_data.projectile_count + upgrade.get_projectile_count_bonus()
-	temp_copy.interval = attack_data.interval * (1.0 - upgrade.get_cooldown_reduction())
+	temp_copy.interval = attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP))
 	temp_copy.hit_data.damage = attack_data.hit_data.damage * (1.0 + upgrade.get_damage_bonus())
 	temp_copy.speed = attack_data.speed * (1.0 + upgrade.get_speed_bonus())
 	temp_copy.max_hits = attack_data.max_hits + upgrade.get_max_hits_bonus()
@@ -255,7 +259,7 @@ func setup(
 # PHYSICS PROCESS - v1.3.11
 # -------------------------------------------------
 func _physics_process(_delta: float) -> void:
-	_check_upgrade_changes()  # v1.3.10/v1.3.11: Detecta mudanças em upgrades
+	_check_upgrade_changes()
 
 # -------------------------------------------------
 # CHECK UPGRADE CHANGES - v1.3.10 | v1.3.11
@@ -273,33 +277,25 @@ func _check_upgrade_changes() -> void:
 		var last_level = upgrade_last_levels.get(attack_id, upgrade.current_level)
 		var current_level = upgrade.current_level
 		
-		# Detecta mudança
 		if current_level != last_level:
 			upgrade_last_levels[attack_id] = current_level
 			
-			# Controlar timer baseado no level
 			var timer = attack_timers.get(attack_id)
 			if timer:
 				if current_level > 0 and last_level == 0:
-					# Passou de 0 para > 0 → LIGAR timer
 					timer.start()
 					print("✅ Attack '%s' timer started (Lv0 → Lv%d)" % [upgrade.attack_name, current_level])
-					# v1.4.2: start_immediately — disparo único imediato, timer segue normal
 					var att_data = find_attack_data(attack_id)
 					if att_data and att_data.start_immediately:
 						_spawn_attack.call_deferred(att_data)
 						print("⚡ Attack '%s' fired immediately (start_immediately)" % upgrade.attack_name)
-					# v1.4.7: notifica loadout_bar (e qualquer outro listener)
 					attack_unlocked.emit(attack_id, att_data.icon if att_data else null)
 				elif current_level == 0 and last_level > 0:
-					# Passou de > 0 para 0 → DESLIGAR timer
 					timer.stop()
 					print("🛑 Attack '%s' timer stopped (Lv%d → Lv0)" % [upgrade.attack_name, last_level])
 			
-			# Aplicar upgrades com novos valores
 			apply_upgrades_to_attack(attack_id)
 			
-			# Log para debug
 			if current_level == 0:
 				print("🔒 Upgrade '%s' LOCKED (auto-detected)" % upgrade.attack_name)
 			elif last_level == 0:
@@ -312,7 +308,6 @@ func _check_upgrade_changes() -> void:
 # SPAWN - v1.3.24
 # -------------------------------------------------
 func _spawn_attack(attack_data: AttackData) -> void:
-	# Consultar upgrade.current_level (única fonte de verdade)
 	var upgrade = find_upgrade(attack_data.attack_id)
 	if not upgrade or upgrade.current_level <= 0:
 		return
@@ -335,11 +330,9 @@ func _spawn_attack(attack_data: AttackData) -> void:
 	if not GameStateGlobal.is_combat_allowed():
 		return
 
-	# v1.3.24: Criar cópia TEMPORÁRIA com upgrades aplicados
 	var attack_with_upgrades = create_attack_data_with_upgrades(attack_data)
 
 	if attack_with_upgrades.projectile_stagger_delay > 0.0:
-		# DISPARO SEQUENCIAL (metralhadora)
 		for i in range(attack_with_upgrades.projectile_count):
 			if attack_with_upgrades.attack_sound and not attack_with_upgrades.handles_own_audio:
 				AudioManagerGlobal.play_sound(
@@ -351,7 +344,6 @@ func _spawn_attack(attack_data: AttackData) -> void:
 			if i < attack_with_upgrades.projectile_count - 1:
 				await get_tree().create_timer(attack_with_upgrades.projectile_stagger_delay, false).timeout
 	else:
-		# DISPARO SIMULTÂNEO
 		for i in range(attack_with_upgrades.projectile_count):
 			if attack_with_upgrades.attack_sound and not attack_with_upgrades.handles_own_audio:
 				AudioManagerGlobal.play_sound(
@@ -394,7 +386,7 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 # -------------------------------------------------
 func _create_attack_timer(attack_data: AttackData) -> void:
 	var timer := Timer.new()
-	timer.wait_time = attack_data.interval / PowerUpStatsGlobal.attack_speed_multiplier
+	timer.wait_time = _calc_wait_time(attack_data.interval)
 	timer.one_shot = false
 	timer.autostart = false
 	
@@ -455,9 +447,27 @@ func upgrade_attack(attack_id: int) -> bool:
 
 
 # -------------------------------------------------
-# v1.2.1: ATTACK SPEED
+# ATTACK SPEED - cálculo centralizado
 # -------------------------------------------------
+func _calc_wait_time(base_interval: float) -> float:
+	"""
+	Calcula o wait_time final do timer a partir do intervalo base.
+	
+	Aplica a redução de attack speed vinda de powerups como percentual
+	linear direto: interval * (1 - percent).
+	
+	O clamp e a conversão de multiplier→percent ficam em
+	PowerUpStatsGlobal.get_attack_speed_reduction().
+	
+	Nota: cooldown_reduction dos upgrades de ataque NÃO entra aqui —
+	deve ser aplicado em base_interval ANTES de chamar esta função,
+	pois é específico de cada ataque.
+	"""
+	var aspd_reduction: float = PowerUpStatsGlobal.get_attack_speed_reduction()
+	return maxf(base_interval * (1.0 - aspd_reduction), MIN_ATTACK_INTERVAL)
+
 func _on_stats_changed() -> void:
+	"""Atualiza timers de todos os ataques quando powerup de attack speed muda."""
 	for attack_data in attacks:
 		if not attack_data:
 			continue
@@ -466,7 +476,14 @@ func _on_stats_changed() -> void:
 		if not timer:
 			continue
 		
-		var new_wait_time = attack_data.interval / PowerUpStatsGlobal.attack_speed_multiplier
+		var upgrade = find_upgrade(attack_data.attack_id)
+		var base_interval: float
+		if upgrade and upgrade.current_level > 0:
+			base_interval = attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP))
+		else:
+			base_interval = attack_data.interval
+		
+		var new_wait_time = _calc_wait_time(base_interval)
 		
 		if abs(timer.wait_time - new_wait_time) > 0.001:
 			timer.wait_time = new_wait_time

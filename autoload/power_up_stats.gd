@@ -16,6 +16,10 @@ signal stats_changed
 # Armor: Cap de redução de dano para evitar imortalidade
 const ARMOR_CAP_PERCENT: float = 0.99  # 0.99 = 99% de redução máxima
 
+# Attack Speed: Cap de redução de intervalo por powerup
+# Garante que o powerup isolado nunca zere o intervalo de ataque
+const ATTACK_SPEED_CAP_PERCENT: float = 0.99  # 99% de redução máxima
+
 # =================================================
 # STATS CALCULADOS (valores finais)
 # =================================================
@@ -38,6 +42,9 @@ var armor: float = 0.0
 var magnet_range_bonus: float = 0.0
 
 # Attack Speed
+# Armazenado como multiplier (1.0 + percent) por compatibilidade com
+# PowerUpController. Use get_attack_speed_reduction() para obter a
+# redução percentual linear já com clamp aplicado.
 var attack_speed_multiplier: float = 1.0
 
 # Projectile Speed - NOVO v1.2.6 (Lethal Impact)
@@ -111,6 +118,22 @@ func get_armor_damage_reduction() -> float:
 	"""
 	var reduction = armor / 100.0
 	return min(reduction, ARMOR_CAP_PERCENT)
+
+func get_attack_speed_reduction() -> float:
+	"""
+	Retorna a redução percentual de intervalo de ataque vinda de powerups.
+	
+	Converte attack_speed_multiplier (armazenado como 1.0 + percent) para
+	percentual direto e aplica clamp de segurança.
+	
+	Uso: timer = base_interval * (1.0 - get_attack_speed_reduction())
+	
+	Exemplo:
+	  attack_speed_multiplier = 1.25 (25% acumulado, 5 levels × 5%)
+	  → retorna 0.25
+	  → intervalo reduzido em exatamente 25%
+	"""
+	return minf(attack_speed_multiplier - 1.0, ATTACK_SPEED_CAP_PERCENT)
 
 func reset() -> void:
 	"""Reset all stats to default"""

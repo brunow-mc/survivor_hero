@@ -9,8 +9,8 @@
 [resource]
 script = ExtResource("3_fev6t")
 attack_id = 3
-attack_name = "Lightning Arc"
-description = "Electric chain attack"
+attack_name = "Electric Field"
+description = "Electric Field Attack"
 icon = ExtResource("3_14fuk")
 packed_scene = ExtResource("2_31mlq")
 hit_data = ExtResource("1_nduou")
