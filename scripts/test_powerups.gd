@@ -133,7 +133,7 @@ func _show_current_stats() -> void:
 	print("🏃 Move Speed Percent:     +%.0f%%" % (PowerUpStatsGlobal.move_speed_bonus_percent * 100))
 	print("🛡️  Armor:                  %.1f (%.0f%% reduction)" % [PowerUpStatsGlobal.armor, PowerUpStatsGlobal.get_armor_damage_reduction() * 100])
 	print("🧲 Magnet Range Bonus:     +%.1f" % PowerUpStatsGlobal.magnet_range_bonus)
-	print("⚡ Attack Speed Multiplier: ×%.2f" % PowerUpStatsGlobal.attack_speed_multiplier)
+	print("⚡ Global Cooldown Reduction: -%.0f%%" % (PowerUpStatsGlobal.global_cooldown_reduction * 100))
 	print("🚀 Projectile Speed Mult:  ×%.2f" % PowerUpStatsGlobal.projectile_speed_multiplier)
 	print("💫 Knockback Multiplier:   ×%.2f" % PowerUpStatsGlobal.knockback_multiplier)
 	print("═══════════════════════════════════════════════════\n")

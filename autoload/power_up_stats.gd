@@ -3,10 +3,6 @@ extends Node
 # =================================================
 # POWERUP STATS GLOBAL - v1.2.6
 # =================================================
-# Centraliza TODOS os stats modificados por powerups.
-# Qualquer sistema pode consultar valores aqui.
-# =================================================
-
 signal stats_changed
 
 # =================================================
@@ -14,43 +10,31 @@ signal stats_changed
 # =================================================
 
 # Armor: Cap de redução de dano para evitar imortalidade
-const ARMOR_CAP_PERCENT: float = 0.99  # 0.99 = 99% de redução máxima
-
-# Attack Speed: Cap de redução de intervalo por powerup
-# Garante que o powerup isolado nunca zere o intervalo de ataque
-const ATTACK_SPEED_CAP_PERCENT: float = 0.99  # 99% de redução máxima
+const ARMOR_CAP_PERCENT: float = 0.99
 
 # =================================================
 # STATS CALCULADOS (valores finais)
 # =================================================
 
-# Damage
 var damage_multiplier: float = 1.0
 
-# Health
 var max_health_bonus_flat: float = 0.0
 var max_health_bonus_percent: float = 0.0
 
-# Speed
 var move_speed_bonus_flat: float = 0.0
 var move_speed_bonus_percent: float = 0.0
 
-# Armor (redução de dano)
 var armor: float = 0.0
 
-# Magnet (range de coleta)
 var magnet_range_bonus: float = 0.0
 
-# Attack Speed
-# Armazenado como multiplier (1.0 + percent) por compatibilidade com
-# PowerUpController. Use get_attack_speed_reduction() para obter a
-# redução percentual linear já com clamp aplicado.
-var attack_speed_multiplier: float = 1.0
+# Redução global de cooldown vinda de powerups.
+# Armazenado como percentual direto (0.25 = 25% de redução).
+# Somado ao cooldown_reduction individual de cada ataque antes de aplicar.
+var global_cooldown_reduction: float = 0.0
 
-# Projectile Speed - NOVO v1.2.6 (Lethal Impact)
 var projectile_speed_multiplier: float = 1.0
 
-# Knockback - NOVO v1.2.6 (Lethal Impact)
 var knockback_multiplier: float = 1.0
 
 
@@ -58,10 +42,6 @@ var knockback_multiplier: float = 1.0
 # UPDATE STATS
 # =================================================
 func update_stats(stats: Dictionary) -> void:
-	"""
-	Atualiza stats e emite signal.
-	Chamado por PowerUpController após recalcular.
-	"""
 	damage_multiplier = stats.get("damage_multiplier", 1.0)
 	max_health_bonus_flat = stats.get("max_health_bonus_flat", 0.0)
 	max_health_bonus_percent = stats.get("max_health_bonus_percent", 0.0)
@@ -69,7 +49,7 @@ func update_stats(stats: Dictionary) -> void:
 	move_speed_bonus_percent = stats.get("move_speed_bonus_percent", 0.0)
 	armor = stats.get("armor", 0.0)
 	magnet_range_bonus = stats.get("magnet_range_bonus", 0.0)
-	attack_speed_multiplier = stats.get("attack_speed_multiplier", 1.0)
+	global_cooldown_reduction = stats.get("global_cooldown_reduction", 0.0)
 	projectile_speed_multiplier = stats.get("projectile_speed_multiplier", 1.0)
 	knockback_multiplier = stats.get("knockback_multiplier", 1.0)
 	
@@ -92,7 +72,7 @@ func _print_stats_debug() -> void:
 	print("🏃 Move Speed Percent:     +%.0f%%" % (move_speed_bonus_percent * 100))
 	print("🛡️  Armor:                  %.1f" % armor)
 	print("🧲 Magnet Range Bonus:     +%.1f" % magnet_range_bonus)
-	print("⚡ Attack Speed Multiplier: ×%.2f" % attack_speed_multiplier)
+	print("⚡ Global Cooldown Reduction: -%.0f%%" % (global_cooldown_reduction * 100))
 	print("🚀 Projectile Speed Mult:  ×%.2f" % projectile_speed_multiplier)
 	print("💫 Knockback Multiplier:   ×%.2f" % knockback_multiplier)
 	print("═══════════════════════════════════════════════════\n")
@@ -105,38 +85,10 @@ func get_damage_multiplier() -> float:
 	return damage_multiplier
 
 func get_armor_damage_reduction() -> float:
-	"""
-	Calcula redução de dano baseado em armor.
-	v1.1.19 v4 FIX: Fórmula LINEAR ao invés de MOBA diminishing returns.
-	
-	FÓRMULA LINEAR:
-	- 10 armor = 10% redução
-	- 40 armor = 40% redução
-	- 75 armor = 75% redução (cap máximo)
-	
-	Cap em 75% para evitar imortalidade (100% = imortal).
-	"""
 	var reduction = armor / 100.0
 	return min(reduction, ARMOR_CAP_PERCENT)
 
-func get_attack_speed_reduction() -> float:
-	"""
-	Retorna a redução percentual de intervalo de ataque vinda de powerups.
-	
-	Converte attack_speed_multiplier (armazenado como 1.0 + percent) para
-	percentual direto e aplica clamp de segurança.
-	
-	Uso: timer = base_interval * (1.0 - get_attack_speed_reduction())
-	
-	Exemplo:
-	  attack_speed_multiplier = 1.25 (25% acumulado, 5 levels × 5%)
-	  → retorna 0.25
-	  → intervalo reduzido em exatamente 25%
-	"""
-	return minf(attack_speed_multiplier - 1.0, ATTACK_SPEED_CAP_PERCENT)
-
 func reset() -> void:
-	"""Reset all stats to default"""
 	damage_multiplier = 1.0
 	max_health_bonus_flat = 0.0
 	max_health_bonus_percent = 0.0
@@ -144,7 +96,7 @@ func reset() -> void:
 	move_speed_bonus_percent = 0.0
 	armor = 0.0
 	magnet_range_bonus = 0.0
-	attack_speed_multiplier = 1.0
+	global_cooldown_reduction = 0.0
 	projectile_speed_multiplier = 1.0
 	knockback_multiplier = 1.0
 	

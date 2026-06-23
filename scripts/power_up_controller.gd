@@ -54,7 +54,7 @@ func _duplicate_powerup_resources() -> void:
 			dup_powerup.damage_percent_per_level = _duplicate_float_array(dup_powerup.damage_percent_per_level)
 			dup_powerup.armor_flat_per_level = _duplicate_float_array(dup_powerup.armor_flat_per_level)
 			dup_powerup.magnet_range_flat_per_level = _duplicate_float_array(dup_powerup.magnet_range_flat_per_level)
-			dup_powerup.attack_speed_percent_per_level = _duplicate_float_array(dup_powerup.attack_speed_percent_per_level)
+			dup_powerup.cooldown_reduction_percent_per_level = _duplicate_float_array(dup_powerup.cooldown_reduction_percent_per_level)
 			dup_powerup.projectile_speed_percent_per_level = _duplicate_float_array(dup_powerup.projectile_speed_percent_per_level)
 			dup_powerup.knockback_percent_per_level = _duplicate_float_array(dup_powerup.knockback_percent_per_level)
 			
@@ -146,7 +146,7 @@ func _recalculate_all_stats() -> void:
 	var total_damage_percent := 0.0
 	var total_armor_flat := 0.0
 	var total_magnet_flat := 0.0
-	var total_attack_speed_percent := 0.0
+	var total_global_cooldown_reduction := 0.0
 	var total_projectile_speed_percent := 0.0
 	var total_knockback_percent := 0.0
 	
@@ -171,8 +171,8 @@ func _recalculate_all_stats() -> void:
 		var magnet_bonus = powerup.get_magnet_bonus()
 		total_magnet_flat += magnet_bonus["flat"]
 		
-		var aspd_bonus = powerup.get_attack_speed_bonus()
-		total_attack_speed_percent += aspd_bonus["percent"]
+		var cd_bonus = powerup.get_cooldown_reduction_bonus()
+		total_global_cooldown_reduction += cd_bonus["percent"]
 		
 		var proj_speed_bonus = powerup.get_projectile_speed_bonus()
 		total_projectile_speed_percent += proj_speed_bonus["percent"]
@@ -199,7 +199,7 @@ func _recalculate_all_stats() -> void:
 		"move_speed_bonus_percent": total_move_speed_percent,
 		"armor": total_armor_flat,
 		"magnet_range_bonus": total_magnet_flat,
-		"attack_speed_multiplier": 1.0 + total_attack_speed_percent,
+		"global_cooldown_reduction": total_global_cooldown_reduction,
 		"projectile_speed_multiplier": 1.0 + total_projectile_speed_percent,
 		"knockback_multiplier": 1.0 + total_knockback_percent
 	}
@@ -252,7 +252,7 @@ func _apply_stats_to_player() -> void:
 	print("  🛡️  Armor: %.1f (%.0f%% damage reduction)" % [PowerUpStatsGlobal.armor, reduction * 100])
 	
 	print("  🧲 Magnet Range: +%.1f (applied in XP items)" % PowerUpStatsGlobal.magnet_range_bonus)
-	print("  ⚡ Attack Speed: ×%.2f (applied in timers)" % PowerUpStatsGlobal.attack_speed_multiplier)
+	print("  ⚡ Global Cooldown Reduction: -%.0f%% (applied in timers)" % (PowerUpStatsGlobal.global_cooldown_reduction * 100))
 	print("  🚀 Projectile Speed: ×%.2f (applied in powers)" % PowerUpStatsGlobal.projectile_speed_multiplier)
 	print("  💫 Knockback: ×%.2f (applied on hit)" % PowerUpStatsGlobal.knockback_multiplier)
 	

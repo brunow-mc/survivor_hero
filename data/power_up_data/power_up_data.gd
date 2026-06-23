@@ -24,10 +24,6 @@ class_name PowerUpData
 # =================================================
 # STATS - OPÇÃO C: Arrays de progressão por level
 # =================================================
-# Cada array representa valores por level (índice 0 = level 1, índice 1 = level 2, etc.)
-# Arrays vazios = não afeta esse stat
-# Pode afetar múltiplos stats ao mesmo tempo
-
 @export_group("Max Health")
 @export var max_health_flat_per_level: Array[float] = []
 @export var max_health_percent_per_level: Array[float] = []
@@ -45,8 +41,12 @@ class_name PowerUpData
 @export_group("Magnet Range")
 @export var magnet_range_flat_per_level: Array[float] = []
 
-@export_group("Attack Speed")
-@export var attack_speed_percent_per_level: Array[float] = []
+@export_group("Cooldown Reduction")
+# Reduz o Interval de todos os ataques simultaneamente.
+# Mesmo mecanismo de cooldown_reduction_per_level dos upgrades de ataque,
+# mas com escopo global (afeta todos os ataques de uma vez).
+# 0.05 = reduz 5% do Interval base de cada ataque.
+@export var cooldown_reduction_percent_per_level: Array[float] = []
 
 # NOVO v1.2.6 - Lethal Impact
 @export_group("Projectile Speed")
@@ -101,22 +101,22 @@ func get_magnet_bonus() -> Dictionary:
 		"percent": 0.0  # Magnet só tem flat
 	}
 
-func get_attack_speed_bonus() -> Dictionary:
+func get_cooldown_reduction_bonus() -> Dictionary:
 	return {
-		"flat": 0.0,  # Attack Speed só tem percent
-		"percent": _get_value(attack_speed_percent_per_level)
+		"flat": 0.0,
+		"percent": _get_value(cooldown_reduction_percent_per_level)
 	}
 
 # NOVO v1.2.6 - Lethal Impact
 func get_projectile_speed_bonus() -> Dictionary:
 	return {
-		"flat": 0.0,  # Projectile Speed só tem percent
+		"flat": 0.0,
 		"percent": _get_value(projectile_speed_percent_per_level)
 	}
 
 func get_knockback_bonus() -> Dictionary:
 	return {
-		"flat": 0.0,  # Knockback só tem percent
+		"flat": 0.0,
 		"percent": _get_value(knockback_percent_per_level)
 	}
 
@@ -132,12 +132,7 @@ func _get_value(arr: Array[float]) -> float:
 	- Level 0: retorna 0 (não adquirido)
 	- Level 1: retorna 20 (arr[0])
 	- Level 2: retorna 40 (arr[0] + arr[1])
-	- Level 3: retorna 60 (arr[0] + arr[1] + arr[2])
-	- Level 4: retorna 80 (arr[0] + arr[1] + arr[2] + arr[3])
-	- Level 5: retorna 100 (arr[0] + arr[1] + arr[2] + arr[3] + arr[4])
-	
-	Isso permite configurar incrementos intuitivos ("+20 por level")
-	ao invés de valores absolutos substituídos.
+	- Level 5: retorna 100 (soma total)
 	"""
 	if current_level <= 0:
 		return 0.0
@@ -158,10 +153,10 @@ func get_display_name_for_level(level: int) -> String:
 	"""Retorna display_name para um level específico"""
 	if level < 1 or level > display_name_per_level.size():
 		return powerup_name + " Lv" + str(level)  # Fallback
-	return display_name_per_level[level - 1]  # Array é 0-indexed
+	return display_name_per_level[level - 1]
 
 func get_description_for_level(level: int) -> String:
 	"""Retorna description para um level específico"""
 	if level < 1 or level > description_per_level.size():
 		return ""  # Fallback vazio
-	return description_per_level[level - 1]  # Array é 0-indexed
+	return description_per_level[level - 1]
