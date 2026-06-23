@@ -5,18 +5,12 @@
 [resource]
 script = ExtResource("1_upgrade")
 attack_id = 4
-attack_name = "Boomerang"
-description = "Boomerang upgrades"
-display_name_per_level = Array[String](["Spinning Bo Lv1", "Spinning Bo Lv2", "Spinning Bo Lv3", "Spinning Bo Lv4", "Spinning Bo Lv5 MAX"])
-description_per_level = Array[String](["+1 Projectile\\n+2% Scale", "test\\ntest%", "test%\\ntest", "test\\ntest%", "test%\\ntest"])
-projectile_count_per_level = Array[int]([0, 0, 0, 0, 0])
-damage_bonus_per_level = Array[float]([0.0, 0.06, 0.12, 0.18, 0.25])
-speed_bonus_per_level = Array[float]([0.0, 0.07, 0.1, 0.125, 0.15])
-max_hits_per_level = Array[int]([0, 0, 0, 0, 0])
-cooldown_reduction_per_level = Array[float]([0.0, 0.06, 0.1, 0.15, 0.18])
-projectile_angle_spread_per_level = Array[float]([0.0, 5.0, 5.0, 5.0, 10.0])
-life_time_bonus_per_level = Array[float]([0.0, 0.15, 0.25, 0.35, 0.5])
-attack_scale_bonus_per_level = Array[float]([0.0, 0.08, 0.12, 0.15, 0.3])
-projectile_stagger_delay_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
-orbit_radius_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
-orbit_speed_bonus_per_level = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0])
+attack_name = "Spinning Bo"
+description = "Spinning Bo upgrades"
+max_level = 8
+display_name_per_level = Array[String](["Spinning Bo Lv1", "Spinning Bo Lv2", "Spinning Bo Lv3", "Spinning Bo Lv4", "Spinning Bo Lv5", "Spinning Bo Lv6", "Spinning Bo Lv7", "Spinning Bo Lv8 MAX"])
+description_per_level = Array[String](["Unlock Spinning Bo", "+10% Damage  +2% Projectile Speed\\n+10% Attack Area", "+10% Damage  +2% Projectile Speed\\n7% Cooldown", "+10% Damage  +2% Projectile Speed\\n+15% Attack Area", "+10% Damage  +2% Projectile Speed\\n7% Cooldown", "+10% Damage  +2% Projectile Speed\\n+20% Attack Area", "+12% Damage  +2% Projectile Speed\\n7% Cooldown", "+15% Damage  +2% Projectile Speed\\n10% Cooldown  +30% Attack Area"])
+damage_bonus_per_level = Array[float]([0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.12, 0.15])
+speed_bonus_per_level = Array[float]([0.0, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02])
+cooldown_reduction_per_level = Array[float]([0.0, 0.0, 0.07, 0.0, 0.07, 0.0, 0.07, 0.1])
+attack_scale_bonus_per_level = Array[float]([0.0, 0.1, 0.0, 0.15, 0.0, 0.2, 0.0, 0.3])
