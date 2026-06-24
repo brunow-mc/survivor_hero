@@ -184,7 +184,8 @@ func create_attack_data_with_upgrades(attack_data: AttackData) -> AttackData:
 	
 	temp_copy.projectile_count = attack_data.projectile_count + upgrade.get_projectile_count_bonus()
 	temp_copy.interval = attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP))
-	temp_copy.hit_data.damage = attack_data.hit_data.damage * (1.0 + upgrade.get_damage_bonus())
+	# Não modifica damage — mantém o valor base para cálculo aditivo em base_power.gd
+	temp_copy.hit_data.damage_upgrade_bonus = upgrade.get_damage_bonus()
 	temp_copy.speed = attack_data.speed * (1.0 + upgrade.get_speed_bonus())
 	temp_copy.max_hits = attack_data.max_hits + upgrade.get_max_hits_bonus()
 	temp_copy.projectile_angle_spread = attack_data.projectile_angle_spread + upgrade.get_projectile_angle_spread_bonus()
