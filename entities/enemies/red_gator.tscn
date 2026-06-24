@@ -176,8 +176,10 @@ debug_color = Color(0, 0.6862745, 0, 0.41960785)
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=50478694]
 path_postprocessing = 1
 avoidance_enabled = true
-radius = 28.0
-neighbor_distance = 150.0
+radius = 20.0
+neighbor_distance = 80.0
+max_neighbors = 8
+time_horizon_agents = 0.5
 max_speed = 30.0
 
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]

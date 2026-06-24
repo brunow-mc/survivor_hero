@@ -34,7 +34,7 @@ enum EnemyState {
 @export var knockback_transfer_ratio: float = 0.55
 @export var knockback_retention_after_transfer: float = 0.8
 @export var min_knockback_to_transfer: float = 8.0
-@export var max_knockback_magnitude: float = 200.0  # Teto de segurança (evita acúmulo explosivo)
+@export var max_knockback_magnitude: float = 200.0
 
 # =================================================
 # PATHFINDING
@@ -58,13 +58,13 @@ enum EnemyState {
 @export var walk_attack_anim: String = "walk_attack"
 
 # =================================================
-# ITEM DROP SYSTEM (NOVO!)
+# ITEM DROP SYSTEM
 # =================================================
 @export_group("Item Drop")
-@export_range(0.0, 1.0, 0.01) var drop_chance: float = 0.05  # 5% por padrão
+@export_range(0.0, 1.0, 0.01) var drop_chance: float = 0.05
 @export var min_drop_amount: int = 1
 @export var max_drop_amount: int = 1
-@export var drop_spread_radius: float = 20.0  # Raio de espalhamento dos items
+@export var drop_spread_radius: float = 20.0
 
 # =================================================
 # VISUAL EFFECTS
@@ -115,6 +115,18 @@ var distance_to_player: float = 0.0
 var next_frame: int = 0
 
 # =================================================
+# AVOIDANCE
+# Controla o fluxo assíncrono do sinal velocity_computed.
+# _avoidance_pending é true SOMENTE enquanto aguardamos a
+# resposta do NavigationServer2D para a velocidade segura.
+# Qualquer sistema prioritário (knockback, parada, morte)
+# zera essa flag, descartando respostas obsoletas.
+# =================================================
+var _avoidance_pending: bool = false
+var _pending_delta: float = 0.0
+var _pending_pos_before: Vector2 = Vector2.ZERO
+
+# =================================================
 # READY
 # =================================================
 func _ready() -> void:
@@ -125,6 +137,11 @@ func _ready() -> void:
 func _setup_base() -> void:
 	# Física (CharacterBody2D)
 	max_slides = 6
+	
+	# Avoidance — conecta o sinal que devolve a velocidade
+	# ajustada pelo NavigationServer2D (RVO)
+	if navigation_agent:
+		navigation_agent.velocity_computed.connect(_on_velocity_computed)
 	
 	# Path timer
 	path_timer = Timer.new()
@@ -158,16 +175,54 @@ func _physics_process(delta: float) -> void:
 			base_walk_state(delta)
 		
 		EnemyState.DEAD:
+			# Garante que nenhum sinal pendente interfere após a morte
+			_avoidance_pending = false
 			dead_state()
+			return  # Não processa movimento de inimigos mortos
 	
+	# Se o avoidance está aguardando resposta do NavigationServer2D,
+	# o movimento será concluído em _on_velocity_computed.
+	# Guardamos delta e pos_before para uso lá.
+	if _avoidance_pending:
+		_pending_delta = delta
+		_pending_pos_before = pos_before
+		return
+	
+	_finish_movement(pos_before, delta)
+
+# =================================================
+# MOVIMENTO FINAL (chamado diretamente OU via velocity_computed)
+# =================================================
+func _finish_movement(pos_before: Vector2, delta: float) -> void:
 	move_and_slide()
 	handle_knockback_transfer()
-	
 	_guard_against_position_jump(pos_before, delta)
 
 # =================================================
+# CALLBACK DE AVOIDANCE
+# Chamado pelo NavigationServer2D com a velocidade segura calculada.
+# =================================================
+func _on_velocity_computed(safe_velocity: Vector2) -> void:
+	# Se a flag foi zerada enquanto aguardávamos (ex: knockback começou),
+	# descarta esta resposta — ela se tornou obsoleta.
+	if not _avoidance_pending:
+		return
+	
+	# Inimigo morreu enquanto aguardava — não move mais.
+	if not is_alive:
+		_avoidance_pending = false
+		return
+	
+	_avoidance_pending = false
+	velocity = safe_velocity
+	_finish_movement(_pending_pos_before, _pending_delta)
+	
+	#var desired := direction_to_player * move_speed
+	#if safe_velocity.distance_to(desired) > 1.0:
+	#	print("RVO ajustou: Δ=", (safe_velocity - desired).length(), "px/s")
+
+# =================================================
 # PROTEÇÃO CONTRA SALTOS ANÔMALOS DE POSIÇÃO
-# (correção de overlap do move_and_slide)
 # =================================================
 func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
 	var actual_delta: Vector2 = global_position - pos_before
@@ -187,16 +242,33 @@ func base_move(delta: float) -> void:
 	update_direction()
 	
 	if knockback != Vector2.ZERO:
+		# Knockback tem prioridade absoluta.
+		# Cancela avoidance pendente — não queremos desviar enquanto voando.
 		velocity = knockback
 		knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)
+		_avoidance_pending = false
 		return
 	
 	if distance_to_player <= stop_distance:
 		can_walk = false
 		velocity = Vector2.ZERO
-	elif is_alive:
+		_avoidance_pending = false
+		return
+	
+	if is_alive:
 		can_walk = true
-		velocity = direction_to_player * move_speed
+		var desired_velocity: Vector2 = direction_to_player * move_speed
+		
+		if navigation_agent and navigation_agent.avoidance_enabled:
+			# Declara a velocidade desejada ao servidor de navegação.
+			# O servidor calcula a velocidade segura (RVO) e devolve
+			# via sinal velocity_computed → _on_velocity_computed.
+			navigation_agent.set_velocity(desired_velocity)
+			_avoidance_pending = true
+		else:
+			# Avoidance desligado: usa velocidade desejada diretamente.
+			velocity = desired_velocity
+			_avoidance_pending = false
 
 # =================================================
 # DIREÇÃO + ANTI-FLICKER
@@ -284,7 +356,7 @@ func _on_path_timer_timeout() -> void:
 	makepath()
 
 # =================================================
-# HIT / DEATH - MODIFICADO v1.1.12
+# HIT / DEATH
 # =================================================
 func receive_hit(hit_data: HitData, source_pos: Vector2) -> void:
 	if not is_alive:
@@ -323,24 +395,19 @@ func die(hit_data: HitData) -> void:
 		)
 	
 	_spawn_death_effect()
-	
-	# NOVO: Sistema de drop de items
 	_try_spawn_drop_items()
 
 # =================================================
-# ITEM DROP SYSTEM (NOVO!)
+# ITEM DROP SYSTEM
 # =================================================
 func _try_spawn_drop_items() -> void:
-	# Verifica chance de drop
 	var random_chance := randf()
 	
 	if random_chance > drop_chance:
-		return  # Não dropou nada
+		return
 	
-	# Determina quantidade de items a dropar
 	var amount := randi_range(min_drop_amount, max_drop_amount)
 	
-	# Spawna os items
 	for i in range(amount):
 		_spawn_single_drop_item(i, amount)
 
@@ -361,7 +428,6 @@ func _spawn_single_drop_item(index: int, total: int) -> void:
 	else:
 		spawn_pos += Vector2(randf_range(-10, 10), randf_range(-10, 10))
 	
-	# CORREÇÃO: Usa call_deferred para adicionar DEPOIS do frame de física
 	get_tree().current_scene.call_deferred("add_child", item)
 	item.global_position = spawn_pos
 
@@ -369,8 +435,6 @@ func _spawn_single_drop_item(index: int, total: int) -> void:
 # MÉTODO VIRTUAL: CLASSES FILHAS DEFINEM O ITEM
 # =================================================
 func _get_drop_item_scene() -> PackedScene:
-	# Classes filhas sobrescrevem isso para definir qual item dropar
-	# Exemplo no Gator: return preload("res://entities/items/xp_item_01.tscn")
 	return null
 
 # =================================================
@@ -387,13 +451,12 @@ func flash_red() -> void:
 		await get_tree().create_timer(flash_duration, false).timeout
 
 # =================================================
-# KNOCKBACK TRANSFER BASE (REDESENHADO v2 — anti-ressonância)
+# KNOCKBACK TRANSFER BASE
 # =================================================
 func handle_knockback_transfer() -> void:
 	if knockback.length() < min_knockback_to_transfer:
 		return
 	
-	# Coleta TODOS os vizinhos "Enemy" tocando neste frame (sem pré-filtrar por estado)
 	var touching_enemies: Array = []
 	var collision_normals: Array = []
 	
@@ -408,19 +471,15 @@ func handle_knockback_transfer() -> void:
 	if touching_enemies.is_empty():
 		return
 	
-	# Calcula a fatia que cada um receberia, dividindo o total entre todos os tocando
 	var transferred_total: float = knockback.length() * knockback_transfer_ratio
 	var share: float = transferred_total / touching_enemies.size()
 	
-	# Só transfere para quem teria GANHO REAL de magnitude
-	# (impede o "eco" de ida e volta entre dois inimigos já ativos,
-	# sem depender de um limiar fixo arbitrário)
 	var transferred_to_anyone: bool = false
 	
 	for i in range(touching_enemies.size()):
 		var other = touching_enemies[i]
 		if other.knockback.length() >= share:
-			continue  # contribuição não traria ganho real — ignora
+			continue
 		
 		var push_dir: Vector2 = -collision_normals[i]
 		other.knockback += push_dir * share
@@ -441,7 +500,7 @@ func _on_damage_timer_timeout() -> void:
 # MÉTODOS VIRTUAIS
 # =================================================
 func _spawn_death_effect() -> void:
-	pass  # Implementar em classes filhas
+	pass
 
 func dead_state() -> void:
-	pass  # Implementar em classes filhas (ex: queue_free())
+	pass
