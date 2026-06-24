@@ -11,4 +11,4 @@ description = "Increases damage dealt"
 icon = ExtResource("1_nd1h5")
 display_name_per_level = Array[String](["Raw Power Lv1", "Raw Power Lv2", "Raw Power Lv3", "Raw Power Lv4", "Raw Power Lv5 MAX"])
 description_per_level = Array[String](["+5% Damage on All Attacks", "+5% Damage on All Attacks", "+5% Damage on All Attacks", "+7% Damage on All Attacks", "+8% Damage on All Attacks"])
-damage_percent_per_level = Array[float]([0.9, 0.05, 0.05, 0.07, 0.08])
+damage_percent_per_level = Array[float]([0.05, 0.05, 0.05, 0.07, 0.08])
