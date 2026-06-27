@@ -37,9 +37,6 @@ func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	player = get_tree().get_first_node_in_group("Player")
 
-	if not player:
-		print("⚠️ XPItem01: Player não encontrado!")
-
 # ======================================
 # FÍSICA
 # ======================================
@@ -96,7 +93,9 @@ func _on_area_entered(area: Area2D) -> void:
 func collect() -> void:
 	if state == ItemState.COLLECTED:
 		return
-
+	# Não coleta XP com player morto — evita level up póstumo
+	if not GameStateGlobal.is_combat_allowed():
+		return
 	state = ItemState.COLLECTED
 	XPManagerGlobal.add_xp(xp_value)
 	_play_collect_sound()

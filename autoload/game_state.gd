@@ -25,6 +25,11 @@ func _ready() -> void:
 func set_state(new_state: GameplayState) -> void:
 	if current_state == new_state:
 		return
+	# PLAYER_DEAD é um estado terminal — só restart pode sair dele.
+	# Impede que qualquer sistema (level up, pausa, etc.)
+	# sobrescreva a morte acidentalmente.
+	if current_state == GameplayState.PLAYER_DEAD:
+		return
 	previous_state = current_state
 	current_state = new_state
 	state_changed.emit(current_state)
@@ -62,7 +67,6 @@ func notify_player_dead() -> void:
 func show_game_over() -> void:
 	# v1.4.6: Centraliza o pause do game over no GameStateGlobal.
 	# Chamado pelo game_over_menu após o delay de exibição.
-	# Prepara o terreno para um futuro sistema de revive.
 	if current_state != GameplayState.PLAYER_DEAD:
 		return
 	get_tree().paused = true
@@ -83,6 +87,8 @@ func is_combat_allowed() -> bool:
 # RESTART GAME
 # -------------------------------------------------
 func restart_game() -> void:
+	# Seta current_state diretamente (não via set_state) para
+	# contornar o guard de PLAYER_DEAD e permitir o reinício.
 	get_tree().paused = false
 	current_state = GameplayState.COMBAT
 	previous_state = GameplayState.COMBAT

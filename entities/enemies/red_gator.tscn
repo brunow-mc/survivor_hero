@@ -118,7 +118,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
-radius = 19.0
+radius = 16.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
 radius = 14.0
@@ -150,16 +150,15 @@ sprite_frames = SubResource("SpriteFrames_jq0pf")
 animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
-visible = false
 shape = SubResource("CircleShape2D_c8u6y")
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=1612427453 groups=["EnemyHitbox"]]
-visible = false
 collision_layer = 4
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=697552730]
-position = Vector2(0, -4)
+visible = false
+position = Vector2(0, -2)
 rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_u5jqn")
 debug_color = Color(1, 0, 0, 0.41960785)
@@ -176,7 +175,7 @@ debug_color = Color(0, 0.6862745, 0, 0.41960785)
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=50478694]
 path_postprocessing = 1
 avoidance_enabled = true
-radius = 20.0
+radius = 17.0
 neighbor_distance = 80.0
 max_neighbors = 8
 time_horizon_agents = 0.5
