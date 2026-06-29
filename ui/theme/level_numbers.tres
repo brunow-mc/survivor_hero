@@ -1,0 +1,10 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://3ytqdjn04iv0"]
+
+[ext_resource type="FontFile" uid="uid://mn05nwaktc3" path="res://fonts/ARCADEPI.TTF" id="1_blotd"]
+
+[resource]
+font = ExtResource("1_blotd")
+font_size = 9
+font_color = Color(1, 0.725, 0, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
