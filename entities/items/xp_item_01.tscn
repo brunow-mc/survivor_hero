@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://5s74sbee030c"]
+[gd_scene format=3 uid="uid://5s74sbee030c"]
 
 [ext_resource type="Texture2D" uid="uid://ksctgxrenwf6" path="res://sprites/items/chemical01.png" id="1_4fq13"]
 [ext_resource type="Script" uid="uid://dynurub7g51v2" path="res://scripts/xp_item_01.gd" id="1_7cgj4"]
@@ -8,20 +8,20 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_7cgj4"]
 radius = 8.0
 
-[node name="XPItem01" type="Area2D" groups=["XPItems"]]
+[node name="XPItem01" type="Area2D" unique_id=1005945857 groups=["XPItems"]]
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("1_7cgj4")
 collect_sound = ExtResource("2_w5dxk")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=457609296]
 shape = SubResource("CircleShape2D_7cgj4")
 
-[node name="Shadow" type="Sprite2D" parent="."]
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1620449559]
 modulate = Color(1, 1, 1, 0.3137255)
 z_index = 1
 position = Vector2(0, 7)
 texture = ExtResource("2_j2688")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1659297285]
 texture = ExtResource("1_4fq13")
