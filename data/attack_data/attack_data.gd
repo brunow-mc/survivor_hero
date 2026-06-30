@@ -42,6 +42,14 @@ class_name AttackData
 # -------------------------------------------------
 @export_group("Movement")
 @export var speed: float = 100.0
+# Bônus de velocidade vindo do upgrade individual do ataque.
+# Preenchido em runtime pelo attack_controller. Somado ao bônus global
+# do powerup em cada power script para aplicação linear (aditiva).
+@export var speed_upgrade_bonus: float = 0.0
+# Bônus de orbit_speed vindo do upgrade individual do Gear.
+# Preenchido em runtime pelo attack_controller. Entra sem passar por
+# orbit_speed_effectiveness (upgrade específico do Gear, efeito pleno).
+@export var orbit_speed_upgrade_bonus: float = 0.0
 
 # -------------------------------------------------
 # PROJECTILE

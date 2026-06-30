@@ -101,8 +101,8 @@ func set_power_direction(player_direction: int) -> void:
 
 func set_attack_data(data: AttackData) -> void:
 	super.set_attack_data(data)
-	# v1.2.6: Aplicar projectile_speed_multiplier
-	speed = data.speed * PowerUpStatsGlobal.projectile_speed_multiplier
+	var total_speed_bonus: float = data.speed_upgrade_bonus + (PowerUpStatsGlobal.projectile_speed_multiplier - 1.0)
+	speed = data.speed * (1.0 + total_speed_bonus)
 	max_hits = data.max_hits
 
 

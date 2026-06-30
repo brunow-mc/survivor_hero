@@ -564,8 +564,8 @@ func set_attack_data(data: AttackData) -> void:
 	# pois power_04 usa escala dinâmica, não fixa
 	
 	# Configurações específicas do Bo
-	# v1.2.6: Aplicar projectile_speed_multiplier
-	speed = data.speed * PowerUpStatsGlobal.projectile_speed_multiplier
+	var total_speed_bonus: float = data.speed_upgrade_bonus + (PowerUpStatsGlobal.projectile_speed_multiplier - 1.0)
+	speed = data.speed * (1.0 + total_speed_bonus)
 	current_speed = speed
 	max_hits = data.max_hits
 

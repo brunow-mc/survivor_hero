@@ -186,14 +186,16 @@ func create_attack_data_with_upgrades(attack_data: AttackData) -> AttackData:
 	temp_copy.interval = attack_data.interval * (1.0 - minf(upgrade.get_cooldown_reduction(), COOLDOWN_REDUCTION_CAP))
 	# Não modifica damage — mantém o valor base para cálculo aditivo em base_power.gd
 	temp_copy.hit_data.damage_upgrade_bonus = upgrade.get_damage_bonus()
-	temp_copy.speed = attack_data.speed * (1.0 + upgrade.get_speed_bonus())
+	# Não modifica speed — mantém o valor base para cálculo aditivo nos power scripts
+	temp_copy.speed_upgrade_bonus = upgrade.get_speed_bonus()
 	temp_copy.max_hits = attack_data.max_hits + upgrade.get_max_hits_bonus()
 	temp_copy.projectile_angle_spread = attack_data.projectile_angle_spread + upgrade.get_projectile_angle_spread_bonus()
 	temp_copy.life_time = attack_data.life_time + upgrade.get_life_time_bonus()
 	temp_copy.attack_scale = attack_data.attack_scale * (1.0 + upgrade.get_attack_scale_bonus())
 	temp_copy.projectile_stagger_delay = attack_data.projectile_stagger_delay + upgrade.get_projectile_stagger_delay_bonus()
 	temp_copy.orbit_radius = attack_data.orbit_radius + upgrade.get_orbit_radius_bonus()
-	temp_copy.orbit_speed = attack_data.orbit_speed * (1.0 + upgrade.get_orbit_speed_bonus())
+	# Não modifica orbit_speed — mantém o valor base para cálculo aditivo em power_05_gear
+	temp_copy.orbit_speed_upgrade_bonus = upgrade.get_orbit_speed_bonus()
 	
 	return temp_copy
 

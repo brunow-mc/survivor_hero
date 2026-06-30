@@ -150,9 +150,9 @@ func set_attack_data(data: AttackData) -> void:
 	# Carrega configurações de órbita
 	orbit_radius = data.orbit_radius
 	
-	# v1.2.6: Aplicar projectile_speed_multiplier com orbit_speed_effectiveness
-	# effectiveness controla quanto do bonus de speed afeta orbit_speed
-	# 1.0 = 100% do efeito, 0.5 = 50% do efeito
-	var speed_bonus = PowerUpStatsGlobal.projectile_speed_multiplier - 1.0
-	var effective_bonus = speed_bonus * data.orbit_speed_effectiveness
-	orbit_speed = data.orbit_speed * (1.0 + effective_bonus)
+	# Upgrade de órbita específico do Gear entra com efeito pleno (sem effectiveness).
+	# Powerup global de velocidade entra amortecido por orbit_speed_effectiveness,
+	# pois velocidade orbital gera mais hits que velocidade linear.
+	var powerup_bonus: float = (PowerUpStatsGlobal.projectile_speed_multiplier - 1.0) * data.orbit_speed_effectiveness
+	var total_orbit_bonus: float = data.orbit_speed_upgrade_bonus + powerup_bonus
+	orbit_speed = data.orbit_speed * (1.0 + total_orbit_bonus)
