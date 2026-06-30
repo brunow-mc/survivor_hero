@@ -62,6 +62,7 @@ Minimum interval floor: `0.05s`. Recalculated whenever `PowerUpStatsGlobal.stats
 ### Enemy system
 
 - **`scripts/enemy_base.gd`** — `CharacterBody2D` base: FSM (IDLE/WALK/DEAD), NavigationAgent2D pathfinding with RVO avoidance (async via `velocity_computed` signal), knockback with chain-transfer to adjacent enemies, item drops, `receive_hit()` / `die()`.
+- **`_guard_against_position_jump()`** in `enemy_base.gd` — called every physics frame after `move_and_slide()`. Compares actual displacement against `velocity × delta × 3.0` (floor: 2 px); if exceeded, clamps the position back. This suppresses anomalous pixel-jumps that `move_and_slide()` produces when resolving collisions near walls or corners, especially under active RVO avoidance. Symptom that motivated it: enemies spawned or teleported near walls would visibly snap a few pixels in a random direction when the player moved toward/away from walls.
 - Concrete enemies: `entities/enemies/gator.tscn` and `red_gator.tscn`.
 - Enemy scenes must be in group `"Enemy"`. Hurtboxes in group `"EnemyHurtbox"`.
 - After spawning or teleporting, always call `enemy.makepath()` to recalculate navigation from the new position.
@@ -104,7 +105,7 @@ Budget-based, inspired by Vampire Survivors:
 
 - **Singleton naming**: `NomeFuncionalGlobal` (e.g. `TargetTrackerGlobal`, `PowerUpStatsGlobal`).
 - **Versioning**: semântico `v1.x.x` nos comentários de código.
-- **`@export` discipline**: only fields that must appear in the Inspector. Non-`@export` fields are **not copied by `duplicate(true)`** — this is a known footgun (see Known bugs below).
+- **`@export` discipline**: only fields that must appear in the Inspector. Non-`@export` fields are **not copied by `duplicate(true)`** — fields set at runtime that need to survive a `duplicate()` call must be `@export`.
 - **Resource duplication**: `AttackUpgradeData` resources are duplicated in `AttackController._ready()` so editor assets are never mutated at runtime. Always duplicate before modifying shared resources.
 - **`attack_id` is the join key** between `AttackData`, `AttackUpgradeData`, and `attack_timers`. Keep IDs consistent across all three.
 - **Additive bonuses everywhere**: both cooldown and damage use `base × (1 + sum_of_bonuses)` — never chain multiplications.
@@ -114,7 +115,7 @@ Budget-based, inspired by Vampire Survivors:
 
 ## Known bugs
 
-- **`damage_upgrade_bonus` not copied by `duplicate(true)`**: `HitData.damage_upgrade_bonus` is a non-`@export` field. When `base_power.gd` calls `hit_data.duplicate(true)` inside `_on_area_entered`, the bonus from `AttackController` is present in the original but **not in the copy**. Result: the bonus is correctly applied (because `BasePower` reads it from the original before duplicating), but any code path that relies on the duplicated `HitData` having `damage_upgrade_bonus` set will silently get `0.0`.
+*(none currently documented)*
 
 ## Calibration reference
 

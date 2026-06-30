@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HitData" load_steps=4 format=3 uid="uid://n0usdei31tmp"]
+[gd_resource type="Resource" script_class="HitData" format=3 uid="uid://n0usdei31tmp"]
 
 [ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit02.mp3" id="1_6voxq"]
 [ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit01.mp3" id="2_tkih4"]
