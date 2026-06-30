@@ -108,7 +108,7 @@ Budget-based, inspired by Vampire Survivors:
 - **`@export` discipline**: only fields that must appear in the Inspector. Non-`@export` fields are **not copied by `duplicate(true)`** — fields set at runtime that need to survive a `duplicate()` call must be `@export`.
 - **Resource duplication**: `AttackUpgradeData` resources are duplicated in `AttackController._ready()` so editor assets are never mutated at runtime. Always duplicate before modifying shared resources.
 - **`attack_id` is the join key** between `AttackData`, `AttackUpgradeData`, and `attack_timers`. Keep IDs consistent across all three.
-- **Additive bonuses everywhere**: both cooldown and damage use `base × (1 + sum_of_bonuses)` — never chain multiplications.
+- **Additive bonuses everywhere**: cooldown, damage, and projectile speed all use `base × (1 + sum_of_bonuses)` — never chain multiplications. For speed, `speed_upgrade_bonus` (per-attack upgrade) and `projectile_speed_multiplier − 1.0` (global powerup) are summed before applying. `power_05_gear` is the one exception: the global speed bonus is dampened by `orbit_speed_effectiveness` (currently `0.4`) before summing, because orbital speed generates hits much more efficiently than linear speed — but the gear's own `orbit_speed_upgrade_bonus` always enters at full value.
 - **`is_combat_allowed()` gate**: every system that acts on game state must check this before proceeding.
 - **Deferred calls for spawning**: use `call_deferred` or `add_child` then set `global_position` afterward (so `_ready` runs before position is overwritten).
 - **Audio buses**: SFX plays on the `"SFX"` bus. Powers that manage looping audio set `handles_own_audio = true` on their `AttackData` to suppress the controller from also playing it.
