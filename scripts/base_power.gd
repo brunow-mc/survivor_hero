@@ -90,11 +90,11 @@ func _on_area_entered(area: Area2D) -> void:
 	# Soma linear: upgrade individual + powerup global, aplicados uma vez só.
 	# damage_upgrade_bonus vem do attack_controller (upgrade por ataque).
 	# (damage_multiplier - 1.0) é o percentual acumulado dos powerups globais.
-	var total_damage_bonus: float = hit_data.damage_upgrade_bonus + (PowerUpStatsGlobal.damage_multiplier - 1.0)
-	modified_hit_data.damage = hit_data.damage * (1.0 + total_damage_bonus)
+	var total_damage_bonus: float = modified_hit_data.damage_upgrade_bonus + (PowerUpStatsGlobal.damage_multiplier - 1.0)
+	modified_hit_data.damage = modified_hit_data.damage * (1.0 + total_damage_bonus)
 
 	# v1.2.6: Aplicar knockback multiplier global
-	modified_hit_data.knockback_force = hit_data.knockback_force * PowerUpStatsGlobal.knockback_multiplier
+	modified_hit_data.knockback_force = modified_hit_data.knockback_force * PowerUpStatsGlobal.knockback_multiplier
 
 	# aplica dano
 	enemy.receive_hit(modified_hit_data, global_position)

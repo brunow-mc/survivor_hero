@@ -5,9 +5,9 @@ class_name HitData
 @export var knockback_force: float = 150.0
 
 # Bônus de dano vindo do upgrade individual do ataque.
-# Preenchido em runtime pelo attack_controller — não editável no Inspector.
+# Preenchido em runtime pelo attack_controller.
 # Somado ao bônus global do powerup em base_power.gd para aplicação linear.
-var damage_upgrade_bonus: float = 0.0
+@export var damage_upgrade_bonus: float = 0.0
 
 # =================================================
 # ÁUDIO - HIT
