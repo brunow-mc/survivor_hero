@@ -608,6 +608,10 @@ func choose_enemy(available_budget: float = INF) -> EnemySpawnData:
 	var available_enemies: Array[EnemySpawnData] = []
 	
 	for enemy_data in enemy_definitions:
+		# Slot vazio no Inspector — ignora
+		if not enemy_data:
+			continue
+
 		# Verifica tempo
 		if game_time < enemy_data.min_game_time or game_time > enemy_data.max_game_time:
 			continue

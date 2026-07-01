@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EnemySpawnData" format=3 uid="uid://bie4mxkg3vtqn"]
+
+[ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cpjj1dgsuaw28" path="res://entities/enemies/gator.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+enemy_name = "Gator"
+enemy_scene = ExtResource("2_scene")

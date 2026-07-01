@@ -75,6 +75,7 @@ Budget-based, inspired by Vampire Survivors:
 - Positions found via **grid sampling** of 4 rectangular bands around the viewport (N/S/E/W strips), clustered by flood-fill, then filtered to offscreen-only. Validated for NavigationServer2D reachability + wall clearance + enemy spacing.
 - **Teleport system**: every `teleport_check_interval` seconds, enemies beyond `max_distance_from_player` are teleported to pre-validated offscreen positions.
 - Call `SpawnManagerGlobal.start_spawning()` when the stage starts; `stop_spawning()` on restart.
+- **Per-stage spawn resources**: `EnemySpawnData` `.tres` files live in `data/enemy_spawn/stageXX/` (e.g. `stage01/spawn_gator.tres`). Each stage gets its own folder with its own copies — never share spawn `.tres` files across stages, since editing a shared Resource would change the calibration of every stage that references it. Empty slots in the `enemy_definitions` array are safely ignored by `choose_enemy()`.
 
 ### XP & Level-up flow
 

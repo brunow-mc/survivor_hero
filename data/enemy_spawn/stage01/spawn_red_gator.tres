@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="EnemySpawnData" format=3 uid="uid://dx6mbqr3ckl8y"]
 
-[ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/spawn_data.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="2_scene"]
 
 [resource]
