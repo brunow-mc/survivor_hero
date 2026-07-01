@@ -142,7 +142,7 @@ drop_chance = 1.0
 flash_color = Color(1, 0, 0, 0)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
-position = Vector2(0, 13)
+position = Vector2(0, 19)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=688458282]
 scale = Vector2(1.5, 1.5)
