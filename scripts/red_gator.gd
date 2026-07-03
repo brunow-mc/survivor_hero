@@ -40,7 +40,7 @@ func _spawn_death_effect() -> void:
 # OVERRIDE: ITEM DROP (NOVO!)
 # =================================================
 func _get_drop_item_scene() -> PackedScene:
-	return XP_ITEM_01  # Gator dropa XPItem01
+	return XP_ITEM_01  # Red Gator dropa xp_item_01 (classe XPItem)
 
 # =================================================
 # HITBOX

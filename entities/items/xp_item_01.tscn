@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://5s74sbee030c"]
 
-[ext_resource type="Texture2D" uid="uid://ksctgxrenwf6" path="res://sprites/items/chemical01.png" id="1_4fq13"]
-[ext_resource type="Script" uid="uid://dynurub7g51v2" path="res://scripts/xp_item_01.gd" id="1_7cgj4"]
+[ext_resource type="Texture2D" uid="uid://ksctgxrenwf6" path="res://sprites/items/xp_item_01.png" id="1_4fq13"]
+[ext_resource type="Script" uid="uid://dynurub7g51v2" path="res://scripts/xp_item.gd" id="1_7cgj4"]
 [ext_resource type="Texture2D" uid="uid://ecw247a5n3yt" path="res://sprites/effects/shadow01.png" id="2_j2688"]
 [ext_resource type="AudioStream" uid="uid://bovm15krk6u4t" path="res://audio/effects/Item/glass.mp3" id="2_w5dxk"]
 
