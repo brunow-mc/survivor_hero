@@ -1,5 +1,5 @@
 extends Area2D
-class_name XPItem
+class_name XPItem01
 
 # ======================================
 # CONFIGURAÇÕES
