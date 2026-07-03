@@ -1,7 +1,6 @@
 extends EnemyBase
 
 const IMPACT_01 = preload("uid://bg33gkayu217w")
-const XP_ITEM_01 = preload("res://entities/items/xp_item_01.tscn")  # NOVO!
 
 # =================================================
 # NODES
@@ -35,12 +34,6 @@ func _spawn_death_effect() -> void:
 	var impact = IMPACT_01.instantiate()
 	add_sibling(impact)
 	impact.position = position
-
-# =================================================
-# OVERRIDE: ITEM DROP (NOVO!)
-# =================================================
-func _get_drop_item_scene() -> PackedScene:
-	return XP_ITEM_01  # Gator dropa XPItem01
 
 # =================================================
 # HITBOX

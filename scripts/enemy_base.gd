@@ -64,7 +64,10 @@ enum EnemyState {
 @export_range(0.0, 1.0, 0.01) var drop_chance: float = 0.05
 @export var min_drop_amount: int = 1
 @export var max_drop_amount: int = 1
-@export var drop_spread_radius: float = 20.0
+@export var drop_spread_radius: float = 10.0
+## Tabela de itens que este inimigo pode dropar (sorteio ponderado por spawn_weight).
+## Cada unidade dropada sorteia independentemente da tabela.
+@export var drop_table: Array[ItemDropData] = []
 
 # =================================================
 # VISUAL EFFECTS
@@ -412,8 +415,8 @@ func _try_spawn_drop_items() -> void:
 		_spawn_single_drop_item(i, amount)
 
 func _spawn_single_drop_item(index: int, total: int) -> void:
-	var item_scene := _get_drop_item_scene()
-	
+	var item_scene := _choose_drop_item()
+
 	if not item_scene:
 		return
 	
@@ -432,9 +435,30 @@ func _spawn_single_drop_item(index: int, total: int) -> void:
 	item.global_position = spawn_pos
 
 # =================================================
-# MÉTODO VIRTUAL: CLASSES FILHAS DEFINEM O ITEM
+# ESCOLHA DE ITEM (Weight System)
 # =================================================
-func _get_drop_item_scene() -> PackedScene:
+func _choose_drop_item() -> PackedScene:
+	# Sorteio ponderado sobre drop_table — mesma lógica de
+	# choose_enemy() no SpawnManager. Slots vazios são ignorados.
+	var total_weight: float = 0.0
+	for entry in drop_table:
+		if not entry or not entry.item_scene:
+			continue
+		total_weight += entry.spawn_weight
+
+	if total_weight <= 0.0:
+		return null
+
+	var random_value := randf() * total_weight
+	var cumulative_weight: float = 0.0
+
+	for entry in drop_table:
+		if not entry or not entry.item_scene:
+			continue
+		cumulative_weight += entry.spawn_weight
+		if random_value <= cumulative_weight:
+			return entry.item_scene
+
 	return null
 
 # =================================================
