@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://we752kvbgfxl"]
 
-[ext_resource type="Script" path="res://scripts/xp_item_01.gd" id="1_mjlqx"]
+[ext_resource type="Script" uid="uid://dynurub7g51v2" path="res://scripts/xp_item.gd" id="1_mjlqx"]
 [ext_resource type="AudioStream" uid="uid://bovm15krk6u4t" path="res://audio/effects/Item/glass.mp3" id="2_4kn6p"]
 [ext_resource type="Texture2D" uid="uid://ecw247a5n3yt" path="res://sprites/effects/shadow01.png" id="3_367l8"]
-[ext_resource type="Texture2D" path="res://sprites/items/xp_item_02.png" id="4_mjlqx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7cgj4"]
 radius = 8.0
@@ -24,4 +23,3 @@ position = Vector2(0, 7)
 texture = ExtResource("3_367l8")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1659297285]
-texture = ExtResource("4_mjlqx")
