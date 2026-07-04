@@ -11,8 +11,23 @@
 [ext_resource type="PackedScene" uid="uid://c0dmv7da3ciwo" path="res://ui/xp_bar.tscn" id="9_dpt3t"]
 [ext_resource type="PackedScene" uid="uid://bq81qryqfwvjq" path="res://entities/spawn/spawn_manager_config.tscn" id="10_spawn_config"]
 [ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="11_fdwqw"]
-[ext_resource type="Resource" uid="uid://bie4mxkg3vtqn" path="res://data/enemy_spawn/stage01/spawn_gator.tres" id="12_emoyi"]
-[ext_resource type="Resource" uid="uid://dx6mbqr3ckl8y" path="res://data/enemy_spawn/stage01/spawn_red_gator.tres" id="13_nunuq"]
+[ext_resource type="PackedScene" uid="uid://cpjj1dgsuaw28" path="res://entities/enemies/gator.tscn" id="12_fdwqw"]
+[ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="13_emoyi"]
+
+[sub_resource type="Resource" id="Resource_nunuq"]
+resource_name = "Gator"
+script = ExtResource("11_fdwqw")
+enemy_scene = ExtResource("12_fdwqw")
+metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
+
+[sub_resource type="Resource" id="Resource_puonp"]
+resource_name = "Red Gator"
+script = ExtResource("11_fdwqw")
+enemy_scene = ExtResource("13_emoyi")
+spawn_weight = 15.0
+spawn_cost = 3.0
+min_game_time = 30.0
+metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
 [node name="Stage01" type="Node2D" unique_id=110577404]
 
@@ -52,7 +67,7 @@ visible = false
 max_enemies = 75
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
-enemy_definitions = Array[ExtResource("11_fdwqw")]([ExtResource("12_emoyi"), ExtResource("13_nunuq")])
+enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
 max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 grid_sample_spacing = 64.0

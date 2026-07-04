@@ -127,6 +127,11 @@ Budget-based, inspired by Vampire Survivors:
 - Gator: `knockback_decay = 168.0` | Red Gator: `knockback_decay = 330.0`
 - `knockback_retention_after_transfer` default: `0.8` (export var on `EnemyBase`).
 
+### Item drops (current values)
+- Gator drop table: `xp_item_01` (weight 100) + `xp_item_02` (weight 10) → ~91% / ~9%.
+- Red Gator drop table: `xp_item_02` only.
+- XP values: `xp_item_01` = 1 | `xp_item_02` = 3 (set in each item scene's Inspector).
+
 ### Attack cooldown constants (`attack_controller.gd`)
 - `COOLDOWN_REDUCTION_CAP = 0.99`
 - `MIN_ATTACK_INTERVAL = 0.05`

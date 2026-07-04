@@ -20,7 +20,6 @@ shape = SubResource("CircleShape2D_7cgj4")
 
 [node name="Shadow" type="Sprite2D" parent="." unique_id=1620449559]
 modulate = Color(1, 1, 1, 0.3137255)
-z_index = 1
 position = Vector2(0, 7)
 texture = ExtResource("3_367l8")
 
