@@ -66,6 +66,7 @@ Minimum interval floor: `0.05s`. Recalculated whenever `PowerUpStatsGlobal.stats
 - Concrete enemies: `entities/enemies/gator.tscn` and `red_gator.tscn`.
 - Enemy scenes must be in group `"Enemy"`. Hurtboxes in group `"EnemyHurtbox"`.
 - After spawning or teleporting, always call `enemy.makepath()` to recalculate navigation from the new position.
+- **Item drop system**: on `die()`, `EnemyBase` rolls `drop_chance` once, then drops `min/max_drop_amount` items scattered within `drop_spread_radius`. Each dropped unit is picked independently from `drop_table` (`Array[ItemDropData]`) via weighted random in `_choose_drop_item()` — same weight logic as `choose_enemy()`, null-safe. `ItemDropData` (`data/item_drop/item_drop_data.gd`) holds just `item_scene` + `spawn_weight`. Drop tables are configured as **embedded resources** in each enemy scene's Inspector (not `.tres` files), so different enemies can drop the same item with independent weights. New enemies need zero drop code — Inspector only.
 
 ### Spawn system (`SpawnManagerGlobal`)
 
@@ -79,7 +80,7 @@ Budget-based, inspired by Vampire Survivors:
 
 ### XP & Level-up flow
 
-1. Enemy dies → drops `xp_item_01` scene.
+1. Enemy dies → drops XP item(s) chosen from its `drop_table` (see Enemy system). All XP items share `scripts/xp_item.gd` (`class_name XPItem`) and differ only by Inspector calibration (`xp_value`, sprite) — e.g. `xp_item_01.tscn`, `xp_item_02.tscn`. New item scripts are only created when collect logic diverges (e.g. a future healing item).
 2. Player picks up item → `XPManagerGlobal.add_xp()`.
 3. XP fills → `level_up` signal → `LevelUpManagerGlobal._on_level_up()`.
 4. `LevelUpManager` pauses game (`GameStateGlobal.UPGRADE`), generates 3 options from `AttackController` and `PowerUpController` pools.
@@ -108,6 +109,7 @@ Budget-based, inspired by Vampire Survivors:
 - **Versioning**: semântico `v1.x.x` nos comentários de código.
 - **`@export` discipline**: only fields that must appear in the Inspector. Non-`@export` fields are **not copied by `duplicate(true)`** — fields set at runtime that need to survive a `duplicate()` call must be `@export`.
 - **Resource duplication**: `AttackUpgradeData` resources are duplicated in `AttackController._ready()` so editor assets are never mutated at runtime. Always duplicate before modifying shared resources.
+- **Resource sharing strategy** — pick by how the data varies: data that must be identical everywhere (attack stats, powerups) → shared `.tres` + runtime `duplicate()`; per-stage data with reuse across stages (enemy spawn) → separate `.tres` folders per stage; per-instance data with no reuse (enemy drop tables) → embedded resources created directly in the Inspector. Embedded resources live inside the scene file and are invisible in the FileSystem dock — use the resource's `resource_name` field to label them in Array slots.
 - **`attack_id` is the join key** between `AttackData`, `AttackUpgradeData`, and `attack_timers`. Keep IDs consistent across all three.
 - **Additive bonuses everywhere**: cooldown, damage, and projectile speed all use `base × (1 + sum_of_bonuses)` — never chain multiplications. For speed, `speed_upgrade_bonus` (per-attack upgrade) and `projectile_speed_multiplier − 1.0` (global powerup) are summed before applying. `power_05_gear` is the one exception: the global speed bonus is dampened by `orbit_speed_effectiveness` (currently `0.4`) before summing, because orbital speed generates hits much more efficiently than linear speed — but the gear's own `orbit_speed_upgrade_bonus` always enters at full value.
 - **`is_combat_allowed()` gate**: every system that acts on game state must check this before proceeding.

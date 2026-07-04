@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bc6o0khmvy1xo" path="res://sprites/enemies/gator/gator_idle_attack.png" id="3_r4tcw"]
 
 [sub_resource type="Resource" id="Resource_qyejn"]
+resource_name = "XPItem01"
 script = ExtResource("2_6hyt3")
 item_scene = ExtResource("3_jriy7")
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"

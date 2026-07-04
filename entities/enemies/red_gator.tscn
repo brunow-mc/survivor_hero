@@ -11,12 +11,14 @@
 [ext_resource type="Texture2D" uid="uid://ign6kg51beaq" path="res://sprites/enemies/gator/gator_walk_attack.png" id="6_frgl2"]
 
 [sub_resource type="Resource" id="Resource_joiy7"]
+resource_name = "XPItem01"
 script = ExtResource("2_jno6b")
 item_scene = ExtResource("3_6f417")
 spawn_weight = 30.0
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
 
 [sub_resource type="Resource" id="Resource_dy3fp"]
+resource_name = "XPItem02"
 script = ExtResource("2_jno6b")
 item_scene = ExtResource("4_frgl2")
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
