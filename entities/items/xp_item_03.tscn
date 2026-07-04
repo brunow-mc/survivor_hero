@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://hghmo30y2eqf"]
+
+[ext_resource type="Script" uid="uid://dynurub7g51v2" path="res://scripts/xp_item.gd" id="1_qqy8e"]
+[ext_resource type="AudioStream" uid="uid://bovm15krk6u4t" path="res://audio/effects/Item/glass.mp3" id="2_kesoe"]
+[ext_resource type="Texture2D" uid="uid://ecw247a5n3yt" path="res://sprites/effects/shadow01.png" id="3_tofs5"]
+[ext_resource type="Texture2D" uid="uid://b0k8csjdh42aa" path="res://sprites/items/xp_item_03.png" id="4_qqy8e"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7cgj4"]
+radius = 8.0
+
+[node name="XPItem03" type="Area2D" unique_id=1005945857 groups=["XPItems"]]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_qqy8e")
+xp_value = 10
+collect_sound = ExtResource("2_kesoe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=457609296]
+shape = SubResource("CircleShape2D_7cgj4")
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1620449559]
+modulate = Color(1, 1, 1, 0.3137255)
+position = Vector2(0, 7)
+texture = ExtResource("3_tofs5")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1659297285]
+texture = ExtResource("4_qqy8e")
