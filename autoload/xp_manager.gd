@@ -7,7 +7,6 @@ class_name XPManager
 signal xp_gained(amount: int)
 signal xp_changed(current: int, required: int)
 signal level_up(new_level: int)
-signal ready_for_upgrade()
 
 # ======================================
 # PROGRESSÃO
@@ -63,13 +62,24 @@ func add_xp(amount: int) -> void:
 # LEVEL UP
 # ======================================
 func _check_level_up() -> void:
-	while current_xp >= xp_to_next_level:
+	# FILA IMPLÍCITA: concede no máximo 1 level por vez.
+	# A sobra de XP permanece em current_xp e funciona como fila:
+	# quando o menu de upgrade é resolvido, upgrade_selected()
+	# chama este método de novo — se a sobra cobrir outro level,
+	# novo level up, novo menu, até esgotar.
+	if is_waiting_for_upgrade:
+		return
+
+	if current_xp >= xp_to_next_level:
 		_level_up()
 
 func _level_up() -> void:
 	current_level += 1
 	current_xp -= xp_to_next_level
 	_calculate_xp_requirement()
+
+	# Bloqueia novos level ups (e add_xp) até o menu ser resolvido.
+	is_waiting_for_upgrade = true
 
 	print("⭐ LEVEL UP! Nível %d | Próximo: %d XP" % [current_level, xp_to_next_level])
 
@@ -93,14 +103,14 @@ func _calculate_xp_requirement() -> void:
 			xp_to_next_level = base_xp_requirement
 
 # ======================================
-# UPGRADE SCREEN (preparado para futuro)
+# UPGRADE SCREEN
 # ======================================
-func _trigger_upgrade_screen() -> void:
-	is_waiting_for_upgrade = true
-	ready_for_upgrade.emit()
-
 func upgrade_selected() -> void:
+	# Chamado pelo LevelUpManager quando o player confirma a escolha.
+	# Re-checa a sobra de XP: se cobrir outro level, abre novo menu
+	# (fila implícita — ver _check_level_up).
 	is_waiting_for_upgrade = false
+	_check_level_up()
 
 # ======================================
 # RESET

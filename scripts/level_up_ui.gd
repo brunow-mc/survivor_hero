@@ -92,11 +92,13 @@ func _on_option_pressed(option_index: int) -> void:
 	if option_index < 0 or option_index >= current_options.size():
 		return
 
+	# Esconde ANTES de emitir: se a escolha conceder outro level
+	# (fila implícita), o novo menu reabre sincronamente DURANTE o
+	# emit — esconder depois apagaria o menu recém-aberto.
+	_hide_menu()
+
 	# Emite sinal com a escolha
 	option_selected.emit(option_index)
-
-	# Esconde o menu e retoma o jogo
-	_hide_menu()
 
 func _hide_menu() -> void:
 	"""Esconde o menu (LevelUpManager vai despausar)"""

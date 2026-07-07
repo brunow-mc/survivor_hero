@@ -87,6 +87,10 @@ Budget-based, inspired by Vampire Survivors:
 5. Player selects → `controller.apply_upgrade(id)` → `current_level++` on the relevant resource.
 6. `AttackController._check_upgrade_changes()` detects the level change next physics frame and updates the timer.
 
+**Implicit level-up queue** — `XPManager._check_level_up()` grants at most **1 level per call** (`if`, not `while`) and is blocked by `is_waiting_for_upgrade` while a menu is pending. Surplus XP stays in `current_xp` and acts as the queue: when the player confirms a choice, `LevelUpManager.apply_upgrade()` calls `XPManagerGlobal.upgrade_selected()`, which re-checks the surplus — if it covers another level, a new menu opens **synchronously** and the game stays paused in UPGRADE (no COMBAT flicker between chained menus). Two ordering constraints keep the synchronous chain working: `apply_upgrade()` re-checks *before* unpausing (and returns without unpausing if a new menu opened), and `level_up_ui._on_option_pressed()` hides the menu *before* emitting `option_selected` (hiding after would erase the newly opened menu).
+
+**XPBar is pause-immune** — `process_mode = PROCESS_MODE_ALWAYS` so level-up animations (label pulse, bar fill) complete behind the paused upgrade menu. Values can't change during pause (`add_xp` is gated by `is_combat_allowed()`). Gotcha: `get_tree().create_timer()` inside XPBar sequences must pass `process_always = true` — SceneTree timers ignore the node's `process_mode` and would freeze the animation chain mid-sequence.
+
 ### PowerUp system
 
 - **`PowerUpController`** (`entities/controllers/power_up_controller.tscn`) — child of player; holds `Array[PowerUpData]`. `apply_upgrade(id)` increments level and recomputes all stats into `PowerUpStatsGlobal.update_stats()`.

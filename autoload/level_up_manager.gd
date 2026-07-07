@@ -241,6 +241,15 @@ func apply_upgrade(choice_index: int) -> void:
 	is_waiting_for_choice = false
 	current_options.clear()
 
+	# FILA IMPLÍCITA: avisa o XPManager que o menu foi resolvido.
+	# Se a sobra de XP conceder outro level, um novo menu abre
+	# SINCRONAMENTE dentro desta chamada (via level_up →
+	# _on_level_up), e is_waiting_for_choice volta a true.
+	# Nesse caso, NÃO despausa — o jogo segue em UPGRADE.
+	XPManagerGlobal.upgrade_selected()
+	if is_waiting_for_choice:
+		return
+
 	GameStateGlobal.set_state(GameStateGlobal.GameplayState.COMBAT)
 	get_tree().paused = false
 

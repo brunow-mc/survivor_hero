@@ -12,7 +12,7 @@ radius = 8.0
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("1_qqy8e")
-xp_value = 10
+xp_value = 8
 collect_sound = ExtResource("2_kesoe")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=457609296]
