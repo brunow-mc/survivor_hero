@@ -26,6 +26,11 @@ var is_animating_level_up: bool = false
 # READY
 # ======================================
 func _ready() -> void:
+	# Imune à pausa: animações (tweens/lerp) concluem mesmo com o jogo
+	# pausado pelo level_up_ui. Valores não mudam durante a pausa porque
+	# add_xp é bloqueado por is_combat_allowed() no estado UPGRADE.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Garante que está sempre visível
 	show()
 	
@@ -92,22 +97,27 @@ func _on_level_up(_new_level: int) -> void:
 # ANIMAÇÃO SEQUENCIAL DE LEVEL UP
 # ======================================
 func _animate_level_up_sequence(_new_level: int) -> void:
-	# PASSO 1: Completar a barra até 100%
+	# PASSO 0: Troca o texto do level e dispara o pulse/flash JUNTOS.
+	# _play_level_up_animation roda em paralelo (não é awaited) —
+	# o pulse do Label acontece enquanto a barra enche.
+	level_label.text = "LEVEL %d" % _new_level
+	_play_level_up_animation()
+
+	# PASSO 1: Completar a barra até 100% (em paralelo com o pulse)
 	var fill_tween := create_tween()
 	fill_tween.tween_property(progress_bar, "value", 100.0, 0.2)
 	fill_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	
+
 	await fill_tween.finished
-	
+
 	# Garante que está em exatamente 100
 	progress_bar.value = 100.0
 	current_visual_value = 100.0
-	
-	# PASSO 2: Animação de flash/pulse
-	_play_level_up_animation()
-	
-	# Pequena pausa para o flash ser visível
-	await get_tree().create_timer(0.3, false).timeout
+
+	# Pequena pausa para o flash ser visível.
+	# process_always = true: este timer NÃO congela com o jogo pausado,
+	# senão a sequência travaria aqui até o menu de upgrade fechar.
+	await get_tree().create_timer(0.3, true).timeout
 	
 	# PASSO 3: Resetar a barra para 0
 	progress_bar.value = 0.0
@@ -151,17 +161,14 @@ func _play_level_up_animation() -> void:
 	level_label.pivot_offset = level_label.size / 2.0
 	
 	# ========================================
-	# CRESCER + BRILHAR (com offset de 0.05s)
+	# CRESCER + BRILHAR (tudo simultâneo)
 	# ========================================
 	var tween := create_tween()
 	tween.set_parallel(true)
-	
-	# ProgressBar começa IMEDIATAMENTE
+
 	tween.tween_property(progress_bar, "modulate", Color(1.3, 1.3, 1.3), 0.1)
-	
-	# LevelLabel começa 0.05s depois (delay)
-	tween.tween_property(level_label, "scale", Vector2(1.3, 1.3), 0.1).set_delay(0.05)
-	tween.tween_property(level_label, "modulate", Color.YELLOW, 0.1).set_delay(0.05)
+	tween.tween_property(level_label, "scale", Vector2(1.3, 1.3), 0.1)
+	tween.tween_property(level_label, "modulate", Color.YELLOW, 0.1)
 	
 	await tween.finished
 	
