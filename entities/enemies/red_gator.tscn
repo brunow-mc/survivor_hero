@@ -148,7 +148,7 @@ damage_per_tick = 3.0
 knockback_decay = 330.0
 drop_chance = 1.0
 drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp")])
-flash_color = Color(1, 0, 0, 0)
+flash_color = Color(0.627451, 0, 0, 1)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
 position = Vector2(0, 19)

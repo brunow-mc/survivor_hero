@@ -161,7 +161,7 @@ knockback_transfer_ratio = 0.85
 knockback_retention_after_transfer = 0.6
 drop_chance = 1.0
 drop_table = Array[ExtResource("2_6hyt3")]([SubResource("Resource_qyejn"), SubResource("Resource_6hyt3"), SubResource("Resource_6vesj")])
-flash_color = Color(1, 0, 0, 0)
+flash_color = Color(0.627451, 0, 0, 1)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("2_r4tcw")]
 position = Vector2(0, 13)
