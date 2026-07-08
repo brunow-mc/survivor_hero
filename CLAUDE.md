@@ -129,23 +129,19 @@ Budget-based, inspired by Vampire Survivors:
 ## Calibration reference
 
 ### Knockback
-- Decay is frame-rate independent: `knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)` — values are **per second**.
-- Gator: `knockback_decay = 168.0` | Red Gator: `knockback_decay = 330.0`
+- Decay is frame-rate independent: `knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)` — values are **per second**, calibrated per enemy in the Inspector (heavier enemies use higher decay so they travel less).
 - `knockback_retention_after_transfer` default: `0.8` (export var on `EnemyBase`).
-
-### Item drops (current values)
-- Gator drop table: `xp_item_01` (weight 100) + `xp_item_02` (weight 10) → ~91% / ~9%.
-- Red Gator drop table: `xp_item_02` only.
-- XP values: `xp_item_01` = 1 | `xp_item_02` = 3 (set in each item scene's Inspector).
 
 ### Attack cooldown constants (`attack_controller.gd`)
 - `COOLDOWN_REDUCTION_CAP = 0.99`
 - `MIN_ATTACK_INTERVAL = 0.05`
 
 ### Enemy avoidance (RVO — `NavigationAgent2D`)
-- Avoidance Radius: `14 px` | Time Horizon: `0.5 s` | Max Neighbors: `8` | Neighbor Distance: `80 px`
-- `_avoidance_pending` flag in `EnemyBase` prevents stale `velocity_computed` callbacks from overriding knockback.
-- **Note**: initial test with `set_velocity` showed no visible difference vs. plain physics collision — needs further investigation before relying on RVO for balancing.
+- RVO is **confirmed active** and visibly shapes enemy movement (validated in-game via exaggerated-priority test).
+- **Avoidance priority — yielding pattern**: an agent ignores lower-priority agents in its RVO solve, forcing them to do all the dodging. Assign priorities case by case as enemies are added: heavier/elite enemies get higher `avoidance_priority` than common horde enemies, so crowds part to let them through (e.g. the Red Gator outranks the common Gator). Values live on each enemy's `NavigationAgent2D` in the Inspector; to strengthen the effect, widen the priority gap (lower the yielding enemy's value) rather than touching other avoidance params.
+- **Priority only shapes velocities — physics still blocks.** Enemy bodies still collide (layer 3), so in tight spaces or against walls the high-priority enemy can still get stuck in the crowd; that's expected, not a bug.
+- Knockback bypasses avoidance entirely: the `_avoidance_pending` flag in `EnemyBase` discards stale `velocity_computed` callbacks so they can't override knockback.
+- Remaining agent params (avoidance radius, time horizon, max neighbors, neighbor distance) are calibrated per enemy scene in the Inspector.
 
 ### `power_06_snowflake`
 - Uses `TargetTrackerGlobal`: FIFO exclusion list, max 5 recently-targeted enemies. Resets automatically when the batch interval elapses.

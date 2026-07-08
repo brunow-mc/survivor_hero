@@ -202,6 +202,7 @@ neighbor_distance = 80.0
 max_neighbors = 8
 time_horizon_agents = 0.5
 max_speed = 25.0
+avoidance_priority = 0.5
 
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
 [connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]
