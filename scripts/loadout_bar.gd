@@ -20,6 +20,12 @@ extends CanvasLayer
 var attack_icons: Array[TextureRect] = []
 var powerup_icons: Array[TextureRect] = []
 
+# Dedup: ids já exibidos. Necessário porque desbloqueios via level up
+# chegam por DUAS rotas — upgrade_applied (síncrono, durante a pausa)
+# e attack_unlocked/powerup_unlocked (polling, após despausar).
+var filled_attack_ids: Dictionary = {}
+var filled_powerup_ids: Dictionary = {}
+
 # =================================================
 # READY
 # =================================================
@@ -27,6 +33,11 @@ func _ready() -> void:
 	_collect_slots(attack_slots, attack_icons)
 	_collect_slots(powerup_slots, powerup_icons)
 	show()
+
+	# Rota síncrona: atualiza a barra DURANTE a pausa do menu de upgrade
+	# (menus encadeados da fila implícita). O polling do AttackController
+	# só emite attack_unlocked após despausar — tarde demais para a UI.
+	LevelUpManagerGlobal.upgrade_applied.connect(_on_upgrade_applied)
 
 	await get_tree().process_frame
 	_initialize_from_player()
@@ -68,24 +79,44 @@ func _initialize_from_player() -> void:
 			var attack_data = attack_controller.find_attack_data(upgrade.attack_id)
 			if attack_data and attack_data.icon:
 				attack_icons[attack_index].texture = attack_data.icon
+			filled_attack_ids[upgrade.attack_id] = true
 			attack_index += 1
 
 	# Powerups começam sempre vazios — sem estado inicial a preencher
 
 # =================================================
-# CALLBACKS DOS CONTROLLERS
+# CALLBACK DO LEVEL UP MANAGER (rota síncrona)
 # =================================================
-func _on_attack_unlocked(_attack_id: int, icon: Texture2D) -> void:
-	_fill_next_empty_slot(attack_icons, icon)
+func _on_upgrade_applied(choice: Dictionary) -> void:
+	# Só desbloqueios novos (next_level 1); upgrades de level e
+	# bonus (First Aid) não mexem em slots.
+	if choice.next_level != 1:
+		return
 
-func _on_powerup_unlocked(_powerup_id: int, icon: Texture2D) -> void:
-	_fill_next_empty_slot(powerup_icons, icon)
+	match choice.type:
+		"attack":
+			_fill_next_empty_slot(attack_icons, filled_attack_ids, choice.id, choice.icon)
+		"powerup":
+			_fill_next_empty_slot(powerup_icons, filled_powerup_ids, choice.id, choice.icon)
 
 # =================================================
-# PREENCHE O PRÓXIMO SLOT VAZIO
+# CALLBACKS DOS CONTROLLERS (debug e fontes futuras)
 # =================================================
-func _fill_next_empty_slot(icons: Array[TextureRect], icon: Texture2D) -> void:
+func _on_attack_unlocked(attack_id: int, icon: Texture2D) -> void:
+	_fill_next_empty_slot(attack_icons, filled_attack_ids, attack_id, icon)
+
+func _on_powerup_unlocked(powerup_id: int, icon: Texture2D) -> void:
+	_fill_next_empty_slot(powerup_icons, filled_powerup_ids, powerup_id, icon)
+
+# =================================================
+# PREENCHE O PRÓXIMO SLOT VAZIO (com dedup por id)
+# =================================================
+func _fill_next_empty_slot(icons: Array[TextureRect], filled_ids: Dictionary, id: int, icon: Texture2D) -> void:
+	if filled_ids.has(id):
+		return
+
 	for icon_rect in icons:
 		if icon_rect.texture == null:
 			icon_rect.texture = icon
+			filled_ids[id] = true
 			return

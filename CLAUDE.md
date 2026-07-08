@@ -91,6 +91,8 @@ Budget-based, inspired by Vampire Survivors:
 
 **XPBar is pause-immune** — `process_mode = PROCESS_MODE_ALWAYS` so level-up animations (label pulse, bar fill) complete behind the paused upgrade menu. Values can't change during pause (`add_xp` is gated by `is_combat_allowed()`). Gotcha: `get_tree().create_timer()` inside XPBar sequences must pass `process_always = true` — SceneTree timers ignore the node's `process_mode` and would freeze the animation chain mid-sequence.
 
+**Unlock notifications reach the LoadoutBar via two asymmetric routes** (pause does not block signals — only `_process`/`_physics_process`/input): `PowerUpController` emits `powerup_unlocked` synchronously inside `apply_upgrade()`, but `AttackController` emits `attack_unlocked` from its `_physics_process` polling, which is paused during the upgrade menu — so it only fires after unpause, too late for chained menus. `LoadoutBar` therefore listens to **both** `LevelUpManagerGlobal.upgrade_applied` (synchronous, updates during pause; only acts on `next_level == 1`) and the controller signals (covers debug keys and future unlock sources), deduplicating by id (`filled_attack_ids` / `filled_powerup_ids`) since menu unlocks arrive through both routes. Don't "fix" the asymmetry by making `AttackController` process-always or by calling `_check_upgrade_changes()` synchronously — attack timers would tick during pause, and `start_immediately` shots would be swallowed by the `is_combat_allowed()` guard.
+
 ### PowerUp system
 
 - **`PowerUpController`** (`entities/controllers/power_up_controller.tscn`) — child of player; holds `Array[PowerUpData]`. `apply_upgrade(id)` increments level and recomputes all stats into `PowerUpStatsGlobal.update_stats()`.
