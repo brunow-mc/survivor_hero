@@ -142,7 +142,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
-radius = 13.038404
+radius = 12.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
 radius = 9.0
@@ -165,17 +165,19 @@ drop_table = Array[ExtResource("2_6hyt3")]([SubResource("Resource_qyejn"), SubRe
 flash_color = Color(0.627451, 0, 0, 1)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("2_r4tcw")]
-position = Vector2(0, 13)
+position = Vector2(0, 1)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=162095470]
+position = Vector2(0, -11)
 sprite_frames = SubResource("SpriteFrames_jq0pf")
 animation = &"attack"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=671557648]
+position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_c8u6y")
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=802904578 groups=["EnemyHitbox"]]
-visible = false
+position = Vector2(0, -11)
 collision_layer = 4
 collision_mask = 2
 
@@ -186,7 +188,7 @@ shape = SubResource("CapsuleShape2D_u5jqn")
 debug_color = Color(1, 0, 0, 0.41960785)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1805246739 groups=["EnemyHurtbox"]]
-visible = false
+position = Vector2(0, -11)
 collision_layer = 260
 collision_mask = 8
 
@@ -197,7 +199,7 @@ debug_color = Color(0, 0.6862745, 0, 0.41960785)
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=278959778]
 path_postprocessing = 1
 avoidance_enabled = true
-radius = 14.0
+radius = 13.0
 neighbor_distance = 80.0
 max_neighbors = 8
 time_horizon_agents = 0.5
