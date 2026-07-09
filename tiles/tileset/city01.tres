@@ -1813,9 +1813,9 @@ texture = ExtResource("1_enh6g")
 [resource]
 physics_layer_0/collision_layer = 1
 navigation_layer_0/layers = 1
-sources/0 = SubResource("TileSetAtlasSource_t4y0q")
-sources/1 = SubResource("TileSetAtlasSource_5nwnc")
-sources/2 = SubResource("TileSetAtlasSource_dtlin")
-sources/3 = SubResource("TileSetAtlasSource_f7224")
-sources/4 = SubResource("TileSetAtlasSource_lllg5")
 sources/5 = SubResource("TileSetAtlasSource_quo56")
+sources/4 = SubResource("TileSetAtlasSource_lllg5")
+sources/3 = SubResource("TileSetAtlasSource_f7224")
+sources/2 = SubResource("TileSetAtlasSource_dtlin")
+sources/1 = SubResource("TileSetAtlasSource_5nwnc")
+sources/0 = SubResource("TileSetAtlasSource_t4y0q")
