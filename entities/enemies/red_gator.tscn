@@ -192,5 +192,8 @@ max_neighbors = 8
 time_horizon_agents = 0.5
 max_speed = 30.0
 
+[node name="BodyCenter" type="Node2D" parent="." unique_id=1450069198]
+position = Vector2(0, -16)
+
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
 [connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]

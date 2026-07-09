@@ -206,5 +206,8 @@ time_horizon_agents = 0.5
 max_speed = 25.0
 avoidance_priority = 0.5
 
+[node name="BodyCenter" type="Node2D" parent="." unique_id=1908715645]
+position = Vector2(0, -11)
+
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
 [connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]
