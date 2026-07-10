@@ -95,6 +95,16 @@ var anim: AnimatedSprite2D
 var hitbox: Area2D
 
 # =================================================
+# BODY CENTER
+# Marcador do centro do corpo. A origem da cena fica nos pés
+# (para Y-sort), mas o colisor segue no corpo — a navegação
+# (direção e distâncias) usa este ponto para que o CORPO siga
+# a linha do caminho, e não os pés (senão o colisor raspa em
+# paredes acima em corredores estreitos).
+# =================================================
+var body_center: Node2D = null
+
+# =================================================
 # DAMAGE TO PLAYER
 # =================================================
 var player_in_contact: bool = false
@@ -159,9 +169,12 @@ func _setup_base() -> void:
 	damage_timer.timeout.connect(_on_damage_timer_timeout)
 	add_child(damage_timer)
 	
+	# Marcador do centro do corpo (fallback: origem da cena)
+	body_center = get_node_or_null("BodyCenter")
+
 	# Busca player
 	player = get_tree().get_first_node_in_group("Player")
-	
+
 	makepath()
 
 # =================================================
@@ -279,16 +292,31 @@ func base_move(delta: float) -> void:
 func update_direction() -> void:
 	if not navigation_agent or not player or not is_instance_valid(player):
 		return
-	
-	direction_to_player = to_local(
-		navigation_agent.get_next_path_position()
-	).normalized()
-	
+
+	if navigation_agent.is_navigation_finished():
+		# Navegação concluída: get_next_path_position() retornaria a
+		# posição do próprio agente (direção degenerada). Perseguição
+		# direta pés-a-pés como guard.
+		direction_to_player = (player.global_position - global_position).normalized()
+	else:
+		# Steering pela ORIGEM (pés), em espaço global.
+		# NÃO trocar por steering a partir do BodyCenter: os waypoints
+		# do caminho vivem no plano dos pés (navmesh), e medir a
+		# direção de um ponto 11px acima injeta um viés (0,+11) em
+		# cada trecho — os inimigos passam a se aproximar em arco por
+		# baixo (tentado e revertido em jul/2026).
+		direction_to_player = (
+			navigation_agent.get_next_path_position() - global_position
+		).normalized()
+
+	# Distância pés-a-pés: com todas as origens nos pés, é a métrica
+	# simétrica (independe da altura de cada inimigo) e coerente com
+	# a calibragem histórica de stop_distance / attack_distance.
 	distance_to_player = global_position.distance_to(player.global_position)
-	
+
 	if abs(direction_to_player.x) > flip_deadzone:
 		facing_right = direction_to_player.x > 0
-	
+
 	if anim:
 		anim.flip_h = not facing_right
 
@@ -353,7 +381,11 @@ func go_to_dead_state() -> void:
 # =================================================
 func makepath() -> void:
 	if navigation_agent and player and is_instance_valid(player):
-		navigation_agent.target_position = player.global_position
+		# Alvo no CORPO do player — mesmo frame do steering (que parte
+		# do BodyCenter do inimigo). Frames consistentes = linha reta
+		# em campo aberto. Alvo nos pés criaria um viés constante de
+		# +body_offset para baixo na direção (arco por baixo).
+		navigation_agent.target_position = _get_player_chase_position()
 
 func _on_path_timer_timeout() -> void:
 	makepath()

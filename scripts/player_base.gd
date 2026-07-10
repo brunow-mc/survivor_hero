@@ -61,6 +61,14 @@ var facing_direction: float = 1.0
 var sprite_node: CanvasItem
 
 # =================================================
+# BODY CENTER
+# Marcador do centro do corpo. A origem da cena fica nos pés
+# (para Y-sort); perseguição de inimigos e ataques centrados
+# usam este ponto como referência.
+# =================================================
+@onready var body_center: Node2D = get_node_or_null("BodyCenter")
+
+# =================================================
 # ÁUDIO HIT (CONTROLE)
 # =================================================
 var can_play_hit_sound := true
@@ -187,6 +195,16 @@ func move() -> void:
 		movement_direction = Vector2.ZERO
 
 	velocity = movement_direction.normalized() * move_speed
+
+# =================================================
+# BODY CENTER
+# =================================================
+func get_chase_position() -> Vector2:
+	# Ponto que os inimigos perseguem (centro do corpo).
+	# Fallback: origem da cena, caso o BodyCenter não exista.
+	if body_center:
+		return body_center.global_position
+	return global_position
 
 # =================================================
 # DANO

@@ -353,8 +353,8 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 		# Pega próxima posição do cache (O(1))
 		var pos: Vector2 = safe_teleport_positions.pop_back()
 		var pos_before: Vector2 = enemy.global_position
-		
-		# Teleporta
+
+		# Teleporta — origem (pés) no ponto validado, mesma regra do spawn
 		enemy.global_position = pos
 		total_teleports += 1
 		teleported_count += 1
@@ -1022,13 +1022,16 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 		return
 	
 	var enemy := enemy_data.enemy_scene.instantiate()
-	
+
 	# Adiciona na cena — _ready() roda aqui, makepath() é chamado da posição errada
 	current_scene.add_child(enemy)
-	
+
 	# Define posição real APÓS _ready()
+	# A ORIGEM (pés) fica no ponto validado: é ela que inicia o
+	# pathfinding e precisa estar sobre o navmesh. A folga de
+	# min_distance_from_walls cobre o corpo acima.
 	enemy.global_position = spawn_pos
-	
+
 	# Recalcula rota da posição correta de spawn
 	# Mesmo fix já aplicado aos teleportes (Passo 1)
 	if enemy.has_method("makepath"):
