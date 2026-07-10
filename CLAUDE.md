@@ -29,6 +29,20 @@ There are no automated tests. Manual playtesting is the only validation method.
 
 **Critical gate:** before any gameplay action (spawning, damage, XP), always check `GameStateGlobal.is_combat_allowed()`. It returns `false` during PAUSED, UPGRADE, CUTSCENE, DIALOGUE, and PLAYER_DEAD. `PLAYER_DEAD` is a terminal state — only `restart_game()` can exit it.
 
+### Entity anatomy — feet origin + BodyCenter (MANDATORY convention)
+
+Player and every enemy scene follow this layout (in preparation for Y-sort):
+
+- **Scene origin (root position) = the FEET.** Sprites/colliders are offset upward so `global_position` marks the ground point. Rendering/sorting and gameplay distances live in this frame.
+- **`BodyCenter` (Node2D child) = center of the body/collider.** Player: `(0,-11)` | Gator: `(0,-11)` | Red Gator: `(0,-16)`. Navigation and body-anchored systems live in this frame.
+- **Never mix the two frames.** Steering a body-frame point toward feet-frame path points (or vice versa) injects a constant vertical bias that accumulates along paths — enemies visibly "arc" below straight lines. This class of bug cannot be fixed by calibration; fix it by putting the whole pipeline in one frame.
+
+**Enemy navigation is anchored on BodyCenter via reparenting**: each enemy's `NavigationAgent2D` is a child of `BodyCenter`, not of the root. `NavigationAgent2D` navigates **its parent node's position** — so path start, waypoint advancement, `is_navigation_finished()` and the RVO agent all operate at the collider center. `enemy_base.gd` caches the parent as `_nav_anchor` and computes direction as `next_path_position − _nav_anchor.global_position` (never `to_local()`, which is feet-frame). `makepath()` targets the **player's BodyCenter** (body chases body). Nice property: when navigation finishes, `get_next_path_position()` returns the agent (= BodyCenter) position, so the direction degenerates to `Vector2.ZERO` and the enemy gracefully stands still.
+
+**Gameplay distances stay feet-to-feet**: `distance_to_player` (`stop_distance` / `attack_distance`) uses `global_position.distance_to(player.global_position)` — symmetric from every approach direction and independent of each enemy's height. Do not switch it to BodyCenter-to-BodyCenter: entities of different heights would make measured distance depend on approach side.
+
+**New enemy checklist**: origin at feet · `BodyCenter` node at collider center · `NavigationAgent2D` as child of `BodyCenter` · subclass `@onready` path `$BodyCenter/NavigationAgent2D` · fill the `Spawn Fit` group in its `EnemySpawnData` (see Spawn system).
+
 ### Player
 
 - **`scripts/player_base.gd`** — `CharacterBody2D` base class: FSM (idle/walk/attack/dead), movement, `take_damage()`, flash effect, audio.
@@ -36,6 +50,7 @@ There are no automated tests. Manual playtesting is the only validation method.
 - Player has two child controller nodes: **`AttackController`** and **`PowerUpController`**.
 - Health state lives entirely in `GameStateGlobal` (registered via `register_player()`); the player node just calls `take_damage()` there.
 - Armor from `PowerUpStatsGlobal.get_armor_damage_reduction()` is applied before forwarding damage.
+- Follows the **feet origin + BodyCenter** convention (see Entity anatomy). The physics collider is at the feet; the `BodyCenter` marker is what enemies chase (`makepath` targets it).
 
 ### Attack system
 
@@ -73,8 +88,11 @@ Minimum interval floor: `0.05s`. Recalculated whenever `PowerUpStatsGlobal.stats
 Budget-based, inspired by Vampire Survivors:
 - `base_budget_per_second × difficulty_multiplier` accumulates each frame.
 - When budget ≥ `minimal_budget`, spawns enemies (weighted random by `spawn_weight`) until budget runs out.
-- Positions found via **grid sampling** of 4 rectangular bands around the viewport (N/S/E/W strips), clustered by flood-fill, then filtered to offscreen-only. Validated for NavigationServer2D reachability + wall clearance + enemy spacing.
-- **Teleport system**: every `teleport_check_interval` seconds, enemies beyond `max_distance_from_player` are teleported to pre-validated offscreen positions.
+- Positions found via **grid sampling** of 4 rectangular bands around the viewport (N/S/E/W strips), clustered by flood-fill, then filtered to offscreen-only.
+- **Snap-to-navmesh**: grid points are not required to land on the navmesh — `get_snapped_navigable_point()` snaps each point to the closest navmesh position within `nav_snap_radius` (export, default 32 ≈ half the 64px grid spacing). This lets the coarse grid "see" thin corridor strips at zero extra cost, and guarantees every candidate lies ON the mesh (never spawn off-mesh).
+- **Per-enemy spawn fit**: wall clearance is validated **at the body center** (`pos + body_center_offset`), answering "does this enemy's collider fit here?" — and uses the chosen enemy's own values from `EnemySpawnData`'s `Spawn Fit` group (`spawn_clearance_radius`, `body_center_offset`). Small enemies spawn in corridors that large ones can't. Clearance slightly below the collider radius is a legal calibration: it allows ~1-3px wall overlap that physics gently resolves on the first frame (used to raise density in tight corridors); going much lower risks depenetration ejecting the enemy through thin walls.
+- **No silent fallback**: if no point in the chosen cluster passes full validation, `find_spawn_position()` returns `Vector2.ZERO` and the spawn is skipped this frame (budget is retained). Never spawn on a rejected point — that was the historical source of enemies inside walls.
+- **Teleport system**: every `teleport_check_interval` seconds, enemies beyond `max_distance_from_player` are teleported. Two-phase validation: the cache is pre-filtered with the **smallest** clearance among defined enemies (so tight-corridor points exist in it), then `_take_position_fitting_enemy()` re-validates each candidate with the specific enemy's own clearance at assignment time.
 - Call `SpawnManagerGlobal.start_spawning()` when the stage starts; `stop_spawning()` on restart.
 - **Per-stage spawn calibration**: `enemy_definitions` is configured as **embedded resources** on the `SpawnManagerConfig` instance inside each stage scene (e.g. in `stage01.tscn`'s scene tree) — never on the base `spawn_manager_config.tscn`, whose default must stay empty (setting it there would leak into every stage). Embedded entries keep each stage's calibration independent. Empty slots in the `enemy_definitions` array are safely ignored by `choose_enemy()`.
 
@@ -138,6 +156,7 @@ Budget-based, inspired by Vampire Survivors:
 
 ### Enemy avoidance (RVO — `NavigationAgent2D`)
 - RVO is **confirmed active** and visibly shapes enemy movement (validated in-game via exaggerated-priority test).
+- The RVO agent is centered on the **BodyCenter** (the agent's parent — see Entity anatomy), i.e. exactly on the physical collider. Avoidance geometry matches physics.
 - **Avoidance priority — yielding pattern**: an agent ignores lower-priority agents in its RVO solve, forcing them to do all the dodging. Assign priorities case by case as enemies are added: heavier/elite enemies get higher `avoidance_priority` than common horde enemies, so crowds part to let them through (e.g. the Red Gator outranks the common Gator). Values live on each enemy's `NavigationAgent2D` in the Inspector; to strengthen the effect, widen the priority gap (lower the yielding enemy's value) rather than touching other avoidance params.
 - **Priority only shapes velocities — physics still blocks.** Enemy bodies still collide (layer 3), so in tight spaces or against walls the high-priority enemy can still get stuck in the crowd; that's expected, not a bug.
 - Knockback bypasses avoidance entirely: the `_avoidance_pending` flag in `EnemyBase` discards stale `velocity_computed` callbacks so they can't override knockback.
