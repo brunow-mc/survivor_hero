@@ -130,6 +130,13 @@ var _pending_delta: float = 0.0
 var _pending_pos_before: Vector2 = Vector2.ZERO
 
 # =================================================
+# NAVIGATION ANCHOR
+# Pai do NavigationAgent2D (o BodyCenter). É a posição que o
+# agente navega — ver comentário em _setup_base().
+# =================================================
+var _nav_anchor: Node2D = null
+
+# =================================================
 # READY
 # =================================================
 func _ready() -> void:
@@ -140,11 +147,16 @@ func _ready() -> void:
 func _setup_base() -> void:
 	# Física (CharacterBody2D)
 	max_slides = 6
-	
+
 	# Avoidance — conecta o sinal que devolve a velocidade
 	# ajustada pelo NavigationServer2D (RVO)
 	if navigation_agent:
 		navigation_agent.velocity_computed.connect(_on_velocity_computed)
+		# Âncora de navegação: o NavigationAgent2D navega a posição do
+		# PAI dele. Com o agente reparentado sob o BodyCenter, o ponto
+		# navegante é o centro do colisor (não os pés/origem) — caminho,
+		# waypoints e RVO todos no mesmo referencial do corpo.
+		_nav_anchor = navigation_agent.get_parent() as Node2D
 	
 	# Path timer
 	path_timer = Timer.new()
@@ -279,11 +291,18 @@ func base_move(delta: float) -> void:
 func update_direction() -> void:
 	if not navigation_agent or not player or not is_instance_valid(player):
 		return
-	
-	direction_to_player = to_local(
-		navigation_agent.get_next_path_position()
+
+	# Direção do PONTO NAVEGANTE (pai do agente = BodyCenter) ao próximo
+	# waypoint — o caminho nasce e é seguido no referencial do corpo.
+	# Não usar to_local(): a origem da cena está nos pés, fora desse
+	# referencial.
+	direction_to_player = (
+		navigation_agent.get_next_path_position() - _nav_anchor.global_position
 	).normalized()
-	
+
+	# Distância pés-a-pés (origem-a-origem): simétrica e independente
+	# da altura de cada inimigo — mantém a calibragem histórica de
+	# stop_distance / attack_distance.
 	distance_to_player = global_position.distance_to(player.global_position)
 	
 	if abs(direction_to_player.x) > flip_deadzone:
@@ -353,7 +372,13 @@ func go_to_dead_state() -> void:
 # =================================================
 func makepath() -> void:
 	if navigation_agent and player and is_instance_valid(player):
-		navigation_agent.target_position = player.global_position
+		# Alvo no BodyCenter do player — mesmo referencial do ponto
+		# navegante (corpo persegue corpo). Fallback: origem (pés).
+		var player_body_center: Node2D = player.get_node_or_null("BodyCenter")
+		if player_body_center:
+			navigation_agent.target_position = player_body_center.global_position
+		else:
+			navigation_agent.target_position = player.global_position
 
 func _on_path_timer_timeout() -> void:
 	makepath()

@@ -196,8 +196,10 @@ collision_mask = 8
 shape = SubResource("CircleShape2D_u5jqn")
 debug_color = Color(0, 0.6862745, 0, 0.41960785)
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=278959778]
-path_postprocessing = 1
+[node name="BodyCenter" type="Node2D" parent="." unique_id=1908715645]
+position = Vector2(0, -11)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=278959778]
 avoidance_enabled = true
 radius = 13.0
 neighbor_distance = 80.0
@@ -205,9 +207,6 @@ max_neighbors = 8
 time_horizon_agents = 0.5
 max_speed = 25.0
 avoidance_priority = 0.5
-
-[node name="BodyCenter" type="Node2D" parent="." unique_id=1908715645]
-position = Vector2(0, -11)
 
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
 [connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]

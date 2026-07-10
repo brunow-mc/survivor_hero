@@ -5,7 +5,7 @@ const IMPACT_01 = preload("uid://bg33gkayu217w")
 # =================================================
 # NODES
 # =================================================
-@onready var navigation_agent_2d: NavigationAgent2D = $NavigationAgent2D
+@onready var navigation_agent_2d: NavigationAgent2D = $BodyCenter/NavigationAgent2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox_area: Area2D = $Hitbox
 

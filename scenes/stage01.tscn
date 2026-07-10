@@ -27,6 +27,8 @@ script = ExtResource("11_fdwqw")
 enemy_scene = ExtResource("13_emoyi")
 spawn_weight = 15.0
 spawn_cost = 3.0
+spawn_clearance_radius = 13.0
+body_center_offset = Vector2(0, -16)
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
@@ -75,4 +77,5 @@ spawn_margin_min_vertical = 30.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
 max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
+min_distance_from_walls = 26.0
 grid_sample_spacing = 64.0

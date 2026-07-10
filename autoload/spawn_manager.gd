@@ -99,12 +99,25 @@ signal debug_data_updated(data: Dictionary)
 ## Evita que inimigos spawnem muito próximos uns dos outros
 @export var min_distance_between_enemies: float = 48.0
 
-## Distância mínima de paredes (px)
-## Verifica se há espaço livre ao redor do ponto (360° completo)
-## Usa Physics Shape Query para detectar colisões em área circular
-## Valores menores = mais permissivo | Maiores = mais seguro
-## Recomendado: 48px (3x tamanho do collider do inimigo)
-@export var min_distance_from_walls: float = 32.0
+## Distância mínima de paredes (px), medida no CENTRO DO CORPO
+## (ponto de spawn + body_center_offset), onde fica o colisor real.
+## Deve cobrir o raio do colisor do MAIOR inimigo + margem.
+## Gator: raio 13 | Red Gator: raio 16 | Recomendado: 20 (folga
+## para inimigos futuros maiores). Corredor mínimo spawnável ≈ 2x este valor.
+@export var min_distance_from_walls: float = 20.0
+
+## Offset do centro do corpo em relação ao ponto de spawn (os pés).
+## A validação de paredes testa o círculo NESTA posição — é onde o
+## colisor do inimigo realmente fica. Valor de referência entre o
+## gator (0,-11) e inimigos maiores (red gator: 0,-16).
+@export var body_center_offset: Vector2 = Vector2(0, -14)
+
+## Raio de captura do snap ao navmesh (px)
+## Pontos da grade a até esta distância do navmesh são "grudados"
+## no ponto navegável mais próximo. Permite que a grade grossa
+## enxergue corredores estreitos sem custo de performance.
+## Recomendado: metade do grid_sample_spacing.
+@export var nav_snap_radius: float = 32.0
 
 # =================================================
 # GRID SAMPLING
@@ -350,10 +363,14 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 				print("⚠️ CACHE ESGOTADO - ", enemies_to_teleport.size() - teleported_count, " inimigos aguardam próximo ciclo\n")
 			break
 		
-		# Pega próxima posição do cache (O(1))
-		var pos: Vector2 = safe_teleport_positions.pop_back()
+		# Pega do cache uma posição onde ESTE inimigo cabe
+		# (re-valida com a folga do próprio EnemySpawnData)
+		var pos: Vector2 = _take_position_fitting_enemy(enemy)
+		if pos == Vector2.INF:
+			continue  # sem posição compatível neste ciclo; tenta no próximo
+
 		var pos_before: Vector2 = enemy.global_position
-		
+
 		# Teleporta
 		enemy.global_position = pos
 		total_teleports += 1
@@ -445,11 +462,56 @@ func prepare_safe_teleport_cache() -> void:
 
 func validate_teleport_position(pos: Vector2) -> bool:
 	"""
-	Validação de posição de teleport (PRODUÇÃO).
-	Delega para is_valid_enemy_position, que é a mesma usada
-	na validação extra do spawn normal.
+	Validação de posição de teleport (PRODUÇÃO) — PRÉ-FILTRO do cache.
+	Usa a MENOR folga entre os inimigos definidos, para que pontos de
+	corredores estreitos entrem no cache (cabem para o menor inimigo).
+	Na atribuição, cada inimigo re-testa o encaixe com a PRÓPRIA folga
+	(_take_position_fitting_enemy).
 	"""
-	return is_valid_enemy_position(pos)
+	return is_valid_enemy_position(pos, _get_min_spawn_clearance(), body_center_offset)
+
+
+func _get_min_spawn_clearance() -> float:
+	"""Menor spawn_clearance_radius entre os inimigos definidos."""
+	var min_clearance: float = min_distance_from_walls
+	for def in enemy_definitions:
+		if def and def.spawn_clearance_radius < min_clearance:
+			min_clearance = def.spawn_clearance_radius
+	return min_clearance
+
+
+func _find_definition_for_enemy(enemy: Node) -> EnemySpawnData:
+	"""Localiza o EnemySpawnData de um inimigo vivo pelo path da cena."""
+	for def in enemy_definitions:
+		if def and def.enemy_scene and def.enemy_scene.resource_path == enemy.scene_file_path:
+			return def
+	return null
+
+
+func _take_position_fitting_enemy(enemy: Node) -> Vector2:
+	"""
+	Retira do cache uma posição onde ESTE inimigo cabe (folga do seu
+	EnemySpawnData; fallback: defaults globais). Vector2.INF se nenhuma
+	das posições testadas servir neste ciclo.
+	"""
+	var clearance: float = min_distance_from_walls
+	var offset: Vector2 = body_center_offset
+	var def := _find_definition_for_enemy(enemy)
+	if def:
+		clearance = def.spawn_clearance_radius
+		offset = def.body_center_offset
+
+	# Testa do fim para o início (cache já embaralhado); limita
+	# tentativas para não varrer o cache inteiro por inimigo.
+	var max_tries: int = mini(safe_teleport_positions.size(), 16)
+	for i in range(max_tries):
+		var idx: int = safe_teleport_positions.size() - 1 - i
+		var pos: Vector2 = safe_teleport_positions[idx]
+		if is_safe_from_walls(pos + offset, clearance):
+			safe_teleport_positions.remove_at(idx)
+			return pos
+
+	return Vector2.INF
 
 func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	"""
@@ -472,8 +534,9 @@ func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	if not result.navigable:
 		return result
 	
-	# 2. Espaço livre ao redor
-	result.safe_from_walls = is_safe_from_walls(pos, min_distance_from_walls)
+	# 2. Espaço livre ao redor do CENTRO DO CORPO (mesma regra
+	# de is_valid_enemy_position)
+	result.safe_from_walls = is_safe_from_walls(pos + body_center_offset, min_distance_from_walls)
 	if not result.safe_from_walls:
 		return result
 	
@@ -564,8 +627,8 @@ func try_spawn_enemies() -> void:
 			# (Raro: só acontece se todos custam mais que budget atual)
 			break
 		
-		# Encontra posição válida de spawn
-		var spawn_pos := find_spawn_position()
+		# Encontra posição válida de spawn (folga do inimigo sorteado)
+		var spawn_pos := find_spawn_position(enemy_data)
 		
 		if spawn_pos == Vector2.ZERO:
 			# Não encontrou posição navegável válida
@@ -644,13 +707,18 @@ func choose_enemy(available_budget: float = INF) -> EnemySpawnData:
 # =================================================
 # SPAWN POSITION (Grid Sampling)
 # =================================================
-func find_spawn_position() -> Vector2:
+func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	"""
 	Encontra posição de spawn usando Grid Sampling.
 	Varre grade retangular, agrupa clusters navegáveis, filtra offscreen.
+	A validação de paredes usa a folga do INIMIGO sorteado (enemy_data),
+	para que cada inimigo spawne onde ele fisicamente cabe.
 	"""
 	if not player or not is_instance_valid(player):
 		return Vector2.ZERO
+
+	var clearance: float = enemy_data.spawn_clearance_radius if enemy_data else min_distance_from_walls
+	var body_offset: Vector2 = enemy_data.body_center_offset if enemy_data else body_center_offset
 	
 	total_spawn_attempts += 1
 	
@@ -686,13 +754,26 @@ func find_spawn_position() -> Vector2:
 	
 	# 6. Validação extra: distância de paredes e de outros inimigos
 	#    (navegabilidade já garantida por scan_navigable_grid)
-	if not is_valid_enemy_position(spawn_pos):
+	if not is_valid_enemy_position(spawn_pos, clearance, body_offset):
 		# Tenta outros pontos do mesmo cluster
+		var found_valid: bool = false
 		for point in chosen_cluster:
-			if is_valid_enemy_position(point):
+			if is_valid_enemy_position(point, clearance, body_offset):
 				spawn_pos = point
+				found_valid = true
 				break
-	
+
+		# NENHUM ponto do cluster passou na validação completa:
+		# NÃO spawnar. Usar o ponto reprovado colocaria o corpo do
+		# inimigo dentro de paredes (a origem fica nos pés; o colisor
+		# se estende ~24px acima do ponto). O budget fica retido e o
+		# spawn tenta novamente no próximo frame.
+		if not found_valid:
+			failed_spawn_attempts += 1
+			if debug_enabled:
+				print("⚠️ Spawn abortado: nenhum ponto seguro no cluster (", chosen_cluster.size(), " pontos)")
+			return Vector2.ZERO
+
 	if debug_enabled:
 		print("✅ Grid Sampling: Spawn em ", spawn_pos)
 		print("   Clusters: ", clusters.size(), " | Offscreen: ", offscreen_clusters.size())
@@ -716,6 +797,7 @@ func scan_navigable_grid() -> Array:
 	"""
 	var navigable_points: Array = []
 	var spacing: float = grid_sample_spacing
+	var snapped_point: Vector2
 	
 	# Pega viewport e câmera
 	var viewport: Viewport = get_viewport()
@@ -747,8 +829,9 @@ func scan_navigable_grid() -> Array:
 	while x <= outer_right:
 		var y: float = outer_top
 		while y < inner_top:  # Apenas altura do topo
-			if is_position_navigable(Vector2(x, y)):
-				navigable_points.append(Vector2(x, y))
+			snapped_point = get_snapped_navigable_point(Vector2(x, y))
+			if snapped_point != Vector2.INF:
+				navigable_points.append(snapped_point)
 			y += spacing
 		x += spacing
 	
@@ -760,8 +843,9 @@ func scan_navigable_grid() -> Array:
 	while x <= outer_right:
 		var y: float = inner_bottom
 		while y <= outer_bottom:  # Apenas altura da base
-			if is_position_navigable(Vector2(x, y)):
-				navigable_points.append(Vector2(x, y))
+			snapped_point = get_snapped_navigable_point(Vector2(x, y))
+			if snapped_point != Vector2.INF:
+				navigable_points.append(snapped_point)
 			y += spacing
 		x += spacing
 	
@@ -773,8 +857,9 @@ func scan_navigable_grid() -> Array:
 	while x < inner_left:  # Apenas largura esquerda
 		var y: float = inner_top
 		while y <= inner_bottom:  # Apenas altura central
-			if is_position_navigable(Vector2(x, y)):
-				navigable_points.append(Vector2(x, y))
+			snapped_point = get_snapped_navigable_point(Vector2(x, y))
+			if snapped_point != Vector2.INF:
+				navigable_points.append(snapped_point)
 			y += spacing
 		x += spacing
 	
@@ -786,8 +871,9 @@ func scan_navigable_grid() -> Array:
 	while x <= outer_right:  # Apenas largura direita
 		var y: float = inner_top
 		while y <= inner_bottom:  # Apenas altura central
-			if is_position_navigable(Vector2(x, y)):
-				navigable_points.append(Vector2(x, y))
+			snapped_point = get_snapped_navigable_point(Vector2(x, y))
+			if snapped_point != Vector2.INF:
+				navigable_points.append(snapped_point)
 			y += spacing
 		x += spacing
 	
@@ -910,61 +996,64 @@ func filter_offscreen_clusters(clusters: Array) -> Array:
 	
 	return offscreen_clusters
 
-func is_position_navigable(check_pos: Vector2) -> bool:
+func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 	"""
-	Verifica se uma posição está em Navigation Layer válido.
-	Usa múltiplos métodos para garantir validação correta:
-	1. Verifica se está em área navegável (NavigationServer2D)
-	2. Verifica se NÃO está em colisão física (PhysicsServer2D)
+	SNAP AO NAVMESH: em vez de exigir que o ponto da grade caia em cima
+	da malha, "gruda" o ponto no navmesh mais próximo (se estiver dentro
+	do raio de captura nav_snap_radius).
+
+	Isso permite que a grade grossa (64px, barata) enxergue faixas finas
+	de navmesh (corredores estreitos) sem jamais aprovar um ponto FORA
+	da malha — o ponto retornado está sempre sobre o navmesh.
+
+	Retorna o ponto grudado, ou Vector2.INF se não capturável.
 	"""
 	# Validação: precisa do player para acessar o world_2d
 	if not player or not is_instance_valid(player):
-		return false
-	
+		return Vector2.INF
+
 	# =========================================
-	# VALIDAÇÃO 1: NAVIGATION LAYER
+	# SNAP: NAVIGATION LAYER
 	# =========================================
-	# Obtém o mapa de navegação padrão do mundo via player
 	var navigation_map: RID = player.get_world_2d().navigation_map
-	
-	# Encontra o ponto mais próximo na malha de navegação
+
 	var closest_point := NavigationServer2D.map_get_closest_point(
 		navigation_map,
 		check_pos
 	)
-	
-	# Calcula distância até o ponto navegável mais próximo
-	var distance_to_nav := check_pos.distance_to(closest_point)
-	
-	# Se está muito longe de área navegável, não é válido
-	# Tolerância: 32 pixels (antes era 16)
-	if distance_to_nav > 16.0:
-		return false
-	
+
+	# Fora do raio de captura — ponto da grade longe demais de
+	# qualquer área navegável
+	if check_pos.distance_to(closest_point) > nav_snap_radius:
+		return Vector2.INF
+
 	# =========================================
-	# VALIDAÇÃO 2: COLLISION (Physics Layer)
+	# VALIDAÇÃO: COLLISION (Physics Layer)
+	# Verifica o ponto GRUDADO (o que será usado), não o da grade
 	# =========================================
-	# Verifica se posição está dentro de colisão física
 	var space_state := player.get_world_2d().direct_space_state
-	
-	# Configura query para verificar colisões
+
 	var query := PhysicsPointQueryParameters2D.new()
-	query.position = check_pos
+	query.position = closest_point
 	query.collision_mask = 1  # Layer 1 = environment/walls
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
-	
-	# Realiza query
+
 	var result := space_state.intersect_point(query, 1)
-	
-	# Se encontrou colisão, posição não é válida
+
 	if result.size() > 0:
-		return false
-	
-	# =========================================
-	# VALIDAÇÃO PASSOU
-	# =========================================
-	return true
+		return Vector2.INF
+
+	return closest_point
+
+
+func is_position_navigable(check_pos: Vector2) -> bool:
+	"""
+	Verifica se uma posição é navegável (via snap ao navmesh).
+	Para pontos já sobre a malha (ex: validação de teleporte), o snap
+	é identidade e isto equivale à checagem direta.
+	"""
+	return get_snapped_navigable_point(check_pos) != Vector2.INF
 
 func is_safe_from_other_enemies(check_pos: Vector2) -> bool:
 	"""
@@ -992,7 +1081,7 @@ func is_safe_from_other_enemies(check_pos: Vector2) -> bool:
 	# Nenhum inimigo muito próximo, é válido
 	return true
 
-func is_valid_enemy_position(pos: Vector2) -> bool:
+func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0, offset: Vector2 = Vector2.INF) -> bool:
 	"""
 	Validação extra de uma posição para inimigos (spawn normal ou teleport).
 	
@@ -1002,12 +1091,22 @@ func is_valid_enemy_position(pos: Vector2) -> bool:
 	1. Espaço livre ao redor (sem paredes dentro de min_distance_from_walls)
 	2. Distância segura de outros inimigos
 	"""
-	if not is_safe_from_walls(pos, min_distance_from_walls):
+	# Checagem de paredes no CENTRO DO CORPO (onde o colisor fica),
+	# não nos pés: é o teste "o corpo cabe aqui sem tocar parede?".
+	# clearance/offset vêm do EnemySpawnData do inimigo sorteado
+	# (folga POR INIMIGO — o gator cabe onde o red gator não cabe);
+	# sem inimigo específico, caem nos defaults globais.
+	if clearance < 0.0:
+		clearance = min_distance_from_walls
+	if offset == Vector2.INF:
+		offset = body_center_offset
+
+	if not is_safe_from_walls(pos + offset, clearance):
 		return false
-	
+
 	if not is_safe_from_other_enemies(pos):
 		return false
-	
+
 	return true
 
 # =================================================

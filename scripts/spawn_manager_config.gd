@@ -85,9 +85,19 @@ extends Node
 ## Distância mínima entre inimigos no spawn (px)
 @export var min_distance_between_enemies: float = 48.0
 
-## Distância mínima de paredes (px)
-## Verifica espaço livre ao redor (360° completo) usando Physics Shape Query
-@export var min_distance_from_walls: float = 32.0
+## Distância mínima de paredes (px), medida no CENTRO DO CORPO
+## (ponto de spawn + body_center_offset). Deve cobrir o raio do colisor
+## do MAIOR inimigo + margem. Recomendado: 20.
+@export var min_distance_from_walls: float = 20.0
+
+## Offset do centro do corpo em relação ao ponto de spawn (os pés).
+## A validação de paredes testa o círculo nesta posição.
+@export var body_center_offset: Vector2 = Vector2(0, -14)
+
+## Raio de captura do snap ao navmesh (px)
+## Pontos da grade a até esta distância são "grudados" no ponto navegável
+## mais próximo — a grade grossa enxerga corredores estreitos sem custo.
+@export var nav_snap_radius: float = 32.0
 
 # =================================================
 # GRID SAMPLING
@@ -155,6 +165,8 @@ func initialize_spawn_manager() -> void:
 	# Transfere configurações de validação
 	SpawnManagerGlobal.min_distance_between_enemies = min_distance_between_enemies
 	SpawnManagerGlobal.min_distance_from_walls = min_distance_from_walls
+	SpawnManagerGlobal.body_center_offset = body_center_offset
+	SpawnManagerGlobal.nav_snap_radius = nav_snap_radius
 	
 	# Transfere configurações de Grid Sampling
 	SpawnManagerGlobal.grid_sample_spacing = grid_sample_spacing
