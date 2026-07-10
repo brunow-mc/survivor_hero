@@ -21,6 +21,11 @@ var center_position: Vector2
 var center_initialized: bool = false
 ## Flag para capturar center_position no primeiro frame.
 
+## Offset do centro da órbita em relação à origem do player (os pés).
+## Capturado do BodyCenter do player em _ready — a órbita gira em torno
+## do CORPO, não dos pés (convenção feet origin).
+var _orbit_center_offset: Vector2 = Vector2.ZERO
+
 # =================================================
 # ROTAÇÃO VISUAL DO SPRITE
 # =================================================
@@ -46,11 +51,16 @@ func _ready() -> void:
 	super._ready()
 	
 	player = get_tree().get_first_node_in_group("Player")
-	
+
 	if not player:
 		print("⚠️ Power05Gear: Player não encontrado!")
 		queue_free()
 		return
+
+	# Centro da órbita = BodyCenter do player (fallback: origem/pés)
+	var body_center: Node2D = player.get_node_or_null("BodyCenter")
+	if body_center:
+		_orbit_center_offset = body_center.position
 	
 	# Fade in
 	modulate.a = 0.0
@@ -70,7 +80,9 @@ func _physics_process(delta: float) -> void:
 	# CAPTURA CENTER_POSITION NO PRIMEIRO FRAME
 	# =================================================
 	if not center_initialized:
-		center_position = global_position
+		# Sibling: snapshot do ponto de cast + offset do corpo — a órbita
+		# fixa gira em torno de onde o CORPO do player estava.
+		center_position = global_position + _orbit_center_offset
 		center_initialized = true
 	
 	# =================================================
@@ -90,7 +102,8 @@ func _physics_process(delta: float) -> void:
 		# ✅ CHILD (attach_to_player = true)
 		# Usa position RELATIVA ao parent (player)
 		# Player move → gear segue automaticamente
-		position = offset
+		# Órbita centrada no BodyCenter, não na origem (pés)
+		position = _orbit_center_offset + offset
 	else:
 		# ✅ SIBLING (attach_to_player = false)
 		# Usa center_position FIXO (snapshot do spawn)

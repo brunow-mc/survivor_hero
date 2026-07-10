@@ -211,8 +211,20 @@ func setup(
 	attack_position_right = _right
 	attack_position_left = _left
 
+	if not attack_position_right or not attack_position_left:
+		push_warning("AttackController: AttackPositionRight/Left ausente(s) na cena do player — ataques usarão o fallback (BodyCenter/origem).")
+
 	for attack_data in attacks:
 		_create_attack_timer(attack_data)
+
+
+# Posição de nascimento de fallback: BodyCenter do player, ou a
+# origem (pés) se o marcador também faltar. A origem sempre existe.
+func _get_player_body_position() -> Vector2:
+	var body_center: Node2D = player.get_node_or_null("BodyCenter")
+	if body_center:
+		return body_center.global_position
+	return player.global_position
 
 # -------------------------------------------------
 # PHYSICS PROCESS - v1.3.11
@@ -316,19 +328,29 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 
 	if attack_data.attach_to_player:
 		player.add_child(attack)
+		# Origem da cena do player fica nos PÉS (convenção feet origin).
+		# Ataques presos ao player nascem no CENTRO DO CORPO (BodyCenter),
+		# senão surgem deslocados para baixo.
+		var body_center: Node2D = player.get_node_or_null("BodyCenter")
+		if body_center:
+			attack.position = body_center.position
 	else:
 		player.add_sibling(attack)
 
 	if not attack_data.attach_to_player:
 		if attack.has_method("set_power_direction"):
 			var dir: int = int(player.facing_direction)
-			if dir < 0:
-				attack.global_position = attack_position_left.global_position
+			var anchor: Node2D = attack_position_left if dir < 0 else attack_position_right
+			if anchor:
+				attack.global_position = anchor.global_position
 			else:
-				attack.global_position = attack_position_right.global_position
+				# Fallback: marcador ausente → nasce do corpo do player
+				# (perde só o offset lateral). Cadeia termina na origem,
+				# que sempre existe.
+				attack.global_position = _get_player_body_position()
 			attack.set_power_direction(dir)
 		else:
-			attack.global_position = player.global_position
+			attack.global_position = _get_player_body_position()
 
 	if attack.has_method("set_attack_data"):
 		attack.set_attack_data(attack_data)

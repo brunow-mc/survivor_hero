@@ -41,6 +41,10 @@ Player and every enemy scene follow this layout (in preparation for Y-sort):
 
 **Gameplay distances stay feet-to-feet**: `distance_to_player` (`stop_distance` / `attack_distance`) uses `global_position.distance_to(player.global_position)` — symmetric from every approach direction and independent of each enemy's height. Do not switch it to BodyCenter-to-BodyCenter: entities of different heights would make measured distance depend on approach side.
 
+**Body-anchored systems all read the BodyCenter** (via `get_node_or_null("BodyCenter")`, falling back to the origin): enemy pathfinding target (`makepath`), item drops (`_spawn_single_drop_item`, base = enemy's own BodyCenter via `_nav_anchor`), and player-attached attacks — `AttackController._spawn_single_projectile()` places `attach_to_player` attacks (electricity, gear) at the player's BodyCenter local position, and `power_05_gear` additionally offsets its per-frame orbit by `_orbit_center_offset` (captured in `_ready`), since it rewrites `position` every physics frame and would otherwise orbit the feet.
+
+**Marker nodes degrade gracefully, never crash**: position markers (`BodyCenter`, `AttackPositionRight/Left`) are looked up with `get_node_or_null` and every consumer has a fallback chain ending in a property that always exists — e.g. projectile spawn: `AttackPositionRight/Left` → player `BodyCenter` (`AttackController._get_player_body_position()`) → `player.global_position`. A player scene missing markers still works (attacks spawn slightly off) and `AttackController.setup()` emits one `push_warning` so the omission is visible in the console. Follow this pattern for any new marker node.
+
 **New enemy checklist**: origin at feet · `BodyCenter` node at collider center · `NavigationAgent2D` as child of `BodyCenter` · subclass `@onready` path `$BodyCenter/NavigationAgent2D` · fill the `Spawn Fit` group in its `EnemySpawnData` (see Spawn system).
 
 ### Player
