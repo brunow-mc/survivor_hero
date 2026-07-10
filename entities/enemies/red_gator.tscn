@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cq6mggqsyd1qr" path="res://data/item_drop/item_drop_data.gd" id="2_jno6b"]
 [ext_resource type="PackedScene" uid="uid://hghmo30y2eqf" path="res://entities/items/xp_item_03.tscn" id="3_jno6b"]
 [ext_resource type="Texture2D" uid="uid://bc6o0khmvy1xo" path="res://sprites/enemies/gator/gator_idle_attack.png" id="3_ve70n"]
+[ext_resource type="PackedScene" uid="uid://we752kvbgfxl" path="res://entities/items/xp_item_02.tscn" id="4_6f417"]
 [ext_resource type="Texture2D" uid="uid://bgve81qr4xs00" path="res://sprites/enemies/gator/gator_idle.png" id="4_jno6b"]
 [ext_resource type="Texture2D" uid="uid://b4bubvtixdhs8" path="res://sprites/enemies/gator/gator.png" id="5_6f417"]
 [ext_resource type="PackedScene" uid="uid://df26g71i6ubmd" path="res://entities/shadows/shadow_02.tscn" id="6_cvy10"]
@@ -13,6 +14,12 @@
 resource_name = "XPItem03"
 script = ExtResource("2_jno6b")
 item_scene = ExtResource("3_jno6b")
+spawn_weight = 25.0
+metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
+
+[sub_resource type="Resource" id="Resource_joiy7"]
+script = ExtResource("2_jno6b")
+item_scene = ExtResource("4_6f417")
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wu0o0"]
@@ -147,7 +154,8 @@ move_speed = 30.0
 damage_per_tick = 3.0
 knockback_decay = 330.0
 drop_chance = 1.0
-drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp")])
+max_drop_amount = 2
+drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp"), SubResource("Resource_joiy7")])
 flash_color = Color(0.627451, 0, 0, 1)
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]

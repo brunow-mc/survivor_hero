@@ -446,16 +446,21 @@ func _spawn_single_drop_item(index: int, total: int) -> void:
 		return
 	
 	var item := item_scene.instantiate()
-	
-	var spawn_pos := global_position
-	
+
+	# Base: CENTRO DO CORPO (BodyCenter, via _nav_anchor — que já cai
+	# na origem se o inimigo não tiver o marcador). A origem da cena
+	# fica nos pés; dropar a partir dela colocava itens dentro de
+	# paredes abaixo do inimigo.
+	var spawn_pos := _nav_anchor.global_position if _nav_anchor else global_position
+
 	if total > 1:
+		# Anel de raio EXATO drop_spread_radius, centrado no corpo.
+		# O jitter angular (±0.3 rad) evita o padrão geométrico rígido;
+		# o raio não varia — o valor do Inspector é literal.
 		var angle := (TAU / total) * index + randf_range(-0.3, 0.3)
-		var distance := randf_range(drop_spread_radius * 0.5, drop_spread_radius)
-		spawn_pos += Vector2(cos(angle), sin(angle)) * distance
-	else:
-		spawn_pos += Vector2(randf_range(-10, 10), randf_range(-10, 10))
-	
+		spawn_pos += Vector2(cos(angle), sin(angle)) * drop_spread_radius
+	# total == 1: item único nasce exatamente no centro do corpo, sem sorteio.
+
 	get_tree().current_scene.call_deferred("add_child", item)
 	item.global_position = spawn_pos
 

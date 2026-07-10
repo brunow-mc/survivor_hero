@@ -21,14 +21,14 @@ metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
 resource_name = "XPItem02"
 script = ExtResource("2_6hyt3")
 item_scene = ExtResource("4_6vesj")
-spawn_weight = 15.0
+spawn_weight = 12.5
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
 
 [sub_resource type="Resource" id="Resource_6vesj"]
 resource_name = "XPItem03"
 script = ExtResource("2_6hyt3")
 item_scene = ExtResource("5_jriy7")
-spawn_weight = 0.0
+spawn_weight = 0.1
 metadata/_custom_type_script = "uid://cq6mggqsyd1qr"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wu0o0"]
