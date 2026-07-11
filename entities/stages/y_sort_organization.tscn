@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://bxtl3obhkkk53"]
-
-[node name="YSortOrganization" type="Node2D" unique_id=351317812]
-z_index = 2
-y_sort_enabled = true
