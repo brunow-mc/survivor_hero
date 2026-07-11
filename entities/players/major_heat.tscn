@@ -131,6 +131,7 @@ height = 12.0
 
 [node name="Player01" type="CharacterBody2D" unique_id=1271785084 groups=["Player"]]
 z_index = 2
+y_sort_enabled = true
 collision_layer = 2
 motion_mode = 1
 wall_min_slide_angle = 0.0
@@ -141,7 +142,8 @@ hit_volume_db = -4.0
 death_volume_db = 1.75
 
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_yipme")]
-position = Vector2(0, 2)
+position = Vector2(0, -11)
+offset = Vector2(0, 13)
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
 position = Vector2(0, -11)
@@ -164,6 +166,7 @@ position = Vector2(17, -12)
 position = Vector2(-17, -12)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+visible = false
 position = Vector2(0, -11)
 collision_layer = 2
 collision_mask = 4

@@ -3,6 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://ecw247a5n3yt" path="res://sprites/effects/shadow01.png" id="1_qhf66"]
 
 [node name="Shadow01" type="Sprite2D" unique_id=1769618904]
-modulate = Color(1, 1, 1, 0.3137255)
-z_index = 1
+self_modulate = Color(1, 1, 1, 0.3529412)
+y_sort_enabled = true
 texture = ExtResource("1_qhf66")

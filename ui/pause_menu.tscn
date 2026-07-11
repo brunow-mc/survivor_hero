@@ -35,6 +35,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme = ExtResource("1_5mxpo")
 shortcut = SubResource("Shortcut_163qp")
+shortcut_in_tooltip = false
 text = "RESUME"
 
 [node name="Restart_Btn" type="Button" parent="Menu_Holder" unique_id=797832533]
