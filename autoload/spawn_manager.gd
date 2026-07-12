@@ -177,6 +177,12 @@ var _wall_check_circle: CircleShape2D = CircleShape2D.new()
 var player: Node2D = null
 var current_scene: Node = null
 
+## Container onde os inimigos são adicionados (ex: YSortOrganization).
+## Entidades precisam ser FILHAS do node com y_sort_enabled para
+## participar do Y-sort — spawnar na raiz da cena as deixaria fora.
+## Definido por SpawnManagerConfig; fallback: current_scene.
+var enemy_container: Node2D = null
+
 # =================================================
 # READY
 # =================================================
@@ -1121,9 +1127,11 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 		return
 	
 	var enemy := enemy_data.enemy_scene.instantiate()
-	
-	# Adiciona na cena — _ready() roda aqui, makepath() é chamado da posição errada
-	current_scene.add_child(enemy)
+
+	# Adiciona no container Y-sort (fallback: raiz da cena) —
+	# _ready() roda aqui, makepath() é chamado da posição errada
+	var parent_node: Node = enemy_container if is_instance_valid(enemy_container) else current_scene
+	parent_node.add_child(enemy)
 	
 	# Define posição real APÓS _ready()
 	enemy.global_position = spawn_pos

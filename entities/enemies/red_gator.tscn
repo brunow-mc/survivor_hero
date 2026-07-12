@@ -143,7 +143,8 @@ height = 36.0
 radius = 16.0
 
 [node name="RedGator" type="CharacterBody2D" unique_id=1459565002 groups=["Enemies"]]
-z_index = 1
+z_index = 2
+y_sort_enabled = true
 collision_layer = 4
 collision_mask = 13
 motion_mode = 1

@@ -45,7 +45,17 @@ Player and every enemy scene follow this layout (in preparation for Y-sort):
 
 **Marker nodes degrade gracefully, never crash**: position markers (`BodyCenter`, `AttackPositionRight/Left`) are looked up with `get_node_or_null` and every consumer has a fallback chain ending in a property that always exists — e.g. projectile spawn: `AttackPositionRight/Left` → player `BodyCenter` (`AttackController._get_player_body_position()`) → `player.global_position`. A player scene missing markers still works (attacks spawn slightly off) and `AttackController.setup()` emits one `push_warning` so the omission is visible in the console. Follow this pattern for any new marker node.
 
-**New enemy checklist**: origin at feet · `BodyCenter` node at collider center · `NavigationAgent2D` as child of `BodyCenter` · subclass `@onready` path `$BodyCenter/NavigationAgent2D` · fill the `Spawn Fit` group in its `EnemySpawnData` (see Spawn system).
+**New enemy checklist**: origin at feet · `BodyCenter` node at collider center · `NavigationAgent2D` as child of `BodyCenter` · subclass `@onready` path `$BodyCenter/NavigationAgent2D` · fill the `Spawn Fit` group in its `EnemySpawnData` (see Spawn system) · root configured for Y-sort (`z_index = 2`, `y_sort_enabled = true` — see Y-sort).
+
+### Y-sort (2.5D depth illusion)
+
+Entities and scenery tiles occlude each other by Y position (feet origin = the sort line). Three requirements, ALL mandatory:
+
+1. **Same `z_index`** — Y-sort only breaks ties within one z level; a different z overrides it. The world standard is **`z_index = 2`** (`z_as_relative = true`): player, enemies, XP items set it on the scene root; TileMap layers get it **per-tile in the TileSet** (setting it on the TileMapLayer node in the Inspector does NOT work for this — leave the layer at z 0 and paint z 2 inside the TileSet tiles).
+2. **`y_sort_enabled = true`** on the entity root and on participating TileMap layers.
+3. **Being a child of the Y-sort container** — Y-sort only sorts CHILDREN of a `y_sort_enabled` parent. Each stage instances **`entities/scene/y_sort_organization.tscn`** (a configured, permanently-empty Node2D: z 2, relative, y-sort on) and places world content inside it: player, TileMap layers with occluding tiles, enemies. Content added on the instance belongs to the stage file; never add children to the base scene. Ground-only layers (e.g. `TileMapRoad`) stay OUTSIDE the container — floor never occludes anyone.
+
+**Spawned entities join the container via explicit parenting** (this is the part that silently breaks if forgotten): `SpawnManagerConfig` has an `enemy_container` export (drag the stage's `YSortOrganization` into it) transferred to `SpawnManagerGlobal` — `spawn_enemy()` adds enemies there (fallback: scene root, no Y-sort). Item drops inherit it for free (`_spawn_single_drop_item` adds to the enemy's `get_parent()`), and projectiles too (`add_sibling(player)` = child of the player's parent). Tile occlusion switch points are calibrated via each tile's **Y Sort Origin** in the TileSet relative to the entity feet origin.
 
 ### Player
 

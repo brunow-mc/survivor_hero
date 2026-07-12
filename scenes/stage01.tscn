@@ -48,13 +48,10 @@ tile_set = ExtResource("1_kt1c8")
 
 [node name="TileMapDecoration" type="TileMapLayer" parent="YSortOrganization" unique_id=1176650735]
 y_sort_enabled = true
-tile_map_data = PackedByteArray("AAA/APr/AAACAAAAAAA+APr/AAACAAAAAAAKAPj/AAACAAAAAAAMAPr/AAACAAAAAAAJAPj/AAACAAAAAAD+//n/AAACAAAAAAD///r/AAACAAAAAAAkAPr/AAAAAAAAAABAAPr/AAAAAAAAAAAJAAAAAAAAAAAAAAAIAPv/AAAAAAAAAAD7//7/AAACAAAAAAA=")
+tile_map_data = PackedByteArray("AAA/APr/AAACAAAAAAA+APr/AAACAAAAAAAKAPj/AAACAAAAAAAMAPr/AAACAAAAAAAJAPj/AAACAAAAAAD+//n/AAACAAAAAAD///r/AAACAAAAAABAAPr/AAAAAAAAAAAJAAAAAAAAAAAAAAD7//7/AAACAAAAAAAQAPv/AAAAAAAAAAAkAPv/AAAAAAAAAAA=")
 tile_set = ExtResource("2_dpt3t")
 
 [node name="Player" parent="YSortOrganization" unique_id=811930453 instance=ExtResource("2_2mw66")]
-
-[node name="Gator" parent="YSortOrganization" unique_id=791727370 instance=ExtResource("12_fdwqw")]
-position = Vector2(197, -17)
 
 [node name="Camera" parent="." unique_id=815368857 instance=ExtResource("5_t4y0q")]
 
@@ -77,11 +74,12 @@ visible = false
 [node name="GameOverMenu" parent="." unique_id=2038781857 instance=ExtResource("7_ydume")]
 visible = false
 
-[node name="SpawnManagerConfig" parent="." unique_id=100682162 instance=ExtResource("10_spawn_config")]
+[node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_container") instance=ExtResource("10_spawn_config")]
 max_enemies = 75
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
+enemy_container = NodePath("../YSortOrganization")
 max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0

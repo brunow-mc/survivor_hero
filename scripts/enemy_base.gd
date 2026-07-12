@@ -461,7 +461,9 @@ func _spawn_single_drop_item(index: int, total: int) -> void:
 		spawn_pos += Vector2(cos(angle), sin(angle)) * drop_spread_radius
 	# total == 1: item único nasce exatamente no centro do corpo, sem sorteio.
 
-	get_tree().current_scene.call_deferred("add_child", item)
+	# Item nasce no MESMO parent do inimigo (o container Y-sort) —
+	# drops no chão participam da sobreposição como qualquer entidade.
+	get_parent().call_deferred("add_child", item)
 	item.global_position = spawn_pos
 
 # =================================================

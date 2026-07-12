@@ -61,6 +61,16 @@ extends Node
 @export var enemy_definitions: Array[EnemySpawnData] = []
 
 # =================================================
+# Y-SORT CONTAINER
+# =================================================
+@export_group("Y-Sort")
+## Container onde os inimigos spawnados são adicionados
+## (ex: YSortOrganization). Entidades só participam do Y-sort
+## se forem FILHAS do node com y_sort_enabled.
+## Vazio = inimigos vão para a raiz da cena (sem Y-sort).
+@export var enemy_container: Node2D
+
+# =================================================
 # TELEPORT SYSTEM
 # =================================================
 # TELEPORT SYSTEM
@@ -155,6 +165,7 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.difficulty_increase_per_minute = difficulty_increase_per_minute
 	SpawnManagerGlobal.max_difficulty_multiplier = max_difficulty_multiplier
 	SpawnManagerGlobal.enemy_definitions = enemy_definitions
+	SpawnManagerGlobal.enemy_container = enemy_container
 	
 	# Transfere configurações de teleport
 	SpawnManagerGlobal.teleport_enabled = teleport_enabled
