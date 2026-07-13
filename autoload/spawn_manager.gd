@@ -177,7 +177,7 @@ var _wall_check_circle: CircleShape2D = CircleShape2D.new()
 var player: Node2D = null
 var current_scene: Node = null
 
-## Container onde os inimigos são adicionados (ex: YSortOrganization).
+## Container onde os inimigos são adicionados (ex: YSortContainer).
 ## Entidades precisam ser FILHAS do node com y_sort_enabled para
 ## participar do Y-sort — spawnar na raiz da cena as deixaria fora.
 ## Definido por SpawnManagerConfig; fallback: current_scene.

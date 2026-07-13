@@ -65,7 +65,7 @@ extends Node
 # =================================================
 @export_group("Y-Sort")
 ## Container onde os inimigos spawnados são adicionados
-## (ex: YSortOrganization). Entidades só participam do Y-sort
+## (ex: YSortContainer). Entidades só participam do Y-sort
 ## se forem FILHAS do node com y_sort_enabled.
 ## Vazio = inimigos vão para a raiz da cena (sem Y-sort).
 @export var enemy_container: Node2D
@@ -165,6 +165,13 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.difficulty_increase_per_minute = difficulty_increase_per_minute
 	SpawnManagerGlobal.max_difficulty_multiplier = max_difficulty_multiplier
 	SpawnManagerGlobal.enemy_definitions = enemy_definitions
+
+	# Aviso: sem container, inimigos caem na raiz da cena (z efetivo menor
+	# que o do player dentro do YSortContainer) e o player fica sempre na
+	# frente deles — Y-sort player↔inimigos quebra silenciosamente.
+	# Causa comum: trocar/recolocar o YSortContainer sem rearrastá-lo aqui.
+	if not is_instance_valid(enemy_container):
+		push_warning("SpawnManagerConfig: 'enemy_container' vazio — inimigos vão para a raiz da cena e o Y-sort player↔inimigos não vai funcionar. Arraste o YSortContainer para o campo 'Enemy Container' no Inspector.")
 	SpawnManagerGlobal.enemy_container = enemy_container
 	
 	# Transfere configurações de teleport
