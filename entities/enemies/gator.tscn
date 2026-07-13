@@ -142,7 +142,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
-radius = 12.0
+radius = 11.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
 radius = 9.0
@@ -205,7 +205,7 @@ position = Vector2(0, -11)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=278959778]
 avoidance_enabled = true
-radius = 13.0
+radius = 12.0
 neighbor_distance = 80.0
 max_neighbors = 8
 time_horizon_agents = 0.5
