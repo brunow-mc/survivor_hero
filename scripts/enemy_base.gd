@@ -267,6 +267,13 @@ func base_move(delta: float) -> void:
 	if distance_to_player <= stop_distance:
 		can_walk = false
 		velocity = Vector2.ZERO
+		# Declara à simulação de RVO que este agente está PARADO. Sem isto,
+		# a sim mantém a última velocidade declarada (a de aproximação, não
+		# nula), e agentes que chegam desviam de um "fantasma" que a sim crê
+		# ainda em movimento — inflando a freada de contorno. set_velocity_forced
+		# grava direto na sim sem disparar o callback (não move o parado).
+		if navigation_agent and navigation_agent.avoidance_enabled:
+			navigation_agent.set_velocity_forced(Vector2.ZERO)
 		_avoidance_pending = false
 		return
 	
