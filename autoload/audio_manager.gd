@@ -149,29 +149,6 @@ func play_sound_2d(sound: AudioStream, position: Vector2, volume_db: float = 0.0
 	active_players_2d.append(player)
 
 # ======================================
-# TOCAR SOM POR PATH
-# ======================================
-func play_sound_path(sound_path: String, volume_db: float = 0.0, pitch_scale: float = 1.0) -> void:
-	if not sound_library.has(sound_path):
-		var sound := load(sound_path) as AudioStream
-		if not sound:
-			push_error("❌ AudioManager: Não foi possível carregar som: %s" % sound_path)
-			return
-		sound_library[sound_path] = sound
-	
-	play_sound(sound_library[sound_path], volume_db, pitch_scale)
-
-func play_sound_2d_path(sound_path: String, position: Vector2, volume_db: float = 0.0, pitch_scale: float = 1.0) -> void:
-	if not sound_library.has(sound_path):
-		var sound := load(sound_path) as AudioStream
-		if not sound:
-			push_error("❌ AudioManager: Não foi possível carregar som: %s" % sound_path)
-			return
-		sound_library[sound_path] = sound
-	
-	play_sound_2d(sound_library[sound_path], position, volume_db, pitch_scale)
-
-# ======================================
 # PEGAR PLAYERS DISPONÍVEIS
 # ======================================
 func _get_available_global_player() -> AudioStreamPlayer:
