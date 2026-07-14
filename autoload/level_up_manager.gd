@@ -8,7 +8,7 @@ class_name LevelUpManager
 # -------------------------------------------------
 # UI
 # -------------------------------------------------
-const LEVEL_UP_UI_SCENE = preload("res://ui/level_up_ui.tscn")
+const LEVEL_UP_UI_SCENE = preload("uid://c4lqh8k7mjxwb")
 var level_up_ui: CanvasLayer = null
 
 # -------------------------------------------------
@@ -25,7 +25,7 @@ signal upgrade_applied(upgrade_data: Dictionary)
 var heal_amount: float = 20.0
 
 ## Ícone exibido no botão de First Aid no menu de level up.
-var heal_icon: Texture2D = preload("res://sprites/icons/bonus_icons/first_aid.png")
+var heal_icon: Texture2D = preload("uid://cvpdyr5mb78vr")
 
 # -------------------------------------------------
 # CONFIGURAÇÃO DE PESOS (preparado para FASE 4)

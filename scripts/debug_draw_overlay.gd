@@ -41,7 +41,7 @@ var cluster_colors: Array = [
 func _ready() -> void:
 	# Cria Node2D child para desenhar
 	drawer = Node2D.new()
-	drawer.set_script(preload("res://scripts/debug_drawer.gd"))
+	drawer.set_script(preload("uid://bn4eibo6yxobn"))  # uid = scripts/debug_drawer.gd
 	add_child(drawer)
 	
 	# Conecta ao SpawnManager
