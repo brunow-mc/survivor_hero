@@ -187,6 +187,12 @@ Budget-based, inspired by Vampire Survivors:
 - Uses `TargetTrackerGlobal`: FIFO exclusion list, max 5 recently-targeted enemies. Resets automatically when the batch interval elapses.
 - Set `sprite.modulate.a = 0.0` before positioning the node to prevent a one-frame flicker at the origin.
 
+### Debug overlay (Grid Sampling) — only faithful at camera zoom = 1
+- The spawn debug (`debug_draw_overlay`, gated by `SpawnManagerConfig.debug_draw_enabled`) draws on a `CanvasLayer` and projects world→screen by hand in `debug_drawer.gd`: `point - camera_position + viewport_size/2`, with **no zoom factor**. `CanvasLayer` also ignores the `Camera2D` transform.
+- **Consequence:** it is only correct at camera **zoom = 1**. Under zoom-out (e.g. `0.5`) the scenery scales but the debug points do not, so they "parallax" (move faster than the world) and the overlay detaches — it does **not** work as a magnifying lens.
+- **The spawn logic itself is zoom-invariant** (pure world space); this is a *debug-rendering* limitation, not a spawn bug. Don't misread the parallax as the spawn system malfunctioning.
+- At zoom 1 the points only flash briefly near the screen edge (offscreen ones are culled), so the tool is of low practical use today. **Future fix:** draw in world space (a `Node2D` under the camera-affected world) instead of a `CanvasLayer`, so it inherits the camera transform and works at any zoom.
+
 ## Working style
 
 - One change at a time, with a test between each.

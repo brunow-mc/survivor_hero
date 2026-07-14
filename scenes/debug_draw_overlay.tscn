@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://debug_draw_overlay"]
+[gd_scene load_steps=2 format=3 uid="uid://bx7n3k9q2wdhs"]
 
 [ext_resource type="Script" path="res://scripts/debug_draw_overlay.gd" id="1_overlay_script"]
 

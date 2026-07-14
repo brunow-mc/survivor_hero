@@ -209,7 +209,7 @@ func create_debug_overlay() -> void:
 	"""
 	Instancia o debug overlay para visualização do Grid Sampling.
 	"""
-	var overlay_scene = load("res://scenes/debug_draw_overlay.tscn")
+	var overlay_scene = load("uid://bx7n3k9q2wdhs")
 	if not overlay_scene:
 		push_warning("SpawnManagerConfig: Debug overlay scene não encontrada!")
 		return
