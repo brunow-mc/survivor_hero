@@ -171,6 +171,7 @@ animation = &"idle"
 offset = Vector2(0, -4)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
+z_index = 1
 position = Vector2(0, -16)
 shape = SubResource("CircleShape2D_c8u6y")
 

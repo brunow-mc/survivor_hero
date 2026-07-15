@@ -166,7 +166,7 @@ flash_color = Color(0.627451, 0, 0, 1)
 steering_enabled = true
 steer_slice_count = 16
 steer_detect_radius = 22.0
-steer_clearance = 18.0
+steer_clearance = 20.0
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("2_r4tcw")]
 position = Vector2(0, 1)
@@ -208,7 +208,6 @@ debug_color = Color(0, 0.6862745, 0, 0.41960785)
 position = Vector2(0, -11)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=278959778]
-avoidance_enabled = true
 radius = 12.0
 neighbor_distance = 80.0
 max_neighbors = 8

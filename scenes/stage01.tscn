@@ -20,6 +20,7 @@
 resource_name = "Gator"
 script = ExtResource("11_fdwqw")
 enemy_scene = ExtResource("12_fdwqw")
+spawn_clearance_radius = 12.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
 [sub_resource type="Resource" id="Resource_puonp"]
@@ -28,7 +29,7 @@ script = ExtResource("11_fdwqw")
 enemy_scene = ExtResource("13_emoyi")
 spawn_weight = 15.0
 spawn_cost = 3.0
-spawn_clearance_radius = 13.0
+spawn_clearance_radius = 16.0
 body_center_offset = Vector2(0, -16)
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
@@ -74,7 +75,7 @@ visible = false
 visible = false
 
 [node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_container") instance=ExtResource("10_spawn_config")]
-max_enemies = 75
+max_enemies = 80
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
