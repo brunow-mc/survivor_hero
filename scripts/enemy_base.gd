@@ -94,9 +94,13 @@ enum EnemyState {
 @export var steer_slice_count: int = 8
 ## Raio em que vizinhos entram no cálculo (px). ~1.5× o diâmetro do corpo.
 @export var steer_detect_radius: float = 32.0
-## Folga que cada vizinho bloqueia (px): ~ corpo do vizinho + corpo próprio.
-## Define a meia-largura angular bloqueada = asin(clearance / distância).
-@export var steer_clearance: float = 22.0
+## Folga que cada VIZINHO bloqueia (px): ~ corpo do vizinho + corpo próprio.
+## Define a meia-largura angular bloqueada = asin(enemy_clearance / distância).
+@export var steer_enemy_clearance: float = 22.0
+## Distância de PAREDE (Solução B): alcance do raycast que marca uma fatia como
+## bloqueada por parede (layer 1). Independente do espaçamento entre inimigos.
+## Maior = mantém mais distância das paredes. 0 = steering ignora paredes.
+@export var steer_wall_clearance: float = 16.0
 ## "Aguardar": se nem a melhor fatia livre aponta razoavelmente para o player
 ## (interesse abaixo disto), o inimigo está cercado sem acesso — segura a
 ## posição em vez de circular/forçar. Interesse = cos do ângulo até o rumo do
@@ -174,6 +178,14 @@ var _nav_anchor: Node2D = null
 var _steer_cached_dir: Vector2 = Vector2.ZERO
 var _steer_has_cached: bool = false
 var _steer_stagger: int = 0
+
+# Perigo de parede (Solução B): raycast por fatia contra a layer 1, cacheado
+# por posição — paredes são estáticas, então só recomputa ao mover o
+# suficiente (barato para hordas com muitos inimigos parados/lentos).
+var _wall_danger: PackedFloat32Array = PackedFloat32Array()
+var _wall_danger_pos: Vector2 = Vector2.ZERO
+var _wall_danger_slices: int = 0
+var _wall_danger_valid: bool = false
 
 # =================================================
 # READY
@@ -408,15 +420,27 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 		var d: float = to_e.length()
 		if d < 0.01 or d > steer_detect_radius:
 			continue
-		var ratio: float = clamp(steer_clearance / d, 0.0, 1.0)
+		var ratio: float = clamp(steer_enemy_clearance / d, 0.0, 1.0)
 		neigh_dirs.append(to_e / d)
 		neigh_cos_theta.append(sqrt(1.0 - ratio * ratio))   # cos(asin(ratio))
 
-	# Ninguém por perto → segue reto (campo aberto, movimento suave).
+	# Ninguém por perto → segue reto (campo aberto, movimento suave). Sem vizinho
+	# não há desvio, logo paredes não importam (base_dir já as evita via caminho).
 	if neigh_dirs.is_empty():
 		return base_dir
 
-	# Mapas por fatia: interesse (rumo ao player) e perigo (0 livre / 1 bloqueada).
+	# Perigo de PAREDE (Solução B): raycast por fatia contra a layer 1, cacheado
+	# por posição (paredes são estáticas). Só entra em cena quando há vizinho —
+	# ou seja, quando o steering pode desviar para dentro de uma parede.
+	var use_walls: bool = steer_wall_clearance > 0.0
+	if use_walls:
+		var wall_origin: Vector2 = _nav_anchor.global_position if _nav_anchor else global_position
+		if not _wall_danger_valid or _wall_danger_slices != steer_slice_count or wall_origin.distance_to(_wall_danger_pos) > 4.0:
+			_compute_wall_danger(steer_slice_count, wall_origin)
+
+	# Mapas por fatia: interesse (rumo ao player) e perigo (0 livre / 1 bloqueada
+	# por inimigo OU parede). found_danger conta só INIMIGO — é o que decide se
+	# vale desviar do rumo base; parede apenas restringe QUAL fatia escolher.
 	var slice_dirs: Array[Vector2] = []
 	var slice_interest: Array[float] = []
 	var slice_danger: Array[float] = []
@@ -427,18 +451,21 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 		var ang: float = TAU * float(i) / float(steer_slice_count)
 		var sdir: Vector2 = Vector2.RIGHT.rotated(ang)
 		var interest: float = max(0.0, sdir.dot(base_dir))
-		var danger: float = 0.0
+		var enemy_danger: float = 0.0
 		for j in neigh_dirs.size():
 			# Bloqueada se a fatia cai dentro do arco ocupado pelo vizinho.
 			if sdir.dot(neigh_dirs[j]) > neigh_cos_theta[j]:
-				danger = 1.0
+				enemy_danger = 1.0
 				break
+		var danger: float = enemy_danger
+		if use_walls and danger == 0.0 and _wall_danger[i] > 0.5:
+			danger = 1.0
 		slice_dirs.append(sdir)
 		slice_interest.append(interest)
 		slice_danger.append(danger)
 		if danger < min_danger:
 			min_danger = danger
-		if danger > 0.05:
+		if enemy_danger > 0.05:
 			found_danger = true
 
 	# Nada realmente bloqueia → segue reto.
@@ -461,6 +488,28 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 		return Vector2.ZERO
 
 	return best_dir
+
+# =================================================
+# PERIGO DE PAREDE (Solução B)
+# Lança um raycast por fatia (direções fixas no mundo) contra a layer 1
+# (paredes), a partir da BodyCenter (= centro do colisor físico). Uma fatia
+# cujo raio bate em parede dentro de steer_wall_clearance é marcada como
+# bloqueada. Resultado cacheado em _wall_danger (por posição), pois paredes
+# são estáticas — só é refeito quando o inimigo se move o suficiente.
+# =================================================
+func _compute_wall_danger(slice_count: int, origin: Vector2) -> void:
+	if _wall_danger.size() != slice_count:
+		_wall_danger.resize(slice_count)
+	var space := get_world_2d().direct_space_state
+	for i in slice_count:
+		var sdir: Vector2 = Vector2.RIGHT.rotated(TAU * float(i) / float(slice_count))
+		# Terceiro arg = collision_mask 1 (layer 1 = environment/paredes). O
+		# próprio inimigo está na layer 3, então não é atingido.
+		var q := PhysicsRayQueryParameters2D.create(origin, origin + sdir * steer_wall_clearance, 1)
+		_wall_danger[i] = 1.0 if space.intersect_ray(q) else 0.0
+	_wall_danger_pos = origin
+	_wall_danger_slices = slice_count
+	_wall_danger_valid = true
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE

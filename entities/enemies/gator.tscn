@@ -166,7 +166,6 @@ flash_color = Color(0.627451, 0, 0, 1)
 steering_enabled = true
 steer_slice_count = 16
 steer_detect_radius = 26.0
-steer_clearance = 14.0
 steer_block_min_interest = 0.2
 steer_update_interval = 8
 
