@@ -102,6 +102,11 @@ enum EnemyState {
 ## posição em vez de circular/forçar. Interesse = cos do ângulo até o rumo do
 ## player (0.3 ≈ 72°). 0 desliga o "aguardar" (volta a sempre circular).
 @export var steer_block_min_interest: float = 0.3
+## Staggering: recomputa a direção do steering só 1 a cada N frames físicos
+## (escalonado por inimigo, para não computarem todos no mesmo frame).
+## 1 = recomputa todo frame (sem staggering). Maior = mais barato, com rumo
+## levemente mais defasado. O inimigo continua se MOVENDO todo frame.
+@export var steer_update_interval: int = 4
 
 # =================================================
 # ESTADO
@@ -162,6 +167,14 @@ var _pending_pos_before: Vector2 = Vector2.ZERO
 # =================================================
 var _nav_anchor: Node2D = null
 
+# Staggering do steering: recomputa a direção 1 a cada steer_update_interval
+# frames (escalonado por _steer_stagger, sorteado por instância), reutilizando
+# _steer_cached_dir nos frames intermediários. _steer_has_cached força o
+# primeiro cálculo logo no início.
+var _steer_cached_dir: Vector2 = Vector2.ZERO
+var _steer_has_cached: bool = false
+var _steer_stagger: int = 0
+
 # =================================================
 # READY
 # =================================================
@@ -199,7 +212,11 @@ func _setup_base() -> void:
 	
 	# Busca player
 	player = get_tree().get_first_node_in_group("Player")
-	
+
+	# Escalona o steering desta instância (staggering) para os inimigos não
+	# recomputarem a direção todos no mesmo frame.
+	_steer_stagger = randi() % max(1, steer_update_interval)
+
 	makepath()
 
 # =================================================
@@ -302,7 +319,14 @@ func base_move(delta: float) -> void:
 		# preservando a velocidade (ver _steer_direction).
 		var move_dir: Vector2 = direction_to_player
 		if steering_enabled:
-			move_dir = _steer_direction(direction_to_player)
+			# Staggering: recomputa o steering só 1 a cada steer_update_interval
+			# frames (escalonado por _steer_stagger); nos demais reutiliza o
+			# rumo em cache. O inimigo continua se movendo todo frame.
+			var interval: int = max(1, steer_update_interval)
+			if not _steer_has_cached or (Engine.get_physics_frames() + _steer_stagger) % interval == 0:
+				_steer_cached_dir = _steer_direction(direction_to_player)
+				_steer_has_cached = true
+			move_dir = _steer_cached_dir
 		var desired_velocity: Vector2 = move_dir * move_speed
 
 		if steering_enabled:

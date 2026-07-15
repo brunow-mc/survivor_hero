@@ -159,8 +159,11 @@ max_drop_amount = 2
 drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp"), SubResource("Resource_joiy7")])
 flash_color = Color(0.627451, 0, 0, 1)
 steering_enabled = true
-steer_detect_radius = 26.0
-steer_block_min_interest = 0.1
+steer_slice_count = 16
+steer_detect_radius = 30.0
+steer_clearance = 18.0
+steer_block_min_interest = 0.2
+steer_update_interval = 8
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
 position = Vector2(0, 3)
