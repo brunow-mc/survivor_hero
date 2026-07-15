@@ -187,6 +187,13 @@ var _wall_danger_pos: Vector2 = Vector2.ZERO
 var _wall_danger_slices: int = 0
 var _wall_danger_valid: bool = false
 
+# Cache da lista de inimigos: get_nodes_in_group é chamado UMA vez por frame
+# físico (pelo primeiro inimigo a rodar o steering naquele frame) e reusado por
+# todos os outros — evita N alocações de array por frame. Estático = uma cópia
+# compartilhada por todas as instâncias de EnemyBase.
+static var _enemy_cache: Array = []
+static var _enemy_cache_frame: int = -1
+
 # =================================================
 # READY
 # =================================================
@@ -413,7 +420,7 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 	# Uma fatia é bloqueada se sdir.dot(dir_vizinho) > cos θ.
 	var neigh_dirs: Array[Vector2] = []
 	var neigh_cos_theta: Array[float] = []
-	for e in get_tree().get_nodes_in_group("Enemy"):
+	for e in _get_enemies_cached():
 		if e == self or not (e is Node2D):
 			continue
 		var to_e: Vector2 = (e as Node2D).global_position - my_pos
@@ -510,6 +517,16 @@ func _compute_wall_danger(slice_count: int, origin: Vector2) -> void:
 	_wall_danger_pos = origin
 	_wall_danger_slices = slice_count
 	_wall_danger_valid = true
+
+# Lista de inimigos reconstruída no máximo 1×/frame físico e compartilhada por
+# todas as instâncias. O primeiro inimigo a chamar num frame refaz o cache; os
+# demais reusam. Dentro de um frame o grupo é estável (queue_free é diferido).
+func _get_enemies_cached() -> Array:
+	var frame: int = Engine.get_physics_frames()
+	if frame != _enemy_cache_frame:
+		_enemy_cache = get_tree().get_nodes_in_group("Enemy")
+		_enemy_cache_frame = frame
+	return _enemy_cache
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE
