@@ -97,6 +97,11 @@ enum EnemyState {
 ## Folga que cada vizinho bloqueia (px): ~ corpo do vizinho + corpo próprio.
 ## Define a meia-largura angular bloqueada = asin(clearance / distância).
 @export var steer_clearance: float = 22.0
+## "Aguardar": se nem a melhor fatia livre aponta razoavelmente para o player
+## (interesse abaixo disto), o inimigo está cercado sem acesso — segura a
+## posição em vez de circular/forçar. Interesse = cos do ângulo até o rumo do
+## player (0.3 ≈ 72°). 0 desliga o "aguardar" (volta a sempre circular).
+@export var steer_block_min_interest: float = 0.3
 
 # =================================================
 # ESTADO
@@ -302,7 +307,15 @@ func base_move(delta: float) -> void:
 
 		if steering_enabled:
 			# Steering no comando: velocidade direta, sem passar pelo RVO.
-			velocity = desired_velocity
+			# move_dir == ZERO → estado "aguardar" (cercado sem acesso, ou
+			# navegação concluída): segura a posição, como a parada normal.
+			# A animação segue a regra atual (velocity ZERO → IDLE; ataque
+			# ainda decidido só pela distância de 50px). Nada é alterado nela.
+			if move_dir == Vector2.ZERO:
+				can_walk = false
+				velocity = Vector2.ZERO
+			else:
+				velocity = desired_velocity
 			_avoidance_pending = false
 		elif navigation_agent and navigation_agent.avoidance_enabled:
 			# Declara a velocidade desejada ao servidor de navegação.
@@ -416,6 +429,12 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 		if slice_danger[i] <= min_danger + 0.05 and slice_interest[i] > best_interest:
 			best_interest = slice_interest[i]
 			best_dir = slice_dirs[i]
+
+	# "Aguardar": nem a melhor fatia livre aponta razoavelmente para o player
+	# → cercado sem acesso. Retorna ZERO para o base_move segurar a posição
+	# (mesmo tratamento da parada normal; animação não é tocada aqui).
+	if best_interest < steer_block_min_interest:
+		return Vector2.ZERO
 
 	return best_dir
 
