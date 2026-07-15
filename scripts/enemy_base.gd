@@ -187,12 +187,14 @@ var _wall_danger_pos: Vector2 = Vector2.ZERO
 var _wall_danger_slices: int = 0
 var _wall_danger_valid: bool = false
 
-# Cache da lista de inimigos: get_nodes_in_group é chamado UMA vez por frame
-# físico (pelo primeiro inimigo a rodar o steering naquele frame) e reusado por
-# todos os outros — evita N alocações de array por frame. Estático = uma cópia
-# compartilhada por todas as instâncias de EnemyBase.
-static var _enemy_cache: Array = []
-static var _enemy_cache_frame: int = -1
+# Grid espacial de inimigos: bucketiza as posições em células de GRID_CELL_SIZE,
+# reconstruído 1×/frame físico e compartilhado por todas as instâncias. Cada
+# inimigo consulta só as células que cobrem seu detect_radius (O(vizinhos)) em
+# vez de varrer todos os inimigos (O(N²) no total). A reconstrução faz o único
+# get_nodes_in_group por frame (substitui o cache de lista anterior).
+const GRID_CELL_SIZE: float = 32.0
+static var _grid: Dictionary = {}
+static var _grid_frame: int = -1
 
 # =================================================
 # READY
@@ -420,16 +422,26 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 	# Uma fatia é bloqueada se sdir.dot(dir_vizinho) > cos θ.
 	var neigh_dirs: Array[Vector2] = []
 	var neigh_cos_theta: Array[float] = []
-	for e in _get_enemies_cached():
-		if e == self or not (e is Node2D):
-			continue
-		var to_e: Vector2 = (e as Node2D).global_position - my_pos
-		var d: float = to_e.length()
-		if d < 0.01 or d > steer_detect_radius:
-			continue
-		var ratio: float = clamp(steer_enemy_clearance / d, 0.0, 1.0)
-		neigh_dirs.append(to_e / d)
-		neigh_cos_theta.append(sqrt(1.0 - ratio * ratio))   # cos(asin(ratio))
+	_rebuild_grid_if_needed()
+	# Consulta só as células que cobrem o steer_detect_radius (não todos os
+	# inimigos): O(vizinhos por perto) em vez de O(N).
+	var cell_min: Vector2i = _cell_of(my_pos - Vector2(steer_detect_radius, steer_detect_radius))
+	var cell_max: Vector2i = _cell_of(my_pos + Vector2(steer_detect_radius, steer_detect_radius))
+	for cx in range(cell_min.x, cell_max.x + 1):
+		for cy in range(cell_min.y, cell_max.y + 1):
+			var cell_key: Vector2i = Vector2i(cx, cy)
+			if not _grid.has(cell_key):
+				continue
+			for e in _grid[cell_key]:
+				if e == self or not (e is Node2D):
+					continue
+				var to_e: Vector2 = (e as Node2D).global_position - my_pos
+				var d: float = to_e.length()
+				if d < 0.01 or d > steer_detect_radius:
+					continue
+				var ratio: float = clamp(steer_enemy_clearance / d, 0.0, 1.0)
+				neigh_dirs.append(to_e / d)
+				neigh_cos_theta.append(sqrt(1.0 - ratio * ratio))   # cos(asin(ratio))
 
 	# Ninguém por perto → segue reto (campo aberto, movimento suave). Sem vizinho
 	# não há desvio, logo paredes não importam (base_dir já as evita via caminho).
@@ -518,15 +530,27 @@ func _compute_wall_danger(slice_count: int, origin: Vector2) -> void:
 	_wall_danger_slices = slice_count
 	_wall_danger_valid = true
 
-# Lista de inimigos reconstruída no máximo 1×/frame físico e compartilhada por
-# todas as instâncias. O primeiro inimigo a chamar num frame refaz o cache; os
-# demais reusam. Dentro de um frame o grupo é estável (queue_free é diferido).
-func _get_enemies_cached() -> Array:
+# Célula do grid que contém uma posição de mundo.
+static func _cell_of(pos: Vector2) -> Vector2i:
+	return Vector2i(floori(pos.x / GRID_CELL_SIZE), floori(pos.y / GRID_CELL_SIZE))
+
+# Reconstrói o grid espacial no máximo 1×/frame físico (o primeiro inimigo a
+# chamar no frame refaz; os demais reusam). Faz o único get_nodes_in_group por
+# frame. Dentro de um frame o grupo é estável (queue_free é diferido).
+func _rebuild_grid_if_needed() -> void:
 	var frame: int = Engine.get_physics_frames()
-	if frame != _enemy_cache_frame:
-		_enemy_cache = get_tree().get_nodes_in_group("Enemy")
-		_enemy_cache_frame = frame
-	return _enemy_cache
+	if frame == _grid_frame:
+		return
+	_grid_frame = frame
+	_grid.clear()
+	for e in get_tree().get_nodes_in_group("Enemy"):
+		if not (e is Node2D):
+			continue
+		var cell: Vector2i = _cell_of((e as Node2D).global_position)
+		if _grid.has(cell):
+			_grid[cell].append(e)
+		else:
+			_grid[cell] = [e]
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE
