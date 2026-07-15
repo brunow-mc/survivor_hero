@@ -154,7 +154,7 @@ radius = 11.0
 z_index = 2
 y_sort_enabled = true
 collision_layer = 4
-collision_mask = 13
+collision_mask = 9
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_p7g5j")
@@ -164,6 +164,9 @@ drop_chance = 1.0
 drop_table = Array[ExtResource("2_6hyt3")]([SubResource("Resource_qyejn"), SubResource("Resource_6hyt3"), SubResource("Resource_6vesj")])
 flash_color = Color(0.627451, 0, 0, 1)
 steering_enabled = true
+steer_slice_count = 16
+steer_detect_radius = 22.0
+steer_clearance = 18.0
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("2_r4tcw")]
 position = Vector2(0, 1)

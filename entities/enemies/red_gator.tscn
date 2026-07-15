@@ -146,7 +146,7 @@ radius = 16.0
 z_index = 2
 y_sort_enabled = true
 collision_layer = 4
-collision_mask = 13
+collision_mask = 9
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_cvy10")
@@ -158,6 +158,7 @@ drop_chance = 1.0
 max_drop_amount = 2
 drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp"), SubResource("Resource_joiy7")])
 flash_color = Color(0.627451, 0, 0, 1)
+steering_enabled = true
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
 position = Vector2(0, 3)
@@ -170,7 +171,6 @@ animation = &"idle"
 offset = Vector2(0, -4)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
-visible = false
 position = Vector2(0, -16)
 shape = SubResource("CircleShape2D_c8u6y")
 

@@ -78,21 +78,25 @@ enum EnemyState {
 @export var flash_color: Color = Color.RED
 
 # =================================================
-# CONTEXT STEERING (TESTE — versão leve)
-# Desvio tangencial em torno de UM vizinho à frente, preservando a
-# velocidade. Alternativa ao RVO para o caso "andando desvia de parado".
-# Quando ligado, a velocidade vem do steering direto (bypassa o RVO) para
-# o teste ser isolado.
+# CONTEXT STEERING
+# Direção de movimento por "context map": amostra N fatias ao redor,
+# pontua cada uma por INTERESSE (rumo ao player) e PERIGO (por OCUPAÇÃO
+# ANGULAR — cada vizinho bloqueia só o arco que seu corpo realmente ocupa)
+# e escolhe a fatia mais livre e mais alinhada ao player, em velocidade
+# cheia. Vãos maiores que um corpo ficam livres (o inimigo os atravessa).
+# Substitui o RVO enquanto ligado (ver base_move) e traz separação
+# embutida. Não usa colisor.
 # =================================================
-@export_group("Context Steering (teste)")
-## Liga o steering leve (e bypassa o RVO enquanto ligado).
+@export_group("Context Steering")
+## Liga o context steering (e bypassa o RVO enquanto ligado).
 @export var steering_enabled: bool = false
-## Raio de detecção de vizinhos à frente (px). ~1.5× o diâmetro do corpo.
+## Nº de fatias amostradas ao redor (resolução angular; 8 = 45°).
+@export var steer_slice_count: int = 8
+## Raio em que vizinhos entram no cálculo (px). ~1.5× o diâmetro do corpo.
 @export var steer_detect_radius: float = 32.0
-## Só considera vizinhos cujo ângulo à frente tenha dot >= isto (0.3 ≈ 72°).
-@export var steer_ahead_min_dot: float = 0.3
-## Peso máximo do desvio perpendicular (1.0 = pode virar 90° quando de frente e colado).
-@export var steer_strength: float = 1.0
+## Folga que cada vizinho bloqueia (px): ~ corpo do vizinho + corpo próprio.
+## Define a meia-largura angular bloqueada = asin(clearance / distância).
+@export var steer_clearance: float = 22.0
 
 # =================================================
 # ESTADO
@@ -289,16 +293,15 @@ func base_move(delta: float) -> void:
 	
 	if is_alive:
 		can_walk = true
-		# [TESTE — context steering leve] desvia a direção em torno de um
-		# vizinho à frente, preservando a velocidade (ver _steer_direction).
+		# Context steering: escolhe a direção mais livre rumo ao player,
+		# preservando a velocidade (ver _steer_direction).
 		var move_dir: Vector2 = direction_to_player
 		if steering_enabled:
 			move_dir = _steer_direction(direction_to_player)
 		var desired_velocity: Vector2 = move_dir * move_speed
 
 		if steering_enabled:
-			# Teste isolado: steering direto, sem passar pelo RVO — para
-			# observar o efeito puro do desvio tangencial.
+			# Steering no comando: velocidade direta, sem passar pelo RVO.
 			velocity = desired_velocity
 			_avoidance_pending = false
 		elif navigation_agent and navigation_agent.avoidance_enabled:
@@ -339,22 +342,28 @@ func update_direction() -> void:
 		anim.flip_h = not facing_right
 
 # =================================================
-# CONTEXT STEERING LEVE (TESTE)
-# Dado a direção desejada (base_dir), procura o vizinho mais próximo que
-# esteja À FRENTE dentro de steer_detect_radius e, se houver, mistura um
-# vetor PERPENDICULAR (para o lado oposto ao bloqueador). O peso cresce
-# quanto mais de frente e mais colado o bloqueador estiver. Retorna uma
-# direção unitária — a magnitude (velocidade cheia) é preservada por quem
-# chama. Não depende de colisor: usa só posições dos vizinhos.
+# CONTEXT STEERING (context map — perigo por OCUPAÇÃO ANGULAR)
+# Dado base_dir (direção desejada, vinda do caminho de navegação), amostra
+# steer_slice_count fatias ao redor. Cada vizinho bloqueia apenas o ARCO
+# que seu corpo ocupa: meia-largura θ = asin(clearance / distância). Uma
+# fatia é "bloqueada" (perigo 1) se cair dentro do arco de ALGUM vizinho;
+# senão fica livre (perigo 0). Assim, vãos maiores que um corpo permanecem
+# livres e o inimigo os atravessa. Escolhe, entre as fatias livres, a de
+# maior interesse (mais alinhada ao player) e anda em velocidade cheia.
+# Campo aberto (nada bloqueia) → retorna base_dir (reto e suave).
+# Usa só posições dos vizinhos, não o colisor.
 # =================================================
 func _steer_direction(base_dir: Vector2) -> Vector2:
-	if base_dir == Vector2.ZERO:
+	if base_dir == Vector2.ZERO or steer_slice_count < 2:
 		return base_dir
 
 	var my_pos: Vector2 = global_position
-	var nearest: Node2D = null
-	var nearest_dist: float = steer_detect_radius
 
+	# Coleta vizinhos dentro do raio: direção (unit) + cosseno da meia-largura
+	# angular que o corpo dele bloqueia (cos θ, com θ = asin(clearance/d)).
+	# Uma fatia é bloqueada se sdir.dot(dir_vizinho) > cos θ.
+	var neigh_dirs: Array[Vector2] = []
+	var neigh_cos_theta: Array[float] = []
 	for e in get_tree().get_nodes_in_group("Enemy"):
 		if e == self or not (e is Node2D):
 			continue
@@ -362,34 +371,53 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 		var d: float = to_e.length()
 		if d < 0.01 or d > steer_detect_radius:
 			continue
-		# Só interessa quem está à FRENTE (no cone da direção desejada).
-		if base_dir.dot(to_e / d) < steer_ahead_min_dot:
-			continue
-		if d < nearest_dist:
-			nearest_dist = d
-			nearest = e as Node2D
+		var ratio: float = clamp(steer_clearance / d, 0.0, 1.0)
+		neigh_dirs.append(to_e / d)
+		neigh_cos_theta.append(sqrt(1.0 - ratio * ratio))   # cos(asin(ratio))
 
-	if nearest == null:
+	# Ninguém por perto → segue reto (campo aberto, movimento suave).
+	if neigh_dirs.is_empty():
 		return base_dir
 
-	var to_n: Vector2 = nearest.global_position - my_pos
-	var dist: float = to_n.length()
-	var dir_n: Vector2 = to_n / dist
+	# Mapas por fatia: interesse (rumo ao player) e perigo (0 livre / 1 bloqueada).
+	var slice_dirs: Array[Vector2] = []
+	var slice_interest: Array[float] = []
+	var slice_danger: Array[float] = []
+	var min_danger: float = INF
+	var found_danger: bool = false
 
-	# Lado do bloqueador (cross 2D): desvia para o lado OPOSTO.
-	var cross: float = base_dir.x * dir_n.y - base_dir.y * dir_n.x
-	var perp: Vector2
-	if cross > 0.0:
-		perp = Vector2(base_dir.y, -base_dir.x)   # bloqueador à esquerda → desvia à direita
-	else:
-		perp = Vector2(-base_dir.y, base_dir.x)   # à direita (ou de frente) → desvia à esquerda
+	for i in steer_slice_count:
+		var ang: float = TAU * float(i) / float(steer_slice_count)
+		var sdir: Vector2 = Vector2.RIGHT.rotated(ang)
+		var interest: float = max(0.0, sdir.dot(base_dir))
+		var danger: float = 0.0
+		for j in neigh_dirs.size():
+			# Bloqueada se a fatia cai dentro do arco ocupado pelo vizinho.
+			if sdir.dot(neigh_dirs[j]) > neigh_cos_theta[j]:
+				danger = 1.0
+				break
+		slice_dirs.append(sdir)
+		slice_interest.append(interest)
+		slice_danger.append(danger)
+		if danger < min_danger:
+			min_danger = danger
+		if danger > 0.05:
+			found_danger = true
 
-	# Peso: mais forte quanto mais de frente (head_on) e mais colado (proximity).
-	var head_on: float = base_dir.dot(dir_n)                       # 0..1 (já filtrado >= min_dot)
-	var proximity: float = clamp(1.0 - dist / steer_detect_radius, 0.0, 1.0)
-	var w: float = clamp(steer_strength * head_on * proximity, 0.0, 1.0)
+	# Nada realmente bloqueia → segue reto.
+	if not found_danger:
+		return base_dir
 
-	return (base_dir * (1.0 - w) + perp * w).normalized()
+	# Entre as fatias MAIS livres (perigo perto do mínimo), pega a de maior
+	# interesse — a brecha mais alinhada ao player.
+	var best_dir: Vector2 = base_dir
+	var best_interest: float = -1.0
+	for i in steer_slice_count:
+		if slice_danger[i] <= min_danger + 0.05 and slice_interest[i] > best_interest:
+			best_interest = slice_interest[i]
+			best_dir = slice_dirs[i]
+
+	return best_dir
 
 # =================================================
 # SISTEMA DE ANIMAÇÃO BASE
