@@ -4,5 +4,5 @@
 
 [node name="Shadow01" type="Sprite2D" unique_id=1769618904]
 self_modulate = Color(1, 1, 1, 0.3529412)
-y_sort_enabled = true
+z_index = -2
 texture = ExtResource("1_qhf66")

@@ -70,7 +70,7 @@ region = Rect2(64, 0, 32, 32)
 atlas = ExtResource("6_frgl2")
 region = Rect2(96, 0, 32, 32)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_jq0pf"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_jno6b"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -87,7 +87,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"attack",
-"speed": 8.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -95,7 +95,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"idle",
-"speed": 8.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -112,7 +112,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"walk",
-"speed": 8.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -129,18 +129,18 @@ animations = [{
 }],
 "loop": true,
 "name": &"walk_attack",
-"speed": 8.0
+"speed": 7.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_c8u6y"]
 radius = 15.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_u5jqn"]
+radius = 15.0
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
 radius = 14.0
 height = 36.0
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_u5jqn"]
-radius = 16.0
 
 [node name="RedGator" type="CharacterBody2D" unique_id=1459565002 groups=["Enemies"]]
 z_index = 2
@@ -167,35 +167,22 @@ steer_block_min_interest = 0.2
 steer_update_interval = 8
 
 [node name="Shadow02" parent="." unique_id=1821544653 instance=ExtResource("6_cvy10")]
-position = Vector2(0, 3)
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=688458282]
-position = Vector2(0, -10)
 scale = Vector2(1.5, 1.5)
-sprite_frames = SubResource("SpriteFrames_jq0pf")
-animation = &"idle"
-offset = Vector2(0, -4)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1031221837]
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_jno6b")
+animation = &"attack"
+offset = Vector2(0, -13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
 z_index = 1
-position = Vector2(0, -16)
+position = Vector2(0, -15)
 shape = SubResource("CircleShape2D_c8u6y")
 
-[node name="Hitbox" type="Area2D" parent="." unique_id=1612427453 groups=["EnemyHitbox"]]
-visible = false
-position = Vector2(0, -16)
-collision_layer = 4
-collision_mask = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=697552730]
-position = Vector2(0, -2)
-rotation = -1.5707964
-shape = SubResource("CapsuleShape2D_u5jqn")
-debug_color = Color(1, 0, 0, 0.41960785)
-
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1627540138 groups=["EnemyHurtbox"]]
-visible = false
-position = Vector2(0, -16)
+z_index = 1
+position = Vector2(0, -19)
 collision_layer = 260
 collision_mask = 8
 
@@ -203,8 +190,19 @@ collision_mask = 8
 shape = SubResource("CircleShape2D_u5jqn")
 debug_color = Color(0, 0.6862745, 0, 0.41960785)
 
+[node name="Hitbox" type="Area2D" parent="." unique_id=1612427453 groups=["EnemyHitbox"]]
+z_index = 1
+position = Vector2(0, -21)
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=697552730]
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_u5jqn")
+debug_color = Color(1, 0, 0, 0.41960785)
+
 [node name="BodyCenter" type="Node2D" parent="." unique_id=1450069198]
-position = Vector2(0, -16)
+position = Vector2(0, -15)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=50478694]
 radius = 16.0

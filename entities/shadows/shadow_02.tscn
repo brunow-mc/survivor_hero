@@ -4,4 +4,5 @@
 
 [node name="Shadow02" type="Sprite2D" unique_id=1821544653]
 modulate = Color(1, 1, 1, 0.3137255)
+z_index = -2
 texture = ExtResource("1_aui2v")
