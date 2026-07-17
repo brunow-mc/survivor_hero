@@ -127,7 +127,7 @@ height = 10.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ldj1t"]
 radius = 5.0
-height = 16.0
+height = 18.0
 
 [node name="Player01" type="CharacterBody2D" unique_id=1271785084 groups=["Player"]]
 z_index = 2
@@ -155,7 +155,7 @@ libraries/ = SubResource("AnimationLibrary_10c06")
 [node name="PowerUpController" parent="." unique_id=82605970 instance=ExtResource("30_1txx1")]
 
 [node name="BodyCenter" type="Node2D" parent="." unique_id=1355616675]
-position = Vector2(0, -61)
+position = Vector2(0, -12)
 
 [node name="AttackPositionRight" type="Node2D" parent="." unique_id=2015214172]
 position = Vector2(17, -12)

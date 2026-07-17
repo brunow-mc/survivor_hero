@@ -146,7 +146,6 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_u5jqn"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
-radius = 9.0
 height = 24.0
 
 [node name="Gator" type="CharacterBody2D" unique_id=791727370 groups=["Enemies"]]
@@ -157,6 +156,7 @@ collision_mask = 13
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_p7g5j")
+stop_distance = 10.0
 knockback_transfer_ratio = 0.85
 knockback_retention_after_transfer = 0.6
 drop_chance = 1.0
@@ -197,6 +197,7 @@ collision_layer = 4
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=478097094]
+position = Vector2(0, 1)
 rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_u5jqn")
 debug_color = Color(1, 0, 0, 0.41960785)

@@ -139,7 +139,7 @@ radius = 15.0
 radius = 15.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
-radius = 14.0
+radius = 15.0
 height = 36.0
 
 [node name="RedGator" type="CharacterBody2D" unique_id=1459565002 groups=["Enemies"]]
@@ -197,6 +197,7 @@ collision_layer = 4
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=697552730]
+position = Vector2(0, 2)
 rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_u5jqn")
 debug_color = Color(1, 0, 0, 0.41960785)
