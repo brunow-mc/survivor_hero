@@ -89,7 +89,7 @@ enum EnemyState {
 # =================================================
 @export_group("Context Steering")
 ## Liga o context steering (e bypassa o RVO enquanto ligado).
-@export var steering_enabled: bool = false
+@export var steering_enabled: bool = true
 ## Nº de fatias amostradas ao redor (resolução angular; 8 = 45°).
 @export var steer_slice_count: int = 8
 ## Raio em que vizinhos entram no cálculo (px). ~1.5× o diâmetro do corpo.
