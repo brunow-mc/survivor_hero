@@ -126,6 +126,9 @@ var facing_right: bool = true
 # =================================================
 var navigation_agent: NavigationAgent2D
 var player: CharacterBody2D
+## BodyCenter do player, cacheado (fallback: origem/pés). Alvo da perseguição
+## e referência de distance_to_player (corpo do inimigo ↔ corpo do player).
+var player_body_center: Node2D = null
 var anim: AnimatedSprite2D
 var hitbox: Area2D
 
@@ -231,8 +234,10 @@ func _setup_base() -> void:
 	damage_timer.timeout.connect(_on_damage_timer_timeout)
 	add_child(damage_timer)
 	
-	# Busca player
+	# Busca player e cacheia seu BodyCenter (fallback tratado nos consumidores).
 	player = get_tree().get_first_node_in_group("Player")
+	if player:
+		player_body_center = player.get_node_or_null("BodyCenter")
 
 	# Escalona o steering desta instância (staggering) para os inimigos não
 	# recomputarem a direção todos no mesmo frame.
@@ -388,10 +393,15 @@ func update_direction() -> void:
 		navigation_agent.get_next_path_position() - _nav_anchor.global_position
 	).normalized()
 
-	# Distância pés-a-pés (origem-a-origem): simétrica e independente
-	# da altura de cada inimigo — mantém a calibragem histórica de
-	# stop_distance / attack_distance.
-	distance_to_player = global_position.distance_to(player.global_position)
+	# Distância BodyCenter-a-BodyCenter (corpo do inimigo ↔ corpo do player):
+	# mesmo referencial que a perseguição (makepath mira o BodyCenter do player),
+	# para que parada (stop_distance) e animação de ataque (attack_distance)
+	# batam com onde os corpos realmente estão. Fallback: origem/pés.
+	var enemy_center: Vector2 = _nav_anchor.global_position if _nav_anchor else global_position
+	var player_center: Vector2 = player.global_position
+	if is_instance_valid(player_body_center):
+		player_center = player_body_center.global_position
+	distance_to_player = enemy_center.distance_to(player_center)
 	
 	if abs(direction_to_player.x) > flip_deadzone:
 		facing_right = direction_to_player.x > 0
@@ -613,10 +623,9 @@ func go_to_dead_state() -> void:
 # =================================================
 func makepath() -> void:
 	if navigation_agent and player and is_instance_valid(player):
-		# Alvo no BodyCenter do player — mesmo referencial do ponto
-		# navegante (corpo persegue corpo). Fallback: origem (pés).
-		var player_body_center: Node2D = player.get_node_or_null("BodyCenter")
-		if player_body_center:
+		# Alvo no BodyCenter do player (cacheado) — mesmo referencial do ponto
+		# navegante e de distance_to_player. Fallback: origem (pés).
+		if is_instance_valid(player_body_center):
 			navigation_agent.target_position = player_body_center.global_position
 		else:
 			navigation_agent.target_position = player.global_position
