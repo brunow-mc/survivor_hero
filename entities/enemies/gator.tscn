@@ -148,7 +148,7 @@ animations = [{
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u5jqn"]
 height = 24.0
 
-[node name="Gator" type="CharacterBody2D" unique_id=791727370 groups=["Enemies"]]
+[node name="Gator" type="CharacterBody2D" unique_id=791727370]
 z_index = 2
 y_sort_enabled = true
 collision_layer = 4

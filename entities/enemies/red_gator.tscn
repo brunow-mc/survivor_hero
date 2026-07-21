@@ -142,7 +142,7 @@ radius = 15.0
 radius = 15.0
 height = 36.0
 
-[node name="RedGator" type="CharacterBody2D" unique_id=1459565002 groups=["Enemies"]]
+[node name="RedGator" type="CharacterBody2D" unique_id=1459565002]
 z_index = 2
 y_sort_enabled = true
 collision_layer = 4

@@ -171,6 +171,7 @@ rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_b0kkn")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+visible = false
 z_index = 1
 position = Vector2(0, -13)
 collision_layer = 2
