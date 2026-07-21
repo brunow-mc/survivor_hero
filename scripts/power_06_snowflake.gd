@@ -41,7 +41,7 @@ var enemies_in_contact: Dictionary = {}
 # READY
 # -------------------------------------------------
 func _ready() -> void:
-	add_to_group("Power")
+	super._ready()
 	player_ref = get_tree().get_first_node_in_group("Player")
 	
 	# Conectar sinais de colisão

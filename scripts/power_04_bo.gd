@@ -87,7 +87,7 @@ var target_scale: float = 1.0  # v1.3.13: Snapshot do scale no spawn
 # READY
 # -------------------------------------------------
 func _ready() -> void:
-	add_to_group("Power")
+	super._ready()
 
 	player_ref = get_tree().get_first_node_in_group("Player")
 

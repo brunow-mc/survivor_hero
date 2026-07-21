@@ -68,7 +68,7 @@ var is_fading_out: bool = false
 # READY
 # -------------------------------------------------
 func _ready() -> void:
-	add_to_group("Power")
+	super._ready()
 
 	await get_tree().process_frame
 	define_trajectory()

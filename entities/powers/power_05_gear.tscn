@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dncopudppo8iv"]
+[gd_scene format=3 uid="uid://dncopudppo8iv"]
 
 [ext_resource type="Script" uid="uid://5p1inehxkdsj" path="res://scripts/power_05_gear.gd" id="1_5stop"]
 [ext_resource type="Texture2D" uid="uid://eet8a30nkc2y" path="res://sprites/powers/power_05_gear.png" id="1_vd52t"]
@@ -21,17 +21,17 @@ animations = [{
 "speed": 7.0
 }]
 
-[node name="Power05Gear" type="Area2D" groups=["Power"]]
+[node name="Power05Gear" type="Area2D" unique_id=812091143]
 z_index = 4
 collision_layer = 8
 collision_mask = 256
 monitorable = false
 script = ExtResource("1_5stop")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=45532688]
 shape = SubResource("CircleShape2D_h4qhj")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=103602030]
 self_modulate = Color(0.7923846, 0.9607386, 0.9776916, 1)
 sprite_frames = SubResource("SpriteFrames_aw3dw")
 animation = &"spin"

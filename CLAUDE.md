@@ -100,7 +100,7 @@ Minimum interval floor: `0.05s`. Recalculated whenever `PowerUpStatsGlobal.stats
 - **`scripts/enemy_base.gd`** — `CharacterBody2D` base: FSM (IDLE/WALK/DEAD), NavigationAgent2D pathfinding + **context-steering** inter-enemy avoidance (see *Enemy inter-enemy avoidance*), knockback with chain-transfer to adjacent enemies, item drops, `receive_hit()` / `die()`.
 - **`_guard_against_position_jump()`** in `enemy_base.gd` — called every physics frame after `move_and_slide()`. Compares actual displacement against `velocity × delta × 3.0` (floor: 2 px); if exceeded, clamps the position back. This suppresses anomalous pixel-jumps that `move_and_slide()` produces when resolving collisions near walls or corners. Symptom that motivated it: enemies spawned or teleported near walls would visibly snap a few pixels in a random direction when the player moved toward/away from walls.
 - Concrete enemies: `entities/enemies/gator.tscn` and `red_gator.tscn`.
-- Enemy scenes must be in group `"Enemy"`. Hurtboxes in group `"EnemyHurtbox"`.
+- Enemies belong to group `"Enemy"` (added by `enemy_base.gd`, not by the scene) and their `Hurtbox` to `"EnemyHurtbox"` (marked per scene) — see *Node groups*.
 - After spawning or teleporting, always call `enemy.makepath()` to recalculate navigation from the new position.
 - **Item drop system**: on `die()`, `EnemyBase` rolls `drop_chance` once, then drops `min/max_drop_amount` items scattered within `drop_spread_radius`. Each dropped unit is picked independently from `drop_table` (`Array[ItemDropData]`) via weighted random in `_choose_drop_item()` — same weight logic as `choose_enemy()`, null-safe. `ItemDropData` (`data/item_drop/item_drop_data.gd`) holds just `item_scene` + `spawn_weight`. Drop tables are configured as **embedded resources** in each enemy scene's Inspector (not `.tres` files), so different enemies can drop the same item with independent weights. New enemies need zero drop code — Inspector only.
 
@@ -110,8 +110,10 @@ Budget-based, inspired by Vampire Survivors:
 - `base_budget_per_second × difficulty_multiplier` accumulates each frame.
 - When budget ≥ `minimal_budget`, spawns enemies (weighted random by `spawn_weight`) until budget runs out.
 - Positions found via **grid sampling** of 4 rectangular bands around the viewport (N/S/E/W strips), clustered by flood-fill, then filtered to offscreen-only.
-- **Snap-to-navmesh**: grid points are not required to land on the navmesh — `get_snapped_navigable_point()` snaps each point to the closest navmesh position within `nav_snap_radius` (export, default 32 ≈ half the 64px grid spacing). This lets the coarse grid "see" thin corridor strips at zero extra cost, and guarantees every candidate lies ON the mesh (never spawn off-mesh).
+- **Snap-to-navmesh**: grid points are not required to land on the navmesh — `get_snapped_navigable_point()` snaps each point to the closest navmesh position within `nav_snap_radius` (export, default 32 ≈ half the 64px grid spacing). This lets the coarse grid "see" thin corridor strips at zero extra cost, and guarantees every candidate lies ON the mesh (never spawn off-mesh). **Frame nuance:** the snap is done in the **feet frame** (the grid point is a feet position), while the `NavigationAgent2D` actually navigates the **BodyCenter** — so the feet land on the mesh, not necessarily the body. It degrades gracefully (the agent resolves to the nearest mesh point and `makepath()` runs right after spawn), but it is the last residual frame mismatch in this pipeline and a candidate for future refinement.
 - **Per-enemy spawn fit**: wall clearance is validated **at the body center** (`pos + body_center_offset`), answering "does this enemy's collider fit here?" — and uses the chosen enemy's own values from `EnemySpawnData`'s `Spawn Fit` group (`spawn_clearance_radius`, `body_center_offset`). Small enemies spawn in corridors that large ones can't. Clearance slightly below the collider radius is a legal calibration: it allows ~1-3px wall overlap that physics gently resolves on the first frame (used to raise density in tight corridors); going much lower risks depenetration ejecting the enemy through thin walls.
+  - **`body_center_offset` shifts nothing — it only validates.** The enemy is placed with `enemy.global_position = spawn_pos`, i.e. its **feet** land exactly on the chosen point (correct: grid points are floor/navmesh positions). The offset merely tells the validator *where the collider will sit* so it can check walls there.
+  - ⚠️ **It is a manual duplicate of the enemy scene's `BodyCenter` node position and must be kept in sync.** They already drifted once (Red Gator's resource was left at the default while its `BodyCenter` was at `-15`, so wall fit was validated at the wrong point). When you move a `BodyCenter`, update the matching `EnemySpawnData`.
 - **No silent fallback**: if no point in the chosen cluster passes full validation, `find_spawn_position()` returns `Vector2.ZERO` and the spawn is skipped this frame (budget is retained). Never spawn on a rejected point — that was the historical source of enemies inside walls.
 - **Teleport system**: every `teleport_check_interval` seconds, enemies beyond `max_distance_from_player` are teleported. Two-phase validation: the cache is pre-filtered with the **smallest** clearance among defined enemies (so tight-corridor points exist in it), then `_take_position_fitting_enemy()` re-validates each candidate with the specific enemy's own clearance at assignment time.
 - Call `SpawnManagerGlobal.start_spawning()` when the stage starts; `stop_spawning()` on restart.
@@ -138,6 +140,29 @@ Budget-based, inspired by Vampire Survivors:
 - Powerup data lives in `data/power_up_data/`.
 - `PowerUpStatsGlobal.stats_changed` triggers `AttackController._on_stats_changed()` to recalculate all attack timers immediately.
 
+## Node groups
+
+Project-wide registry. **Each group has exactly one declaration site** — never declare the same group both in a script and in a scene's Groups tab. (That duplication is how the dead `"Enemies"` look-alike of `"Enemy"` was born and survived for months.)
+
+| Group | Declared in | Consumed by |
+|---|---|---|
+| `Player` | **scene** — `major_heat.tscn` root (Groups tab) | camera, level-up, spawn manager, enemies, loadout bar, powers 04/05/06 |
+| `Enemy` | **code** — `enemy_base.gd` `_ready()` | spawn manager, power targeting, steering neighbours, knockback transfer |
+| `EnemyHurtbox` | **scene** — each enemy's `Hurtbox` node | every power's hit detection |
+| `PlayerHurtbox` | **scene** — player's `Hurtbox` node | enemy hitboxes (contact damage) |
+| `Power` | **code** — `base_power.gd` `_ready()` | *(reserved — no consumer yet)* |
+| `XPItems` | **code** — `xp_item.gd` `_ready()` | *(reserved — no consumer yet)* |
+
+**Where to declare — the rule:**
+1. **Queried during initialization** (inside another node's `_ready()`) → **Groups tab**. A tab group is active the moment the node enters the tree, *before* any `_ready()`; a group added by `add_to_group()` only exists after that node's own `_ready()` has run. `camera.gd._ready()` looks up `Player` immediately — which is why `Player` must stay in the tab.
+2. **Family defined by a script shared across many scenes**, queried only at runtime → **base script** (`add_to_group`). Guarantees a new subclass scene cannot forget it (`Enemy`, `Power`, `XPItems`).
+3. **Belongs to a specific child node** → that scene's **Groups tab** (`EnemyHurtbox`, `PlayerHurtbox`).
+4. **Never create a script just to add a group.** A scene with no script declares it in the tab.
+
+**Reserved groups:** `Power` and `XPItems` have no consumer today; they are kept as single-source handles for future use (acting on all live projectiles mid-game; a magnet powerup pulling XP). Note `XPItems` covers **only items using `xp_item.gd`** — a future non-XP collectible with its own script would need a broader group (or a shared item base script), not this one.
+
+**Editor gotcha:** deleting a group from the Groups dock does **not** rewrite scenes that already carry it — the `groups=[...]` entry stays in each `.tscn` and becomes hard to spot in the dock. Remove it on the node itself, or edit the scene file.
+
 ## Physics layers (2D)
 
 | Layer | Name |
@@ -158,6 +183,7 @@ Budget-based, inspired by Vampire Survivors:
 - **`attack_id` is the join key** between `AttackData`, `AttackUpgradeData`, and `attack_timers`. Keep IDs consistent across all three.
 - **Additive bonuses everywhere**: cooldown, damage, and projectile speed all use `base × (1 + sum_of_bonuses)` — never chain multiplications. For speed, `speed_upgrade_bonus` (per-attack upgrade) and `projectile_speed_multiplier − 1.0` (global powerup) are summed before applying. `power_05_gear` is the one exception: the global speed bonus is dampened by `orbit_speed_effectiveness` (currently `0.4`) before summing, because orbital speed generates hits much more efficiently than linear speed — but the gear's own `orbit_speed_upgrade_bonus` always enters at full value.
 - **Asset references in code use `uid://`, never `res://` paths**: uids survive file moves/reorganization (which happens often here); string paths silently break — `load()` and `change_scene_to_file()` are **not** tracked by the editor and keep pointing at the old path. Bind the uid to a descriptively-named `const`/`var` so the reference is self-documenting (e.g. `const LEVEL_UP_UI_SCENE = preload("uid://...")`, like `gator.gd`'s `IMPACT_01`); **when there is no such name** (e.g. an inline `preload` inside a call), add a short comment naming the target file (e.g. `set_script(preload("uid://..."))  # uid = scripts/debug_drawer.gd`). Use `preload` (load-time) for assets always used; `load(uid)` for conditional/rare ones (e.g. the debug overlay). **Never hand-write uids** — let Godot generate them; a typed uid with `_` or characters outside `0-9a-z` is invalid and unresolvable (Godot can't register it, so `Copy UID` and `load` both fail).
+- **`super._ready()` in subclasses**: GDScript does **not** run the parent's `_ready()` automatically — defining `_ready()` in a subclass fully overrides it. So: subclass **has** its own `_ready()` → it must call **`super._ready()` as the first line**; subclass has **no** `_ready()` → nothing to do, the parent's runs. This already bit the project: `power_02/04/06` each duplicated `add_to_group("Power")` because they overrode `_ready()` without `super`. The `Power` group now has a single source in `base_power.gd` and **depends on those `super._ready()` calls** (`power_05_gear.gd` was the original correct example).
 - **`is_combat_allowed()` gate**: every system that acts on game state must check this before proceeding.
 - **Deferred calls for spawning**: use `call_deferred` or `add_child` then set `global_position` afterward (so `_ready` runs before position is overwritten).
 - **Audio buses**: SFX plays on the `"SFX"` bus. Powers that manage looping audio set `handles_own_audio = true` on their `AttackData` to suppress the controller from also playing it.
@@ -177,7 +203,7 @@ Budget-based, inspired by Vampire Survivors:
 - `MIN_ATTACK_INTERVAL = 0.05`
 
 ### Enemy inter-enemy avoidance — Context Steering
-Inter-enemy avoidance is **context steering** (Reynolds/Fray family), not RVO. The `NavigationAgent2D` is used **only for pathfinding** (the wall-aware `base_dir`); its RVO avoidance is **off** (`avoidance_enabled` defaults to false on the scenes, and `steering_enabled` bypasses it in `base_move`). The leftover avoidance params on each `NavigationAgent2D` (`radius`, `time_horizon_agents`, `max_neighbors`, `neighbor_distance`, `avoidance_priority`) are **vestigial**.
+Inter-enemy avoidance is **context steering** (Reynolds/Fray family), not RVO. The `NavigationAgent2D` is used **only for pathfinding** (the wall-aware `base_dir`); its RVO avoidance is **off** (`avoidance_enabled` defaults to false on the scenes, and `steering_enabled` bypasses it in `base_move`). The leftover avoidance params on each `NavigationAgent2D` (`radius`, `time_horizon_agents`, `max_neighbors`, `neighbor_distance`, `avoidance_priority`) are **vestigial**. **`steering_enabled` defaults to `true`** in `EnemyBase` — steering is the game standard, so enemy scenes no longer set it; since Godot omits properties equal to the script default, its **absence from a `.tscn` means ON, not off**.
 
 - **Why not RVO:** ORCA slowed enemies to a near-zero creep when circling a stationary enemy to reach the player — it picks the collision-free velocity closest to the desired one, and heading straight into a neighbor that is a slow forward crawl, not a full-speed lateral detour. No RVO param fixed it (`time_horizon`, `avoidance_priority`, `radius`, `max_speed`). Root cause: RVO only **deflects** the desired velocity, it can't **re-route**. Context steering preserves full speed and steers tangentially around blockers.
 - **Dormant RVO — not removed yet:** the RVO code path is **still present and functional** in `base_move` / `_on_velocity_computed` (the `velocity_computed` signal is still connected). Setting `steering_enabled = false` **and** `avoidance_enabled = true` on the agent brings RVO back exactly as before. It is kept dormant for now and is **slated for removal** — do not build on it.
