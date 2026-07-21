@@ -8,7 +8,7 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_7cgj4"]
 radius = 8.0
 
-[node name="XPItem01" type="Area2D" unique_id=1005945857 groups=["XPItems"]]
+[node name="XPItem01" type="Area2D" unique_id=1005945857]
 z_index = 2
 y_sort_enabled = true
 collision_layer = 0

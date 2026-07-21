@@ -48,8 +48,6 @@ Power=""
 PlayerHurtbox=""
 PlayerHitbox=""
 EnemyHurtbox=""
-XPItems=""
-EnemyHitbox=""
 
 [input]
 

@@ -189,7 +189,7 @@ collision_mask = 8
 shape = SubResource("CircleShape2D_u5jqn")
 debug_color = Color(0, 0.6862745, 0, 0.41960785)
 
-[node name="Hitbox" type="Area2D" parent="." unique_id=1612427453 groups=["EnemyHitbox"]]
+[node name="Hitbox" type="Area2D" parent="." unique_id=1612427453]
 z_index = 1
 position = Vector2(0, -21)
 collision_layer = 4
