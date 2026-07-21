@@ -42,7 +42,7 @@ animations = [{
 "speed": 13.0
 }]
 
-[node name="Power02Ring" type="Area2D" unique_id=1434518557 groups=["Power"]]
+[node name="Power02Ring" type="Area2D" unique_id=1434518557]
 z_index = 4
 collision_layer = 8
 collision_mask = 260

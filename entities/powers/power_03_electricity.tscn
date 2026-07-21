@@ -51,7 +51,7 @@ animations = [{
 "speed": 15.0
 }]
 
-[node name="Power03Electricity" type="Area2D" unique_id=371763589 groups=["Power"]]
+[node name="Power03Electricity" type="Area2D" unique_id=371763589]
 z_index = 4
 collision_layer = 8
 collision_mask = 260

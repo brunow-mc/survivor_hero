@@ -69,7 +69,7 @@ animations = [{
 "speed": 17.0
 }]
 
-[node name="Power01Fire" type="Area2D" unique_id=889816477 groups=["Power"]]
+[node name="Power01Fire" type="Area2D" unique_id=889816477]
 z_index = 4
 y_sort_enabled = true
 collision_layer = 8
