@@ -97,6 +97,11 @@ func restart_game() -> void:
 		XPManagerGlobal.reset()
 	if SpawnManagerGlobal:
 		SpawnManagerGlobal.stop_spawning()
+	# Os players de áudio pertencem ao pool do AudioManager (autoload), não à
+	# cena — então sobrevivem ao reload e continuam tocando o som de um ataque
+	# que nem existe mais. Silencia tudo antes de recarregar.
+	if AudioManagerGlobal:
+		AudioManagerGlobal.stop_all_sounds()
 	get_tree().reload_current_scene()
 
 # -------------------------------------------------
