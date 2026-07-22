@@ -174,6 +174,10 @@ var _pending_pos_before: Vector2 = Vector2.ZERO
 # =================================================
 var _nav_anchor: Node2D = null
 
+# Marcador BodyCenter (= centro do CollisionShape2D físico). Referência
+# canônica de "onde está o corpo" — ver get_body_center_position().
+var body_center: Node2D = null
+
 # Staggering do steering: recomputa a direção 1 a cada steer_update_interval
 # frames (escalonado por _steer_stagger, sorteado por instância), reutilizando
 # _steer_cached_dir nos frames intermediários. _steer_has_cached força o
@@ -210,6 +214,11 @@ func _ready() -> void:
 func _setup_base() -> void:
 	# Física (CharacterBody2D)
 	max_slides = 6
+
+	# Marcador do centro do corpo (cacheado uma vez). Degrada graciosamente:
+	# se a cena não tiver BodyCenter, get_body_center_position() cai no
+	# _nav_anchor e depois na origem (pés).
+	body_center = get_node_or_null("BodyCenter") as Node2D
 
 	# Avoidance — conecta o sinal que devolve a velocidade
 	# ajustada pelo NavigationServer2D (RVO)
@@ -636,12 +645,30 @@ func _on_path_timer_timeout() -> void:
 # =================================================
 # HIT / DEATH
 # =================================================
+## Posição global do CENTRO DO CORPO (o BodyCenter, que coincide com o centro
+## do CollisionShape2D físico). É a referência canônica para qualquer sistema
+## que precise saber "onde está o corpo deste inimigo": direção de knockback,
+## mira de ataques que perseguem inimigos, etc. NÃO usar `global_position`
+## para isso — a origem da cena são os PÉS, o que injeta um viés para baixo.
+## Cadeia de fallback: BodyCenter → _nav_anchor → origem (pés).
+func get_body_center_position() -> Vector2:
+	if is_instance_valid(body_center):
+		return body_center.global_position
+	if is_instance_valid(_nav_anchor):
+		return _nav_anchor.global_position
+	return global_position
+
 func receive_hit(hit_data: HitData, source_pos: Vector2) -> void:
 	if not is_alive:
 		return
 	
 	life -= hit_data.damage
-	knockback = (global_position - source_pos).normalized() * hit_data.knockback_force
+	# Direção do empurrão: do centro do projétil ATÉ O CENTRO DO CORPO — o
+	# impulso corre através do centro de massa (modelo de sinuca). Usar a
+	# origem da cena (pés) injetaria um componente para baixo constante
+	# (~13px no gator, ~19px no red gator), porque a colisão é detectada no
+	# Hurtbox, bem acima dos pés.
+	knockback = (get_body_center_position() - source_pos).normalized() * hit_data.knockback_force
 	knockback = knockback.limit_length(max_knockback_magnitude)
 	
 	if life <= 0:
