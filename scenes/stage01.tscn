@@ -76,7 +76,6 @@ visible = false
 visible = false
 
 [node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_container") instance=ExtResource("10_spawn_config")]
-max_enemies = 80
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])

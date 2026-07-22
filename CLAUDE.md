@@ -75,9 +75,11 @@ Entities and scenery tiles occlude each other by Y position (feet origin = the s
 
    Content placed in the editor inside the instance belongs to the stage file; never add children to the base scene `y_sort_container.tscn` (they would be shared across every stage).
 
-   **Replacing/placing the container per stage — re-link `enemy_container` (silent-break trap):** the effective z of an entity is `parent_z + own_z`. Player and enemies are all `z_index = 2` (relative), so inside the container they land at `2 + 2 = 4` and Y-sort tie-breaks them by Y. Enemies join at runtime via the `enemy_container` NodePath on `SpawnManagerConfig`; if that field is empty, `spawn_enemy()` falls back to the scene root (z 0), so enemies land at effective z `0 + 2 = 2` — **below** the player's 4, and the player renders permanently in front of every enemy. Deleting a `YSortContainer` invalidates that NodePath, and a fresh one is **not** auto-reassigned, so **after replacing or adding the container you must drag it back into `SpawnManagerConfig`'s `enemy_container` field**. `SpawnManagerConfig.initialize_spawn_manager()` emits a `push_warning` when the field is empty so this stops failing silently.
+   **Why the container matters for spawned enemies:** the effective z of an entity is `parent_z + own_z`. Player and enemies are all `z_index = 2` (relative), so inside the container they land at `2 + 2 = 4` and Y-sort tie-breaks them by Y. If enemies were parented to the scene root instead (z 0) they would land at effective z `0 + 2 = 2` — **below** the player's 4 — and the player would render permanently in front of every enemy.
 
-**Spawned entities join the container via explicit parenting** (this is the part that silently breaks if forgotten): `SpawnManagerConfig` has an `enemy_container` export (drag the stage's `YSortContainer` into it) transferred to `SpawnManagerGlobal` — `spawn_enemy()` adds enemies there (fallback: scene root, no Y-sort). Item drops inherit it for free (`_spawn_single_drop_item` adds to the enemy's `get_parent()`), and projectiles too (`add_sibling(player)` = child of the player's parent). Tile occlusion switch points are calibrated via each tile's **Y Sort Origin** in the TileSet relative to the entity feet origin.
+   **The container is resolved automatically by group — no per-stage wiring.** The base scene `y_sort_container.tscn` carries the group **`YSortContainer`**, so every instance in every stage is already in it. `SpawnManagerConfig.initialize_spawn_manager()` resolves in cascade: the `enemy_container` export (explicit override) → `get_first_node_in_group("YSortContainer")` → nothing (one `push_warning`). **Leave the export empty in the normal case**; fill it only to disambiguate a stage with more than one container. This replaced a manual drag-and-drop step whose omission broke Y-sort silently (deleting a container invalidated the NodePath and a fresh one was never auto-reassigned).
+
+**Spawned entities join the container via explicit parenting**: the container resolved by `SpawnManagerConfig` (see above) is transferred to `SpawnManagerGlobal` — `spawn_enemy()` adds enemies there (fallback: scene root, no Y-sort). Item drops inherit it for free (`_spawn_single_drop_item` adds to the enemy's `get_parent()`), and projectiles too (`add_sibling(player)` = child of the player's parent). Tile occlusion switch points are calibrated via each tile's **Y Sort Origin** in the TileSet relative to the entity feet origin.
 
 ### Player
 
@@ -167,6 +169,7 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 | `Enemy` | **code** — `enemy_base.gd` `_ready()` | spawn manager, power targeting, steering neighbours, knockback transfer |
 | `EnemyHurtbox` | **scene** — each enemy's `Hurtbox` node | every power's hit detection |
 | `PlayerHurtbox` | **scene** — player's `Hurtbox` node | enemy hitboxes (contact damage) |
+| `YSortContainer` | **scene** — `y_sort_container.tscn` root (Groups tab) | `SpawnManagerConfig` (resolves the enemy parent; see Y-sort) |
 | `Power` | **code** — `base_power.gd` `_ready()` | *(reserved — no consumer yet)* |
 | `XPItems` | **code** — `xp_item.gd` `_ready()` | *(reserved — no consumer yet)* |
 
@@ -174,7 +177,7 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 1. **Queried during initialization** (inside another node's `_ready()`) → **Groups tab**. A tab group is active the moment the node enters the tree, *before* any `_ready()`; a group added by `add_to_group()` only exists after that node's own `_ready()` has run. `camera.gd._ready()` looks up `Player` immediately — which is why `Player` must stay in the tab.
 2. **Family defined by a script shared across many scenes**, queried only at runtime → **base script** (`add_to_group`). Guarantees a new subclass scene cannot forget it (`Enemy`, `Power`, `XPItems`).
 3. **Belongs to a specific child node** → that scene's **Groups tab** (`EnemyHurtbox`, `PlayerHurtbox`). These are the only groups repeated scene by scene, so they are the easiest to forget — and forgetting one makes that entity **invulnerable**. Both are covered by init guards (see *Marker nodes*).
-4. **Never create a script just to add a group.** A scene with no script declares it in the tab.
+4. **Never create a script just to add a group.** A scene with no script declares it in the tab — this is exactly the case of `YSortContainer`, a pure marker scene that must never gain a script.
 
 **Reserved groups:** `Power` and `XPItems` have no consumer today; they are kept as single-source handles for future use (acting on all live projectiles mid-game; a magnet powerup pulling XP). Note `XPItems` covers **only items using `xp_item.gd`** — a future non-XP collectible with its own script would need a broader group (or a shared item base script), not this one.
 

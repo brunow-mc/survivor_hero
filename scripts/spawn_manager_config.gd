@@ -64,10 +64,14 @@ extends Node
 # Y-SORT CONTAINER
 # =================================================
 @export_group("Y-Sort")
-## Container onde os inimigos spawnados são adicionados
-## (ex: YSortContainer). Entidades só participam do Y-sort
-## se forem FILHAS do node com y_sort_enabled.
-## Vazio = inimigos vão para a raiz da cena (sem Y-sort).
+## Container onde os inimigos spawnados são adicionados (o YSortContainer do
+## stage). Entidades só participam do Y-sort se forem FILHAS do node com
+## y_sort_enabled.
+##
+## OPCIONAL — deixe VAZIO no caso normal: o container é resolvido sozinho pelo
+## grupo "YSortContainer", que vem marcado na cena base (logo toda instância em
+## qualquer stage já nasce nele). Preencha apenas como OVERRIDE explícito, por
+## exemplo num stage com mais de um container.
 @export var enemy_container: Node2D
 
 # =================================================
@@ -166,13 +170,19 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.max_difficulty_multiplier = max_difficulty_multiplier
 	SpawnManagerGlobal.enemy_definitions = enemy_definitions
 
-	# Aviso: sem container, inimigos caem na raiz da cena (z efetivo menor
-	# que o do player dentro do YSortContainer) e o player fica sempre na
-	# frente deles — Y-sort player↔inimigos quebra silenciosamente.
-	# Causa comum: trocar/recolocar o YSortContainer sem rearrastá-lo aqui.
-	if not is_instance_valid(enemy_container):
-		push_warning("SpawnManagerConfig: 'enemy_container' vazio — inimigos vão para a raiz da cena e o Y-sort player↔inimigos não vai funcionar. Arraste o YSortContainer para o campo 'Enemy Container' no Inspector.")
-	SpawnManagerGlobal.enemy_container = enemy_container
+	# Resolve o container Y-sort: export (override explícito) → grupo → nada.
+	# O grupo está marcado na CENA BASE do YSortContainer, então nenhum stage
+	# precisa de fiação manual — o que elimina o erro silencioso de esquecer
+	# de arrastar (sem container, os inimigos caem na raiz da cena, com z
+	# efetivo menor que o do player, e o player renderiza sempre na frente).
+	var container: Node2D = enemy_container
+	if not is_instance_valid(container):
+		container = get_tree().get_first_node_in_group("YSortContainer") as Node2D
+
+	if not is_instance_valid(container):
+		push_warning("SpawnManagerConfig: nenhum container Y-sort encontrado — o export 'Enemy Container' está vazio E não há nó no grupo 'YSortContainer'. Os inimigos vão para a raiz da cena e o Y-sort player↔inimigos não vai funcionar.")
+
+	SpawnManagerGlobal.enemy_container = container
 	
 	# Transfere configurações de teleport
 	SpawnManagerGlobal.teleport_enabled = teleport_enabled
