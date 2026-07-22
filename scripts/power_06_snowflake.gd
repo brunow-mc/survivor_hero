@@ -103,7 +103,7 @@ func _choose_spawn_position() -> void:
 	var target = find_random_enemy_on_screen(screen_edge_tolerance)
 	
 	if target:
-		global_position = target.global_position
+		global_position = _enemy_body_position(target)
 	else:
 		_apply_fallback_position()
 

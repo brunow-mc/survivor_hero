@@ -193,6 +193,14 @@ func calculate_projectile_spread_angles(count: int, spread_angle: float) -> Arra
 # ENEMY TARGETING - NOVO v1.3.16
 # =================================================
 
+## Posição do CORPO de um inimigo (o BodyCenter), NÃO dos pés. A origem da
+## cena de um inimigo são os pés, ~10-15px abaixo do corpo visível — mirar
+## nela faz os ataques convergirem no chão. Ver EnemyBase.get_body_center_position().
+func _enemy_body_position(enemy: Node2D) -> Vector2:
+	if enemy.has_method("get_body_center_position"):
+		return enemy.get_body_center_position()
+	return enemy.global_position
+
 func find_nearest_enemy_on_screen(margin: float = 50.0) -> Node2D:
 	"""
 	v1.3.16: Encontra inimigo mais próximo DENTRO da tela visível.
@@ -227,11 +235,12 @@ func find_nearest_enemy_on_screen(margin: float = 50.0) -> Node2D:
 		if not is_instance_valid(enemy):
 			continue
 		
-		# Verificar se está dentro da área visível
-		if not screen_rect.has_point(enemy.global_position):
+		# Verificar se está dentro da área visível (pelo CORPO, não pelos pés)
+		var body_pos: Vector2 = _enemy_body_position(enemy)
+		if not screen_rect.has_point(body_pos):
 			continue
-		
-		var dist = global_position.distance_to(enemy.global_position)
+
+		var dist = global_position.distance_to(body_pos)
 		if dist < nearest_dist:
 			nearest_dist = dist
 			nearest = enemy
@@ -277,7 +286,7 @@ func find_random_enemy_on_screen(margin: float = 50.0) -> Node2D:
 		if not is_instance_valid(enemy):
 			continue
 		
-		if screen_rect.has_point(enemy.global_position):
+		if screen_rect.has_point(_enemy_body_position(enemy)):
 			on_screen.append(enemy)
 	
 	# Se não há inimigos, retornar null
@@ -323,9 +332,9 @@ func _find_nearest_enemy_global() -> Node2D:
 		if not is_instance_valid(enemy):
 			continue
 		
-		var dist = global_position.distance_to(enemy.global_position)
+		var dist = global_position.distance_to(_enemy_body_position(enemy))
 		if dist < nearest_dist:
 			nearest_dist = dist
 			nearest = enemy
-	
+
 	return nearest

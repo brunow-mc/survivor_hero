@@ -211,7 +211,7 @@ func define_initial_direction() -> void:
 	var enemy := find_nearest_enemy_on_screen(screen_edge_tolerance)
 
 	if enemy:
-		move_direction = (enemy.global_position - global_position).normalized()
+		move_direction = (_enemy_body_position(enemy) - global_position).normalized()
 	else:
 		move_direction = Vector2(direction, 0).normalized()
 

@@ -102,7 +102,7 @@ func define_trajectory() -> void:
 		has_target = false
 		return
 
-	target_position = enemy.global_position
+	target_position = _enemy_body_position(enemy)
 	initial_to_target = (target_position - global_position).normalized()
 	has_target = true
 	has_passed_target = false
