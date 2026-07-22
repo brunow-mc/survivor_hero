@@ -60,6 +60,10 @@ var facing_direction: float = 1.0
 # =================================================
 var sprite_node: CanvasItem
 
+# Marcador BodyCenter (= centro do corpo). Referência canônica de "onde está
+# o corpo do player" — ver get_body_center_position().
+@onready var body_center: Node2D = get_node_or_null("BodyCenter") as Node2D
+
 # =================================================
 # ÁUDIO HIT (CONTROLE)
 # =================================================
@@ -84,6 +88,18 @@ func _validate_scene_setup() -> void:
 		push_warning("PlayerBase: nó 'Hurtbox' não encontrado — o player NÃO vai receber dano de contato dos inimigos.")
 	elif not hurtbox.is_in_group("PlayerHurtbox"):
 		push_warning("PlayerBase: Hurtbox fora do grupo 'PlayerHurtbox' — o player NÃO vai receber dano de contato dos inimigos.")
+
+## Posição global do CENTRO DO CORPO do player (o marcador BodyCenter). É a
+## referência canônica para qualquer sistema que precise saber "onde está o
+## corpo do player": câmera, nascimento de ataques, centro de órbita, alvo de
+## perseguição dos inimigos. NÃO usar `global_position` para isso — a origem
+## da cena são os PÉS, o que desloca tudo para baixo.
+## Fallback: BodyCenter → origem (pés). A ausência do marcador é avisada uma
+## vez pelo AttackController.setup().
+func get_body_center_position() -> Vector2:
+	if is_instance_valid(body_center):
+		return body_center.global_position
+	return global_position
 
 # -------------------------------------------------
 # SETUPS

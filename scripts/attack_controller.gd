@@ -218,20 +218,11 @@ func setup(
 	# silenciosamente nos PÉS se o marcador faltar (nascimento de projéteis,
 	# ataques attach_to_player, centro da órbita do gear, perseguição dos
 	# inimigos). Avisar aqui cobre todos de uma vez, e só uma vez.
-	if player and not player.get_node_or_null("BodyCenter"):
+	if player and not player.body_center:
 		push_warning("AttackController: BodyCenter ausente na cena do player — projéteis, ataques anexados, a órbita do gear e a perseguição dos inimigos vão usar os PÉS como centro do corpo.")
 
 	for attack_data in attacks:
 		_create_attack_timer(attack_data)
-
-
-# Posição de nascimento de fallback: BodyCenter do player, ou a
-# origem (pés) se o marcador também faltar. A origem sempre existe.
-func _get_player_body_position() -> Vector2:
-	var body_center: Node2D = player.get_node_or_null("BodyCenter")
-	if body_center:
-		return body_center.global_position
-	return player.global_position
 
 # -------------------------------------------------
 # PHYSICS PROCESS - v1.3.11
@@ -338,9 +329,7 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 		# Origem da cena do player fica nos PÉS (convenção feet origin).
 		# Ataques presos ao player nascem no CENTRO DO CORPO (BodyCenter),
 		# senão surgem deslocados para baixo.
-		var body_center: Node2D = player.get_node_or_null("BodyCenter")
-		if body_center:
-			attack.position = body_center.position
+		attack.global_position = player.get_body_center_position()
 	else:
 		player.add_sibling(attack)
 
@@ -354,10 +343,10 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 				# Fallback: marcador ausente → nasce do corpo do player
 				# (perde só o offset lateral). Cadeia termina na origem,
 				# que sempre existe.
-				attack.global_position = _get_player_body_position()
+				attack.global_position = player.get_body_center_position()
 			attack.set_power_direction(dir)
 		else:
-			attack.global_position = _get_player_body_position()
+			attack.global_position = player.get_body_center_position()
 
 	if attack.has_method("set_attack_data"):
 		attack.set_attack_data(attack_data)

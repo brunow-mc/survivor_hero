@@ -57,10 +57,10 @@ func _ready() -> void:
 		queue_free()
 		return
 
-	# Centro da órbita = BodyCenter do player (fallback: origem/pés)
-	var body_center: Node2D = player.get_node_or_null("BodyCenter")
-	if body_center:
-		_orbit_center_offset = body_center.position
+	# Centro da órbita = BodyCenter do player. O gear é filho do player e
+	# reescreve a própria position todo frame, então precisa do offset no
+	# referencial LOCAL do player: o getter é global → to_local converte.
+	_orbit_center_offset = player.to_local(player.get_body_center_position())
 	
 	# Fade in
 	modulate.a = 0.0
