@@ -248,9 +248,13 @@ func _setup_base() -> void:
 	# lemos .global_position em update_direction() — que roda todo frame, por
 	# inimigo (hot path já otimizado com staggering + grid). Uma chamada de
 	# método por inimigo por frame custaria mais que ler a propriedade do nó
-	# cacheado. Não uniformizar sem esse motivo. (O cache fica obsoleto se o
-	# player for substituído em runtime — mesmo caso do cache de `player`
-	# acima; tratar quando existir spawn/seleção de player.)
+	# cacheado. Não uniformizar sem esse motivo.
+	#
+	# Premissa do cache: um player por partida, criado ANTES dos inimigos e
+	# vivo até o fim (não há troca de player em runtime). O único risco não é
+	# obsolescência, é ORDEM DE CRIAÇÃO: o futuro spawner de personagem deve
+	# lançar o player antes do SpawnManager começar; senão este cache nasce
+	# vazio. (A câmera já tolera isso com reaquisição por frame.)
 	player = get_tree().get_first_node_in_group("Player")
 	if player:
 		player_body_center = player.get_node_or_null("BodyCenter")
