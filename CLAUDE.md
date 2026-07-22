@@ -181,6 +181,10 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 
 **Reserved groups:** `Power` and `XPItems` have no consumer today; they are kept as single-source handles for future use (acting on all live projectiles mid-game; a magnet powerup pulling XP). Note `XPItems` covers **only items using `xp_item.gd`** — a future non-XP collectible with its own script would need a broader group (or a shared item base script), not this one.
 
+**Global registry + descriptions (`project.godot`)** — every group above is registered under `[global_group]` so the editor's Groups dock lists the whole inventory in any scene, including the code-declared ones (which otherwise exist only at runtime and never show up). **Registering a name there assigns it to no node** — it is editor metadata; membership still comes only from the scene tab or `add_to_group()`.
+
+Each entry carries a **description** (the quoted value after `=`) stating **where the group is declared** and **what breaks without it** — for code-declared groups it reads `NAO ticar em cenas`, so the warning lands exactly where someone would be tempted to create the duplicate declaration. **The editor has no UI to write these descriptions**: edit `project.godot` by hand with Godot closed. Keep them ASCII — the editor rewrites that file on every settings change. **When adding a new group, register the name and write its description in the same pass**; a registered group with an empty description is an invitation to tick it on the wrong node.
+
 **Editor gotcha:** deleting a group from the Groups dock does **not** rewrite scenes that already carry it — the `groups=[...]` entry stays in each `.tscn` and becomes hard to spot in the dock. Remove it on the node itself, or edit the scene file.
 
 ## Physics layers (2D)

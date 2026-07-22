@@ -43,11 +43,13 @@ window/stretch/mode="canvas_items"
 
 [global_group]
 
-Player=""
-PlayerHurtbox=""
-PlayerHitbox=""
-EnemyHurtbox=""
-YSortContainer=""
+Player="DECLARADO NA CENA: raiz de major_heat.tscn (aba Grupos). Precisa vir da cena porque e consultado durante a inicializacao (camera.gd no _ready) — grupo por codigo so existiria depois do _ready do player."
+PlayerHurtbox="DECLARADO NA CENA: no Hurtbox do player. Sem ele o player NAO recebe dano de contato dos inimigos (PlayerBase avisa no _ready)."
+EnemyHurtbox="DECLARADO NA CENA: no Hurtbox de CADA cena de inimigo. Sem ele o inimigo fica INVULNERAVEL (EnemyBase avisa uma vez por cena)."
+YSortContainer="DECLARADO NA CENA: raiz de y_sort_container.tscn, entao toda instancia ja nasce nele. SpawnManagerConfig o usa para achar o pai dos inimigos spawnados."
+Enemy="DECLARADO POR CODIGO em enemy_base.gd (_ready). NAO ticar em cenas — declaracao dupla foi o que criou o grupo morto Enemies."
+Power="DECLARADO POR CODIGO em base_power.gd (_ready); depende do super._ready() nas subclasses. NAO ticar em cenas. RESERVADO: sem consumidor hoje."
+XPItems="DECLARADO POR CODIGO em xp_item.gd (_ready). NAO ticar em cenas. RESERVADO: sem consumidor hoje. Cobre so itens que usam xp_item.gd."
 
 [input]
 
