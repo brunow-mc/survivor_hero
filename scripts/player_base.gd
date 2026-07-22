@@ -73,6 +73,17 @@ func _ready() -> void:
 	_register_player()
 	_setup_audio()
 	_setup_hit_timer()
+	_validate_scene_setup()
+
+# Guard de inicialização: sem o grupo, os Hitbox dos inimigos não reconhecem
+# o player e o dano por contato simplesmente nunca acontece — falha grave e
+# 100% silenciosa. Roda uma vez, no _ready do player.
+func _validate_scene_setup() -> void:
+	var hurtbox: Node = get_node_or_null("Hurtbox")
+	if hurtbox == null:
+		push_warning("PlayerBase: nó 'Hurtbox' não encontrado — o player NÃO vai receber dano de contato dos inimigos.")
+	elif not hurtbox.is_in_group("PlayerHurtbox"):
+		push_warning("PlayerBase: Hurtbox fora do grupo 'PlayerHurtbox' — o player NÃO vai receber dano de contato dos inimigos.")
 
 # -------------------------------------------------
 # SETUPS

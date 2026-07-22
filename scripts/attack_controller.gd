@@ -214,6 +214,13 @@ func setup(
 	if not attack_position_right or not attack_position_left:
 		push_warning("AttackController: AttackPositionRight/Left ausente(s) na cena do player — ataques usarão o fallback (BodyCenter/origem).")
 
+	# Guard único do BodyCenter do player. Todos os consumidores dele caem
+	# silenciosamente nos PÉS se o marcador faltar (nascimento de projéteis,
+	# ataques attach_to_player, centro da órbita do gear, perseguição dos
+	# inimigos). Avisar aqui cobre todos de uma vez, e só uma vez.
+	if player and not player.get_node_or_null("BodyCenter"):
+		push_warning("AttackController: BodyCenter ausente na cena do player — projéteis, ataques anexados, a órbita do gear e a perseguição dos inimigos vão usar os PÉS como centro do corpo.")
+
 	for attack_data in attacks:
 		_create_attack_timer(attack_data)
 

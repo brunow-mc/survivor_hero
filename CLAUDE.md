@@ -45,6 +45,21 @@ Player and every enemy scene follow this layout (in preparation for Y-sort):
 
 **Marker nodes degrade gracefully, never crash**: position markers (`BodyCenter`, `AttackPositionRight/Left`) are looked up with `get_node_or_null` and every consumer has a fallback chain ending in a property that always exists — e.g. projectile spawn: `AttackPositionRight/Left` → player `BodyCenter` (`AttackController._get_player_body_position()`) → `player.global_position`. A player scene missing markers still works (attacks spawn slightly off) and `AttackController.setup()` emits one `push_warning` so the omission is visible in the console. Follow this pattern for any new marker node.
 
+**The contract is "degrade AND warn" — a silent fallback is a bug.** Falling back keeps the game running, but the degradation (e.g. everything silently re-anchoring to the FEET) is nearly invisible in play, so every fallback needs a one-time warning. Two rules make the warnings usable:
+- **Warn at initialization, never at the point of use.** Most consumers sit in hot paths (`_enemy_body_position()` runs per targeting call, `_setup_base()` runs per spawn) — a warning there would flood the console.
+- **Warn once per *scene*, not per instance**, via a static `Dictionary` guard keyed by `scene_file_path`. A horde of 200 gators must produce **one** warning, not 200.
+
+Current guards (all at init, all silent when the project is correct):
+
+| Guard | Where | Catches |
+|---|---|---|
+| Player `BodyCenter` | `AttackController.setup()` | projectile spawn, `attach_to_player` attacks, gear orbit centre and enemy chasing all falling back to the feet |
+| `Hurtbox` / `EnemyHurtbox` group | `EnemyBase._validate_scene_setup()` | **enemy would be invulnerable** (powers gate damage on that group) |
+| Enemy `BodyCenter` | `EnemyBase._validate_scene_setup()` | aim, knockback and navigation reverting to the feet |
+| `NavigationAgent2D` not under `BodyCenter` | `EnemyBase._validate_scene_setup()` | navigation silently returning to the feet frame (the historical "arc" bug) |
+| `body_center_offset` drift | `SpawnManager._validate_body_center_offset()` | spawn validating wall clearance at the wrong point (this really happened — see Spawn system) |
+| `Hurtbox` / `PlayerHurtbox` group | `PlayerBase._validate_scene_setup()` | **player immune to contact damage** |
+
 **New enemy checklist**: origin at feet · `BodyCenter` node at collider center · `NavigationAgent2D` as child of `BodyCenter` · subclass `@onready` path `$BodyCenter/NavigationAgent2D` · fill the `Spawn Fit` group in its `EnemySpawnData` (see Spawn system) · root configured for Y-sort (`z_index = 2`, `y_sort_enabled = true` — see Y-sort).
 
 ### Y-sort (2.5D depth illusion)
@@ -115,7 +130,7 @@ Budget-based, inspired by Vampire Survivors:
 - **Snap-to-navmesh**: grid points are not required to land on the navmesh — `get_snapped_navigable_point()` snaps each point to the closest navmesh position within `nav_snap_radius` (export, default 32 ≈ half the 64px grid spacing). This lets the coarse grid "see" thin corridor strips at zero extra cost, and guarantees every candidate lies ON the mesh (never spawn off-mesh). **Frame nuance:** the snap is done in the **feet frame** (the grid point is a feet position), while the `NavigationAgent2D` actually navigates the **BodyCenter** — so the feet land on the mesh, not necessarily the body. It degrades gracefully (the agent resolves to the nearest mesh point and `makepath()` runs right after spawn), but it is the last residual frame mismatch in this pipeline and a candidate for future refinement.
 - **Per-enemy spawn fit**: wall clearance is validated **at the body center** (`pos + body_center_offset`), answering "does this enemy's collider fit here?" — and uses the chosen enemy's own values from `EnemySpawnData`'s `Spawn Fit` group (`spawn_clearance_radius`, `body_center_offset`). Small enemies spawn in corridors that large ones can't. Clearance slightly below the collider radius is a legal calibration: it allows ~1-3px wall overlap that physics gently resolves on the first frame (used to raise density in tight corridors); going much lower risks depenetration ejecting the enemy through thin walls.
   - **`body_center_offset` shifts nothing — it only validates.** The enemy is placed with `enemy.global_position = spawn_pos`, i.e. its **feet** land exactly on the chosen point (correct: grid points are floor/navmesh positions). The offset merely tells the validator *where the collider will sit* so it can check walls there.
-  - ⚠️ **It is a manual duplicate of the enemy scene's `BodyCenter` node position and must be kept in sync.** They already drifted once (Red Gator's resource was left at the default while its `BodyCenter` was at `-15`, so wall fit was validated at the wrong point). When you move a `BodyCenter`, update the matching `EnemySpawnData`.
+  - ⚠️ **It is a manual duplicate of the enemy scene's `BodyCenter` node position and must be kept in sync.** They already drifted once (Red Gator's resource was left at the default while its `BodyCenter` was at `-15`, so wall fit was validated at the wrong point). When you move a `BodyCenter`, update the matching `EnemySpawnData` — `SpawnManager._validate_body_center_offset()` now compares the two on first spawn of each enemy scene and warns if they diverge.
 - **No silent fallback**: if no point in the chosen cluster passes full validation, `find_spawn_position()` returns `Vector2.ZERO` and the spawn is skipped this frame (budget is retained). Never spawn on a rejected point — that was the historical source of enemies inside walls.
 - **Teleport system**: every `teleport_check_interval` seconds, enemies beyond `max_distance_from_player` are teleported. Two-phase validation: the cache is pre-filtered with the **smallest** clearance among defined enemies (so tight-corridor points exist in it), then `_take_position_fitting_enemy()` re-validates each candidate with the specific enemy's own clearance at assignment time.
 - Call `SpawnManagerGlobal.start_spawning()` when the stage starts; `stop_spawning()` on restart.
@@ -158,7 +173,7 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 **Where to declare — the rule:**
 1. **Queried during initialization** (inside another node's `_ready()`) → **Groups tab**. A tab group is active the moment the node enters the tree, *before* any `_ready()`; a group added by `add_to_group()` only exists after that node's own `_ready()` has run. `camera.gd._ready()` looks up `Player` immediately — which is why `Player` must stay in the tab.
 2. **Family defined by a script shared across many scenes**, queried only at runtime → **base script** (`add_to_group`). Guarantees a new subclass scene cannot forget it (`Enemy`, `Power`, `XPItems`).
-3. **Belongs to a specific child node** → that scene's **Groups tab** (`EnemyHurtbox`, `PlayerHurtbox`).
+3. **Belongs to a specific child node** → that scene's **Groups tab** (`EnemyHurtbox`, `PlayerHurtbox`). These are the only groups repeated scene by scene, so they are the easiest to forget — and forgetting one makes that entity **invulnerable**. Both are covered by init guards (see *Marker nodes*).
 4. **Never create a script just to add a group.** A scene with no script declares it in the tab.
 
 **Reserved groups:** `Power` and `XPItems` have no consumer today; they are kept as single-source handles for future use (acting on all live projectiles mid-game; a magnet powerup pulling XP). Note `XPItems` covers **only items using `xp_item.gd`** — a future non-XP collectible with its own script would need a broader group (or a shared item base script), not this one.

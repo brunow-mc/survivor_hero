@@ -1118,6 +1118,29 @@ func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0, offset: Vect
 # =================================================
 # SPAWN DE INIMIGO
 # =================================================
+# O body_center_offset do EnemySpawnData é uma DUPLICATA MANUAL da posição do
+# nó BodyCenter da cena do inimigo, usada para validar a folga de parede no
+# ponto certo. Se as duas divergirem, o spawn valida o lugar errado — e isso é
+# invisível em jogo (já aconteceu: Red Gator com 4px de erro). Avisa UMA VEZ
+# por cena de inimigo.
+var _warned_offset_scenes: Dictionary = {}
+
+func _validate_body_center_offset(enemy: Node, enemy_data: EnemySpawnData) -> void:
+	var scene_key: String = enemy.scene_file_path
+	if scene_key == "" or _warned_offset_scenes.has(scene_key):
+		return
+	_warned_offset_scenes[scene_key] = true
+
+	var marker: Node2D = enemy.get_node_or_null("BodyCenter") as Node2D
+	if marker == null:
+		return  # ausência do marcador já é avisada pelo EnemyBase
+
+	if not marker.position.is_equal_approx(enemy_data.body_center_offset):
+		push_warning(
+			"SpawnManager [%s]: body_center_offset do EnemySpawnData (%s) diverge do nó BodyCenter da cena (%s) — a folga de parede está sendo validada no ponto errado. Sincronize os dois."
+			% [scene_key.get_file(), enemy_data.body_center_offset, marker.position]
+		)
+
 func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	"""
 	Instancia o inimigo na posição especificada.
@@ -1140,6 +1163,8 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	# Mesmo fix já aplicado aos teleportes (Passo 1)
 	if enemy.has_method("makepath"):
 		enemy.makepath()
+
+	_validate_body_center_offset(enemy, enemy_data)
 	
 	if debug_enabled:
 		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos, " | Budget: ", spawn_budget)

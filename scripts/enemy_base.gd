@@ -252,7 +252,44 @@ func _setup_base() -> void:
 	# recomputarem a direção todos no mesmo frame.
 	_steer_stagger = randi() % max(1, steer_update_interval)
 
+	_validate_scene_setup()
+
 	makepath()
+
+# =================================================
+# GUARDS DE INICIALIZAÇÃO
+# Erros de montagem de cena degradam graciosamente (nunca crasham), mas isso
+# os torna invisíveis em jogo. Estes avisos fecham o contrato "degrada E
+# avisa". Rodam UMA VEZ POR CENA de inimigo (guard estático), não por
+# instância — senão uma horda geraria centenas de avisos idênticos.
+# =================================================
+static var _warned_enemy_scenes: Dictionary = {}
+
+func _validate_scene_setup() -> void:
+	var scene_key: String = scene_file_path
+	if scene_key == "" or _warned_enemy_scenes.has(scene_key):
+		return
+	_warned_enemy_scenes[scene_key] = true
+
+	var who: String = scene_key.get_file()
+
+	# 1. Hurtbox sem o grupo → o inimigo fica INVULNERÁVEL (todo power checa
+	#    is_in_group("EnemyHurtbox") antes de aplicar dano).
+	var hurtbox: Node = get_node_or_null("Hurtbox")
+	if hurtbox == null:
+		push_warning("EnemyBase [%s]: nó 'Hurtbox' não encontrado — este inimigo NÃO poderá receber dano dos ataques." % who)
+	elif not hurtbox.is_in_group("EnemyHurtbox"):
+		push_warning("EnemyBase [%s]: Hurtbox fora do grupo 'EnemyHurtbox' — este inimigo NÃO poderá receber dano dos ataques." % who)
+
+	# 2. BodyCenter ausente → mira dos ataques, direção do knockback e
+	#    navegação voltam ao referencial dos PÉS.
+	if body_center == null:
+		push_warning("EnemyBase [%s]: marcador 'BodyCenter' ausente — mira dos ataques, knockback e navegação vão usar os PÉS (viés para baixo)." % who)
+
+	# 3. NavigationAgent2D fora do BodyCenter → o agente navega a raiz (pés)
+	#    em vez do corpo, reintroduzindo o bug do caminho em "arco".
+	if navigation_agent and body_center and navigation_agent.get_parent() != body_center:
+		push_warning("EnemyBase [%s]: NavigationAgent2D não é filho de 'BodyCenter' — a navegação vai operar no referencial dos PÉS e os caminhos ficarão enviesados." % who)
 
 # =================================================
 # LOOP PRINCIPAL (CENTRALIZADO)
