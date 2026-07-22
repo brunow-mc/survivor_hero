@@ -75,11 +75,10 @@ visible = false
 [node name="GameOverMenu" parent="." unique_id=2038781857 instance=ExtResource("7_ydume")]
 visible = false
 
-[node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_container") instance=ExtResource("10_spawn_config")]
+[node name="SpawnManagerConfig" parent="." unique_id=100682162 instance=ExtResource("10_spawn_config")]
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
-enemy_container = NodePath("../YSortContainer")
 max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
