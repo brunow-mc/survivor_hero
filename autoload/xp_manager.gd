@@ -9,23 +9,25 @@ signal xp_changed(current: int, required: int)
 signal level_up(new_level: int)
 
 # ======================================
-# PROGRESSÃO
+# PROGRESSÃO (estado — muda em runtime)
 # ======================================
-var current_level: int = 1
-var current_xp: int = 0
-var xp_to_next_level: int = 5
+var current_level: int = 1     # Nível atual (começa em 1).
+var current_xp: int = 0        # XP acumulado rumo ao próximo nível; a sobra vira fila implícita.
+var xp_to_next_level: int = 0  # SAÍDA: recalculado pela curva a cada nível. Não editar — é sobrescrito no _ready.
 
 # ======================================
-# CONFIGURAÇÃO DE CURVA
+# CONFIGURAÇÃO DE CURVA (entradas — definem a forma da progressão)
 # ======================================
-var base_xp_requirement: int = 5
-var xp_scaling_factor: float = 1.35
-var xp_scaling_type: ScalingType = ScalingType.EXPONENTIAL
+var base_xp_requirement: int = 4     # XP do 1º level-up e base de TODOS os modos (nível 1 = este valor).
+var xp_scaling_factor: float = 1.2  # Só EXPONENTIAL usa: razão do crescimento geométrico (composta por nível).
+var xp_power_exponent: float = 1.35   # Só POWER usa: expoente polinomial (1.0≈linear, ~1.5 rampa suave, 2.0 quadrática).
+var xp_scaling_type: ScalingType = ScalingType.POWER  # Modo de progressão (ver enum).
 
 enum ScalingType {
-	LINEAR,
-	EXPONENTIAL,
-	FIXED
+	LINEAR,       # base × nível           — incremento constante, nunca acelera.
+	EXPONENTIAL,  # base × fator^(nível-1)  — geométrico: começo colado + explosão tardia. Usa xp_scaling_factor.
+	FIXED,        # base                    — custo constante em todo nível.
+	POWER,        # base × nível^expoente   — polinomial: rampa crescente sem explodir. Usa xp_power_exponent.
 }
 
 # ======================================
@@ -101,6 +103,11 @@ func _calculate_xp_requirement() -> void:
 
 		ScalingType.FIXED:
 			xp_to_next_level = base_xp_requirement
+
+		ScalingType.POWER:
+			xp_to_next_level = int(
+				base_xp_requirement * pow(current_level, xp_power_exponent)
+			)
 
 # ======================================
 # UPGRADE SCREEN

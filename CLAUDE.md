@@ -19,7 +19,7 @@ There are no automated tests. Manual playtesting is the only validation method.
 | Name | File | Purpose |
 |---|---|---|
 | `GameStateGlobal` | `autoload/game_state.gd` | Central FSM (COMBAT / UPGRADE / PAUSED / PLAYER_DEAD). Also owns player health. |
-| `XPManagerGlobal` | `autoload/xp_manager.gd` | XP accumulation, level-up signal, exponential curve. |
+| `XPManagerGlobal` | `autoload/xp_manager.gd` | XP accumulation, level-up signal, selectable level-up curve (LINEAR/EXPONENTIAL/FIXED/POWER — see XP & Level-up flow). |
 | `LevelUpManagerGlobal` | `autoload/level_up_manager.gd` | Generates upgrade options on level-up, pauses game, delegates to controllers. |
 | `SpawnManagerGlobal` | `autoload/spawn_manager.gd` | Budget-based enemy spawn with grid sampling and teleport system. |
 | `PowerUpStatsGlobal` | `autoload/power_up_stats.gd` | Flat store for computed player stats (damage, armor, cooldown reduction, etc.). Emits `stats_changed`. |
@@ -146,6 +146,14 @@ Budget-based, inspired by Vampire Survivors:
 4. `LevelUpManager` pauses game (`GameStateGlobal.UPGRADE`), generates 3 options from `AttackController` and `PowerUpController` pools.
 5. Player selects → `controller.apply_upgrade(id)` → `current_level++` on the relevant resource.
 6. `AttackController._check_upgrade_changes()` detects the level change next physics frame and updates the timer.
+
+**XP curve** — `XPManager` computes the requirement for the next level in `_calculate_xp_requirement()`, selected by `xp_scaling_type` (`ScalingType`). Four modes, all kept:
+- `LINEAR` — `base × level`: constant increment, never accelerates.
+- `EXPONENTIAL` — `base × factor^(level−1)`: geometric; uses `xp_scaling_factor`. Its shape is inherently *flat start + late explosion* (small base + `int()` truncation glues the first steps, then the ratio compounds into thousands) — hard to tune well.
+- `FIXED` — `base`: same cost every level.
+- `POWER` — `base × level^exponent`: polynomial; uses `xp_power_exponent`. Rising steps from level 1 with no runaway. **This is the current mode** (base `4`, exponent `1.35`) — it gave the wanted feel where the other three couldn't.
+
+Key facts: `base_xp_requirement` sets level 1's cost and anchors **every** mode (level 1 always costs `base`, since all four formulas equal `base` at level 1). `xp_scaling_factor` is used by **EXPONENTIAL only**; `xp_power_exponent` by **POWER only**. `xp_to_next_level` is an **output** (recomputed each level), never an input — editing it does nothing. The requirement is only one side of pacing; XP *supply* (drop rate + item value, currently inflated with `drop_chance` high for testing) is the other — tune the curve first, then the drops.
 
 **Implicit level-up queue** — `XPManager._check_level_up()` grants at most **1 level per call** (`if`, not `while`) and is blocked by `is_waiting_for_upgrade` while a menu is pending. Surplus XP stays in `current_xp` and acts as the queue: when the player confirms a choice, `LevelUpManager.apply_upgrade()` calls `XPManagerGlobal.upgrade_selected()`, which re-checks the surplus — if it covers another level, a new menu opens **synchronously** and the game stays paused in UPGRADE (no COMBAT flicker between chained menus). Two ordering constraints keep the synchronous chain working: `apply_upgrade()` re-checks *before* unpausing (and returns without unpausing if a new menu opened), and `level_up_ui._on_option_pressed()` hides the menu *before* emitting `option_selected` (hiding after would erase the newly opened menu).
 
