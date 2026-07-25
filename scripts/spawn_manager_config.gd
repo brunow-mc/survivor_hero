@@ -23,6 +23,15 @@ extends Node
 ## Exemplo: Se Red Gator custa 3.0, minimal_budget = 3.0
 @export var minimal_budget: float = 3.0
 
+## Reserva de budget com que a partida COMEÇA (one-shot: consumida uma vez,
+## depois o ritmo volta ao normal; não mexe na taxa base nem na dificuldade).
+## Quanto maior, mais cheio o início:
+##   0            = começo frio (espera acumular do zero).
+##   0 < x < min  = adianta o 1º spawn (reduz a espera inicial).
+##   x >= min     = já cruza o limiar e dispara uma rajada de abertura.
+## (min = minimal_budget.)
+@export var initial_budget: float = 0.0
+
 # =================================================
 # SPAWN ÁREA RETANGULAR
 # =================================================
@@ -158,6 +167,7 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.max_enemies = max_enemies
 	SpawnManagerGlobal.base_budget_per_second = base_budget_per_second
 	SpawnManagerGlobal.minimal_budget = minimal_budget
+	SpawnManagerGlobal.initial_budget = initial_budget
 	
 	# Transfere margens retangulares
 	SpawnManagerGlobal.spawn_margin_min_horizontal = spawn_margin_min_horizontal

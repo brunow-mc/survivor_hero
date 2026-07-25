@@ -31,6 +31,11 @@ signal debug_data_updated(data: Dictionary)
 ## Deve ser >= ao custo do inimigo mais caro
 @export var minimal_budget: float = 3.0
 
+## Budget com que a partida começa (aplicado no start_spawning, one-shot).
+## Qualquer valor > 0 adianta o 1º spawn; >= minimal_budget dispara rajada.
+## Definido pelo SpawnManagerConfig por stage. 0 = começo frio (comportamento antigo).
+var initial_budget: float = 0.0
+
 # =================================================
 # SPAWN ÁREA RETANGULAR (Baseado na Tela)
 # =================================================
@@ -218,8 +223,8 @@ func start_spawning() -> void:
 	# Reseta estado
 	game_time = 0.0
 	time_since_start = 0.0
-	# Inicia budget em 0.0 e deixa acumular durante o delay inicial
-	spawn_budget = 0.0
+	# Budget parte da reserva inicial (rajada de abertura); 0 = começo frio.
+	spawn_budget = initial_budget
 	difficulty_multiplier = 1.0
 	
 	# Ativa spawning
