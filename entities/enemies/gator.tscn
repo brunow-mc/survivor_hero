@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cpjj1dgsuaw28"]
 
-[ext_resource type="Script" uid="uid://ccvqovyhnp2i3" path="res://scripts/gator.gd" id="1_p7g5j"]
+[ext_resource type="Script" uid="uid://ccvqovyhnp2i3" path="res://scripts/enemy_chaser.gd" id="1_p7g5j"]
 [ext_resource type="Texture2D" uid="uid://bgve81qr4xs00" path="res://sprites/enemies/gator/gator_idle.png" id="2_3rau8"]
 [ext_resource type="Script" uid="uid://cq6mggqsyd1qr" path="res://data/item_drop/item_drop_data.gd" id="2_6hyt3"]
 [ext_resource type="Texture2D" uid="uid://b4bubvtixdhs8" path="res://sprites/enemies/gator/gator.png" id="2_pqhw6"]
