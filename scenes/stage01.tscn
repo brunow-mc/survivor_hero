@@ -46,6 +46,10 @@ tile_set = ExtResource("2_emoyi")
 position = Vector2(1080, -80)
 length_tiles = 12
 
+[node name="Barrier2" parent="." unique_id=1793184375 instance=ExtResource("2_puonp")]
+position = Vector2(1337, -48)
+length_tiles = 3
+
 [node name="YSortContainer" parent="." unique_id=390203824 instance=ExtResource("2_nunuq")]
 
 [node name="TileMapDecoration" type="TileMapLayer" parent="YSortContainer" unique_id=1176650735]

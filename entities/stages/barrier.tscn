@@ -4,12 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://js2qfr2rfx3d" path="res://sprites/barrier/barrier_down.png" id="2_gres3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7egqp"]
+resource_local_to_scene = true
 size = Vector2(16, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jpx2q"]
+resource_local_to_scene = true
 size = Vector2(48, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gres3"]
+resource_local_to_scene = true
 size = Vector2(16, 16)
 
 [sub_resource type="Animation" id="Animation_7egqp"]
