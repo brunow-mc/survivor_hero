@@ -1,0 +1,145 @@
+[gd_scene format=3 uid="uid://cwp5ull2dayfu"]
+
+[ext_resource type="Script" uid="uid://bnbaltl74vdyb" path="res://scripts/barrier.gd" id="1_tu85p"]
+[ext_resource type="Texture2D" uid="uid://js2qfr2rfx3d" path="res://sprites/barrier/barrier_down.png" id="2_gres3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7egqp"]
+size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jpx2q"]
+size = Vector2(48, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gres3"]
+size = Vector2(16, 16)
+
+[sub_resource type="Animation" id="Animation_7egqp"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_gres3"]
+resource_name = "close"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"_play_close_sfx"
+}, {
+"args": [],
+"method": &"_enable_blocker"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_jpx2q"]
+resource_name = "open"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Visual:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"_play_open_sfx"
+}, {
+"args": [],
+"method": &"_disable_blocker"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7egqp"]
+_data = {
+&"RESET": SubResource("Animation_7egqp"),
+&"close": SubResource("Animation_gres3"),
+&"open": SubResource("Animation_jpx2q")
+}
+
+[node name="Barrier" type="StaticBody2D" unique_id=1430736777]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("1_tu85p")
+
+[node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
+position = Vector2(0, 8)
+shape = SubResource("RectangleShape2D_7egqp")
+disabled = true
+
+[node name="Visual" type="TextureRect" parent="." unique_id=304218349]
+modulate = Color(1, 1, 1, 0)
+texture_repeat = 2
+offset_left = -8.0
+offset_right = 8.0
+offset_bottom = 16.0
+texture = ExtResource("2_gres3")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="PassSensor" type="Area2D" parent="." unique_id=1281692190]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="Shape" type="CollisionShape2D" parent="PassSensor" unique_id=1195822943]
+position = Vector2(0, 8)
+shape = SubResource("RectangleShape2D_jpx2q")
+
+[node name="EnemyPhaseSensor" type="Area2D" parent="." unique_id=1611274623]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape2D" parent="EnemyPhaseSensor" unique_id=275329327]
+position = Vector2(0, 8)
+shape = SubResource("RectangleShape2D_gres3")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1575002602]
+libraries/ = SubResource("AnimationLibrary_7egqp")
+
+[node name="Sfx" type="AudioStreamPlayer2D" parent="." unique_id=1200746800]
+bus = &"SFX"
