@@ -109,7 +109,6 @@ collision_mask = 0
 script = ExtResource("1_tu85p")
 
 [node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
-visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_7egqp")
 disabled = true
@@ -129,7 +128,6 @@ collision_mask = 2
 monitorable = false
 
 [node name="Shape" type="CollisionShape2D" parent="PassSensor" unique_id=1195822943]
-visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_jpx2q")
 
@@ -139,7 +137,6 @@ collision_mask = 4
 monitorable = false
 
 [node name="Shape" type="CollisionShape2D" parent="EnemyPhaseSensor" unique_id=275329327]
-visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_gres3")
 
