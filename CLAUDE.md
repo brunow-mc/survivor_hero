@@ -162,6 +162,20 @@ Key facts: `base_xp_requirement` sets level 1's cost and anchors **every** mode 
 
 **Unlock notifications reach the LoadoutBar via two asymmetric routes** (pause does not block signals — only `_process`/`_physics_process`/input): `PowerUpController` emits `powerup_unlocked` synchronously inside `apply_upgrade()`, but `AttackController` emits `attack_unlocked` from its `_physics_process` polling, which is paused during the upgrade menu — so it only fires after unpause, too late for chained menus. `LoadoutBar` therefore listens to **both** `LevelUpManagerGlobal.upgrade_applied` (synchronous, updates during pause; only acts on `next_level == 1`) and the controller signals (covers debug keys and future unlock sources), deduplicating by id (`filled_attack_ids` / `filled_powerup_ids`) since menu unlocks arrive through both routes. Don't "fix" the asymmetry by making `AttackController` process-always or by calling `_check_upgrade_changes()` synchronously — attack timers would tick during pause, and `start_immediately` shots would be swallowed by the `is_combat_allowed()` guard.
 
+### World objects (gates, barriers, future interactables)
+
+The stage will grow more objects like this — Barrier is the first, not a special case. General shape: a self-contained scene with an editable size, an `open()`/`close()` (or equivalent) API driven by signals rather than hardcoded to one trigger, and a physics layer that blocks only the intended actor.
+
+**`entities/stages/barrier.tscn` + `scripts/barrier.gd`** — a one-way gate: the player can cross once, then it closes behind them and blocks the return; enemies are never blocked (see *Physics layers*). Size is set in the Inspector as `length_tiles` (not px), so it's always grid-aligned. Direction detection compares which side of a **local** axis the player entered/exited an `Area2D` — crossing all the way through closes it, backing out does not — and rotating the scene redirects it (no separate scenes per direction). It is **not** part of Y-sort and needs no navmesh re-bake (enemies pass through freely).
+
+**`@tool` scenes with an editable size:** don't cache the resized nodes with `@onready`. In editor context, `_ready()` can run before all children exist (e.g. right when the script is attached), so an `@onready` capture can silently become `null` and never update — the resize code then does nothing, with no error, until the scene is closed and reopened. Instead, look the nodes up **inside** the resize function itself (`get_node_or_null(...)`), so it always finds whatever exists at that moment.
+
+**Any `Shape2D` (or other sub-resource) a `@tool` script mutates by code must be `resource_local_to_scene = true`.** Without it, Godot shares that one resource across the base scene *and every instance* — resizing one barrier resizes the base scene's shape and every other instance too. Set it via the shape's Inspector (expand the `Shape` property → *Resource* section → *Local to Scene*) on each affected `CollisionShape2D` before placing multiple instances.
+
+**Frame-by-frame animation via `AnimationPlayer`, not `AnimatedSprite2D`**: for a `TextureRect` (or `Sprite2D`, same pattern used by the player), key the `texture` property itself across separate per-frame files — Godot swaps discretely between `Texture2D` resources (no in-between blend is possible), so no extra setup is needed. Mirrors how `major_heat.tscn` animates `Sprite2D:texture`.
+
+**The `RESET` animation gotcha:** the first time you key a *new* property track in any animation, Godot auto-creates (or updates) a special `RESET` library entry, capturing whatever value was live on the node **at that moment** as the "true" default. From then on, the editor re-applies that stored value whenever it resyncs (selecting the `AnimationPlayer`, reopening the scene…) — silently overwriting any value you set by hand afterward in the Inspector. If a property's default won't "stick" no matter how many times you fix it, check `[RESET]` in the animation dropdown — that's almost always where the stale value actually lives. Delete the `RESET` entry once it's correct (or entirely, if nothing in code plays it) to remove this hidden second source of truth; it doesn't run at runtime unless code explicitly calls `play("RESET")`.
+
 ### PowerUp system
 
 - **`PowerUpController`** (`entities/controllers/power_up_controller.tscn`) — child of player; holds `Array[PowerUpData]`. `apply_upgrade(id)` increments level and recomputes all stats into `PowerUpStatsGlobal.update_stats()`.
@@ -204,6 +218,7 @@ Each entry carries a **description** (the quoted value after `=`) stating **wher
 | 2 | player |
 | 3 | enemies |
 | 4 | power (projectiles) |
+| 5 | player_barrier (obstacles that block only the player — e.g. Barrier) |
 | 9 | enemy_hurtbox |
 
 ## Key conventions

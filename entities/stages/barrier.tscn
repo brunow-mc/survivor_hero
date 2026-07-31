@@ -1,7 +1,18 @@
 [gd_scene format=3 uid="uid://cwp5ull2dayfu"]
 
 [ext_resource type="Script" uid="uid://bnbaltl74vdyb" path="res://scripts/barrier.gd" id="1_tu85p"]
-[ext_resource type="Texture2D" uid="uid://js2qfr2rfx3d" path="res://sprites/barrier/barrier_down.png" id="2_gres3"]
+[ext_resource type="Texture2D" uid="uid://b0kcaku6ofvov" path="res://sprites/barrier/barrier_01.png" id="2_gres3"]
+[ext_resource type="Texture2D" uid="uid://dxju6m8j758rp" path="res://sprites/barrier/barrier_02.png" id="3_cnhj1"]
+[ext_resource type="Texture2D" uid="uid://dgf4fyduvlag3" path="res://sprites/barrier/barrier_03.png" id="4_65q6k"]
+[ext_resource type="Texture2D" uid="uid://dxyim5bw160g5" path="res://sprites/barrier/barrier_04.png" id="5_2wuva"]
+[ext_resource type="Texture2D" uid="uid://ciloh8rhpkc12" path="res://sprites/barrier/barrier_05.png" id="6_0mcu2"]
+[ext_resource type="Texture2D" uid="uid://bqtl106nfxagb" path="res://sprites/barrier/barrier_06.png" id="7_i22gn"]
+[ext_resource type="Texture2D" uid="uid://do7w6kpcenc7j" path="res://sprites/barrier/barrier_07.png" id="8_y067p"]
+[ext_resource type="Texture2D" uid="uid://bevlu8lcl8fdt" path="res://sprites/barrier/barrier_08.png" id="9_iule3"]
+[ext_resource type="Texture2D" uid="uid://bfd1iu0kx5lte" path="res://sprites/barrier/barrier_09.png" id="10_127su"]
+[ext_resource type="Texture2D" uid="uid://cyfwjo78x0l3c" path="res://sprites/barrier/barrier_10.png" id="11_02h6f"]
+[ext_resource type="Texture2D" uid="uid://cttvfglb6wlta" path="res://sprites/barrier/barrier_11.png" id="12_mfer4"]
+[ext_resource type="Texture2D" uid="uid://c5oldavwqnefq" path="res://sprites/barrier/barrier_12.png" id="13_5ngt0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7egqp"]
 resource_local_to_scene = true
@@ -17,41 +28,18 @@ size = Vector2(16, 16)
 
 [sub_resource type="Animation" id="Animation_7egqp"]
 length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Visual:modulate")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 1, 1, 0)]
-}
 
 [sub_resource type="Animation" id="Animation_gres3"]
 resource_name = "close"
 length = 0.3
-tracks/0/type = "value"
+step = 0.0333
+tracks/0/type = "method"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Visual:modulate")
+tracks/0/path = NodePath(".")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
-}
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
@@ -62,29 +50,29 @@ tracks/1/keys = {
 "method": &"_enable_blocker"
 }]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("2_gres3"), ExtResource("3_cnhj1"), ExtResource("4_65q6k"), ExtResource("5_2wuva"), ExtResource("6_0mcu2"), ExtResource("7_i22gn"), ExtResource("8_y067p"), ExtResource("9_iule3"), ExtResource("10_127su"), ExtResource("11_02h6f"), ExtResource("12_mfer4"), ExtResource("13_5ngt0")]
+}
 
 [sub_resource type="Animation" id="Animation_jpx2q"]
 resource_name = "open"
 length = 0.3
-tracks/0/type = "value"
+tracks/0/type = "method"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Visual:modulate")
+tracks/0/path = NodePath(".")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
-}
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
@@ -94,6 +82,18 @@ tracks/1/keys = {
 "args": [],
 "method": &"_disable_blocker"
 }]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Visual:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("13_5ngt0"), ExtResource("12_mfer4"), ExtResource("11_02h6f"), ExtResource("10_127su"), ExtResource("9_iule3"), ExtResource("8_y067p"), ExtResource("7_i22gn"), ExtResource("6_0mcu2"), ExtResource("5_2wuva"), ExtResource("4_65q6k"), ExtResource("3_cnhj1"), ExtResource("2_gres3")]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7egqp"]
@@ -109,12 +109,12 @@ collision_mask = 0
 script = ExtResource("1_tu85p")
 
 [node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
+visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_7egqp")
 disabled = true
 
 [node name="Visual" type="TextureRect" parent="." unique_id=304218349]
-modulate = Color(1, 1, 1, 0)
 texture_repeat = 2
 offset_left = -8.0
 offset_right = 8.0
@@ -129,6 +129,7 @@ collision_mask = 2
 monitorable = false
 
 [node name="Shape" type="CollisionShape2D" parent="PassSensor" unique_id=1195822943]
+visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_jpx2q")
 
@@ -138,6 +139,7 @@ collision_mask = 4
 monitorable = false
 
 [node name="Shape" type="CollisionShape2D" parent="EnemyPhaseSensor" unique_id=275329327]
+visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_gres3")
 

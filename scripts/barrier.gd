@@ -49,8 +49,10 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	# --- daqui pra baixo, só no jogo ---
-	blocker.disabled = true       # nasce ABERTA
-	visual.modulate.a = 0.0       # visual invisível enquanto aberta
+	# Nasce ABERTA: colisor desligado; o visual mostra o frame de repouso
+	# (a textura padrão do Visual no Inspector — ex.: barrier_01, a marca no
+	# chão). O alpha NÃO é mexido aqui: a barreira aberta é visível.
+	blocker.disabled = true
 	is_closed = false
 	pass_sensor.body_entered.connect(_on_pass_entered)
 	pass_sensor.body_exited.connect(_on_pass_exited)
