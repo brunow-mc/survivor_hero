@@ -45,11 +45,14 @@ tile_set = ExtResource("2_emoyi")
 [node name="Barrier" parent="." unique_id=1430736777 instance=ExtResource("2_puonp")]
 position = Vector2(1080, -80)
 length_tiles = 12
+lock_visual_rotation = true
 
 [node name="Barrier2" parent="." unique_id=1793184375 instance=ExtResource("2_puonp")]
 position = Vector2(1337, -48)
 rotation = -1.5707964
-length_tiles = 3
+length_tiles = 4
+thickness_tiles = 2
+lock_visual_rotation = true
 
 [node name="YSortContainer" parent="." unique_id=390203824 instance=ExtResource("2_nunuq")]
 
@@ -96,3 +99,13 @@ max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
 grid_sample_spacing = 64.0
+
+[node name="Barrier3" parent="." unique_id=426559588 instance=ExtResource("2_puonp")]
+position = Vector2(1504, -168)
+rotation = -1.5707964
+lock_visual_rotation = true
+
+[node name="Barrier4" parent="." unique_id=82982140 instance=ExtResource("2_puonp")]
+position = Vector2(69, -29)
+rotation = 1.5707964
+lock_visual_rotation = true

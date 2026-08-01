@@ -22,13 +22,27 @@ const TILE := 16  # tamanho do tile do jogo (px)
 ## fora do colisor de bloqueio.
 @export var pass_margin: float = float(TILE)
 
+@export_group("Visual")
+## Frames da animação, na ordem (índice 0 = frame 1 / repouso). Chamados
+## pelos métodos _frame_01()..._frame_12() via AnimationPlayer.
+@export var frames: Array[Texture2D] = []:
+	set(value):
+		frames = value
+		_set_frame(_current_frame)  # reaplica o frame atual com os novos frames
+## Mantém a arte de cada tile sempre "em pé", mesmo com a barreira
+## rotacionada. Desligue para objetos cuja arte deva girar junto com a
+## geometria (ex.: uma barreira de dano direcional).
+@export var lock_visual_rotation: bool = true:
+	set(value):
+		lock_visual_rotation = value
+		_apply_size()
+
 @export_group("Audio")
 @export var close_sound: AudioStream
 @export var open_sound: AudioStream
 
 # ---------------- NODES ----------------
 @onready var blocker: CollisionShape2D = $Blocker
-@onready var visual: TextureRect = $Visual
 @onready var pass_sensor: Area2D = $PassSensor
 @onready var pass_sensor_shape: CollisionShape2D = $PassSensor/Shape
 @onready var enemy_sensor: Area2D = $EnemyPhaseSensor
@@ -40,18 +54,21 @@ const TILE := 16  # tamanho do tile do jogo (px)
 var is_closed: bool = false
 var _entry_side: float = 0.0          # sinal do X local do player na entrada
 var _overlapping_enemies: Array = []  # inimigos sobre a barreira (p/ o efeito)
+var _current_frame: int = 1           # frame atual, aplicado a todos os tiles
 
 signal closed
 signal opened
 
+var _last_rotation: float = 0.0  # p/ detectar giro manual (ver _process)
+
 func _ready() -> void:
 	_apply_size()
+	_last_rotation = rotation
 	if Engine.is_editor_hint():
 		return
 	# --- daqui pra baixo, só no jogo ---
-	# Nasce ABERTA: colisor desligado; o visual mostra o frame de repouso
-	# (a textura padrão do Visual no Inspector — ex.: barrier_01, a marca no
-	# chão). O alpha NÃO é mexido aqui: a barreira aberta é visível.
+	# Nasce ABERTA: colisor desligado; os tiles mostram o frame 1 (_current_frame
+	# = 1 por padrão), o frame de repouso — ex.: barrier_01, a marca no chão.
 	blocker.disabled = true
 	is_closed = false
 	pass_sensor.body_entered.connect(_on_pass_entered)
@@ -59,16 +76,34 @@ func _ready() -> void:
 	enemy_sensor.body_entered.connect(_on_enemy_entered)
 	enemy_sensor.body_exited.connect(_on_enemy_exited)
 
+# Detecta giro manual (Inspector/gizmo) comparando a rotação a cada frame.
+# NOTIFICATION_TRANSFORM_CHANGED não se mostrou confiável em contexto @tool/
+# editor — polling é mais simples e garantido aqui (custo desprezível: uma
+# comparação de float por frame). Roda no editor E no jogo.
+func _process(_delta: float) -> void:
+	if rotation != _last_rotation:
+		_last_rotation = rotation
+		_refresh_tile_rotation()
+
+func _refresh_tile_rotation() -> void:
+	if not lock_visual_rotation:
+		return
+	var container := get_node_or_null("Tiles") as Node2D
+	if container == null:
+		return
+	for child in container.get_children():
+		(child as Node2D).global_rotation = 0.0
+
 # ---------------- GEOMETRIA (roda no editor via @tool) ----------------
 func _apply_size() -> void:
 	# Busca os nós NA HORA (get_node_or_null) em vez de depender de @onready:
 	# num script @tool o @onready pode capturar null se rodar antes de os filhos
 	# existirem e não se atualiza. Buscar aqui torna o preview do editor robusto.
 	var blk := get_node_or_null("Blocker") as CollisionShape2D
-	var vis := get_node_or_null("Visual") as TextureRect
 	var pass_shape := get_node_or_null("PassSensor/Shape") as CollisionShape2D
 	var enemy_shape := get_node_or_null("EnemyPhaseSensor/Shape") as CollisionShape2D
-	if blk == null or vis == null or pass_shape == null or enemy_shape == null:
+	var tiles_container := get_node_or_null("Tiles") as Node2D
+	if blk == null or pass_shape == null or enemy_shape == null or tiles_container == null:
 		return
 	var block_rect := blk.shape as RectangleShape2D
 	var pass_rect := pass_shape.shape as RectangleShape2D
@@ -83,10 +118,6 @@ func _apply_size() -> void:
 	block_rect.size = Vector2(w, h)
 	blk.position = Vector2(0.0, h / 2.0)
 
-	# Visual: canto sup-esq em (-w/2, 0), tamanho (w, h).
-	vis.position = Vector2(-w / 2.0, 0.0)
-	vis.size = Vector2(w, h)
-
 	# Sensor de passagem: mais largo em X (folga nas duas faces).
 	pass_rect.size = Vector2(w + 2.0 * pass_margin, h)
 	pass_shape.position = Vector2(0.0, h / 2.0)
@@ -94,6 +125,30 @@ func _apply_size() -> void:
 	# Sensor de inimigos: cobre a pegada da barreira.
 	enemy_rect.size = Vector2(w, h)
 	enemy_shape.position = Vector2(0.0, h / 2.0)
+
+	_rebuild_tiles(tiles_container, w)
+
+# Recria a grade de tiles (length_tiles × thickness_tiles) dentro de `Tiles`.
+# Cada tile é um Sprite2D independente — não um único retângulo esticado —
+# para poder ficar "em pé" (lock_visual_rotation) sem deformar o desenho.
+func _rebuild_tiles(container: Node2D, w: float) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.free()
+
+	var tex := _frame_texture(_current_frame)
+	for row in length_tiles:
+		for col in thickness_tiles:
+			var tile := Sprite2D.new()
+			tile.centered = true
+			tile.texture = tex
+			container.add_child(tile)
+			tile.position = Vector2(
+				-w / 2.0 + TILE / 2.0 + col * TILE,
+				TILE / 2.0 + row * TILE
+			)
+			if lock_visual_rotation:
+				tile.global_rotation = 0.0
 
 # ---------------- PASSAGEM DO PLAYER ----------------
 func _on_pass_entered(body: Node2D) -> void:
@@ -155,6 +210,37 @@ func _play_open_sfx() -> void:
 	if open_sound:
 		sfx.stream = open_sound
 		sfx.play()
+
+# ---------------- FRAMES (chamados pela AnimationPlayer via call-method) ----------------
+# 12 métodos SEM argumento (mesmo motivo de _enable_blocker/_disable_blocker):
+# a faixa de método só precisa escolher o nome, sem editar argumento na chave.
+func _frame_01() -> void: _set_frame(1)
+func _frame_02() -> void: _set_frame(2)
+func _frame_03() -> void: _set_frame(3)
+func _frame_04() -> void: _set_frame(4)
+func _frame_05() -> void: _set_frame(5)
+func _frame_06() -> void: _set_frame(6)
+func _frame_07() -> void: _set_frame(7)
+func _frame_08() -> void: _set_frame(8)
+func _frame_09() -> void: _set_frame(9)
+func _frame_10() -> void: _set_frame(10)
+func _frame_11() -> void: _set_frame(11)
+func _frame_12() -> void: _set_frame(12)
+
+func _set_frame(n: int) -> void:
+	_current_frame = n
+	var tex := _frame_texture(n)
+	var container := get_node_or_null("Tiles") as Node2D
+	if container == null:
+		return
+	for child in container.get_children():
+		if child is Sprite2D:
+			child.texture = tex
+
+func _frame_texture(n: int) -> Texture2D:
+	if frames.is_empty():
+		return null
+	return frames[clampi(n - 1, 0, frames.size() - 1)]
 
 # ---------------- INFRA DO EFEITO DE INIMIGO (visual entra depois) ----------------
 func _on_enemy_entered(body: Node2D) -> void:
