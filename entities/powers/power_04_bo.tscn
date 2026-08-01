@@ -53,7 +53,7 @@ visible = false
 shape = SubResource("CircleShape2D_ry2fh")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1170640385]
-self_modulate = Color(1, 0.85490197, 0, 1)
+self_modulate = Color(1, 0.9098039, 0, 1)
 sprite_frames = SubResource("SpriteFrames_ookiw")
 autoplay = "default"
 frame_progress = 0.14828001
