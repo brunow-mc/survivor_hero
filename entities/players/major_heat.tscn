@@ -29,18 +29,6 @@
 
 [sub_resource type="Animation" id="Animation_22j44"]
 length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [ExtResource("2_vecp2")]
-}
 
 [sub_resource type="Animation" id="Animation_aacg7"]
 resource_name = "attack"
@@ -145,7 +133,7 @@ death_volume_db = 1.75
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_yipme")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("2_vecp2")
+texture = ExtResource("17_3mgrr")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
