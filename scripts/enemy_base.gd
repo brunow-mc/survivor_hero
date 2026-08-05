@@ -76,6 +76,12 @@ enum EnemyState {
 @export var flash_count: int = 3
 @export var flash_duration: float = 0.09
 @export var flash_color: Color = Color.RED
+## Transparência do inimigo ao atravessar uma Barrier fechada (efeito de
+## "fantasma"). 0 = invisível, 1 = totalmente opaco. Calibrável por inimigo.
+## Usa só o canal ALPHA (flash_red usa RGB) — os dois convivem hoje, mas
+## brigariam se algum efeito futuro também mexer no alpha (ver CLAUDE.md /
+## nota do "árbitro único de modulate", ainda não implementado).
+@export_range(0.0, 1.0, 0.05) var phase_alpha: float = 0.4
 
 # =================================================
 # CONTEXT STEERING
@@ -826,10 +832,29 @@ func flash_red() -> void:
 		return
 	
 	for i in range(flash_count):
-		anim.modulate = flash_color
+		_set_tint(flash_color)
 		await get_tree().create_timer(flash_duration, false).timeout
-		anim.modulate = Color.WHITE
+		_set_tint(Color.WHITE)
 		await get_tree().create_timer(flash_duration, false).timeout
+
+## Aplica só o TINGIMENTO (RGB), preservando o alpha atual. Escrever
+## `modulate` inteiro (ex.: `= Color.WHITE`, que tem alpha 1) apagaria a
+## transparência de set_phasing() — foi exatamente esse o bug do inimigo que
+## levava dano em cima de uma Barrier fechada e voltava a ficar opaco.
+func _set_tint(tint: Color) -> void:
+	anim.modulate = Color(tint.r, tint.g, tint.b, anim.modulate.a)
+
+# =================================================
+# PHASE (atravessar Barrier fechada) — chamado pela Barrier via
+# has_method("set_phasing"), reaplicado todo frame enquanto sobrepõe.
+# Mexe SÓ no alpha; o flash de dano mexe só no RGB (_set_tint), então os
+# dois coexistem. Um terceiro efeito que queira o alpha exigiria o
+# "árbitro único de modulate" (ainda não implementado).
+# =================================================
+func set_phasing(active: bool) -> void:
+	if not anim:
+		return
+	anim.modulate.a = phase_alpha if active else 1.0
 
 # =================================================
 # KNOCKBACK TRANSFER BASE

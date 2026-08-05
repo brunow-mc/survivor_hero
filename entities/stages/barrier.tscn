@@ -209,6 +209,3 @@ shape = SubResource("RectangleShape2D_gres3")
 libraries/ = SubResource("AnimationLibrary_7egqp")
 
 [node name="Tiles" type="Node2D" parent="." unique_id=745406753]
-
-[node name="Sfx" type="AudioStreamPlayer2D" parent="." unique_id=1200746800]
-bus = &"SFX"
