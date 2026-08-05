@@ -4,7 +4,7 @@
 [ext_resource type="FontFile" uid="uid://os21wojhs3xa" path="res://fonts/8-bit Arcade In.ttf" id="3_svggg"]
 [ext_resource type="Theme" uid="uid://bt8vtjms5jrhf" path="res://ui/theme/bonus_desc.tres" id="4_rjfvn"]
 [ext_resource type="Theme" uid="uid://dpeinux0ngift" path="res://ui/theme/bonus_label.tres" id="4_vphjb"]
-[ext_resource type="AudioStream" uid="uid://cqd6x1inmxynu" path="res://audio/effects/Item/tada.mp3" id="5_rjfvn"]
+[ext_resource type="AudioStream" uid="uid://cqd6x1inmxynu" path="res://audio/effects/item/tada.mp3" id="5_rjfvn"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_rjfvn"]
 font = ExtResource("3_svggg")

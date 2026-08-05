@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://bhfvant2225bg" path="res://sprites/barrier/barrier_10.png" id="11_mfer4"]
 [ext_resource type="Texture2D" uid="uid://ca75nugoaw3b7" path="res://sprites/barrier/barrier_11.png" id="12_5ngt0"]
 [ext_resource type="Texture2D" uid="uid://vvm8ynpdvwx4" path="res://sprites/barrier/barrier_12.png" id="13_alaep"]
+[ext_resource type="AudioStream" uid="uid://yom6e5qa8tfw" path="res://audio/effects/barrier/barrier_close.mp3" id="14_65q6k"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7egqp"]
 resource_local_to_scene = true
@@ -179,6 +180,7 @@ collision_layer = 16
 collision_mask = 0
 script = ExtResource("1_tu85p")
 frames = Array[Texture2D]([ExtResource("2_cnhj1"), ExtResource("3_65q6k"), ExtResource("4_2wuva"), ExtResource("5_0mcu2"), ExtResource("6_i22gn"), ExtResource("7_y067p"), ExtResource("8_iule3"), ExtResource("9_127su"), ExtResource("10_02h6f"), ExtResource("11_mfer4"), ExtResource("12_5ngt0"), ExtResource("13_alaep")])
+close_sound = ExtResource("14_65q6k")
 
 [node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
 position = Vector2(0, 8)
@@ -206,7 +208,7 @@ shape = SubResource("RectangleShape2D_gres3")
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1575002602]
 libraries/ = SubResource("AnimationLibrary_7egqp")
 
+[node name="Tiles" type="Node2D" parent="." unique_id=745406753]
+
 [node name="Sfx" type="AudioStreamPlayer2D" parent="." unique_id=1200746800]
 bus = &"SFX"
-
-[node name="Tiles" type="Node2D" parent="." unique_id=745406753]

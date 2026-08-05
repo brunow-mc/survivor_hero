@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://cqd6x1inmxynu"
-path="res://.godot/imported/tada.mp3-7210884d77715392c389ec211ec3c58e.mp3str"
+path="res://.godot/imported/tada.mp3-5c9c344e8fb4723d0a9e28e0a1f0f1de.mp3str"
 
 [deps]
 
-source_file="res://audio/effects/Item/tada.mp3"
-dest_files=["res://.godot/imported/tada.mp3-7210884d77715392c389ec211ec3c58e.mp3str"]
+source_file="res://audio/effects/item/tada.mp3"
+dest_files=["res://.godot/imported/tada.mp3-5c9c344e8fb4723d0a9e28e0a1f0f1de.mp3str"]
 
 [params]
 

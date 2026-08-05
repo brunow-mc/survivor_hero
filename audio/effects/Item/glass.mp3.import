@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://bovm15krk6u4t"
-path="res://.godot/imported/glass.mp3-76bf288181c24b06f76f9de8574c65fd.mp3str"
+path="res://.godot/imported/glass.mp3-d517a6c4b480b1e77b22f89cd8d29e1d.mp3str"
 
 [deps]
 
-source_file="res://audio/effects/Item/glass.mp3"
-dest_files=["res://.godot/imported/glass.mp3-76bf288181c24b06f76f9de8574c65fd.mp3str"]
+source_file="res://audio/effects/item/glass.mp3"
+dest_files=["res://.godot/imported/glass.mp3-d517a6c4b480b1e77b22f89cd8d29e1d.mp3str"]
 
 [params]
 
