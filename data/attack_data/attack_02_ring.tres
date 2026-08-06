@@ -19,6 +19,7 @@ life_time = 1.7
 attack_delay = 0.325
 speed = 175.0
 projectile_stagger_delay = 0.2
+max_hits = 2
 attack_sound = ExtResource("1_a5d6v")
 attack_sound_volume_db = -8.0
 metadata/_custom_type_script = "uid://cic4g8p3sqyeu"
