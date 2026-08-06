@@ -13,6 +13,11 @@ const TILE := 16  # tamanho do tile do jogo (px)
 		thickness_tiles = max(1, value)
 		_apply_size()
 
+## Estado inicial. true = nasce ABERTA (o caso normal). false = nasce FECHADA,
+## já bloqueando e no último frame — aplicado direto, sem tocar a animação
+## (senão a barreira "subiria" sozinha ao carregar a cena).
+@export var starts_open: bool = true
+
 ## Fecha sozinha quando o player atravessa (entra por um lado, sai pelo outro).
 @export var auto_close_on_pass: bool = true
 ## Inverte qual lado local é o "de fora" (por padrão o player entra pelo -X local).
@@ -63,14 +68,20 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	# --- daqui pra baixo, só no jogo ---
-	# Nasce ABERTA: colisor desligado; os tiles mostram o frame 1 (_current_frame
-	# = 1 por padrão), o frame de repouso — ex.: barrier_01, a marca no chão.
-	blocker.disabled = true
-	is_closed = false
+	_apply_initial_state()
 	pass_sensor.body_entered.connect(_on_pass_entered)
 	pass_sensor.body_exited.connect(_on_pass_exited)
 	enemy_sensor.body_entered.connect(_on_enemy_entered)
 	enemy_sensor.body_exited.connect(_on_enemy_exited)
+
+# Aplica o estado inicial DIRETO, sem animação:
+#  - aberta  → colisor desligado, frame 1 (repouso: a marca no chão);
+#  - fechada → colisor ligado, último frame (barreira erguida).
+# Tocar close()/open() aqui faria a barreira animar sozinha ao carregar a cena.
+func _apply_initial_state() -> void:
+	is_closed = not starts_open
+	blocker.disabled = starts_open
+	_set_frame(1 if starts_open else maxi(1, frames.size()))
 
 # Detecta giro manual (Inspector/gizmo) comparando a rotação a cada frame.
 # NOTIFICATION_TRANSFORM_CHANGED não se mostrou confiável em contexto @tool/
