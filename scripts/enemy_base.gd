@@ -846,7 +846,7 @@ func _set_tint(tint: Color) -> void:
 
 # =================================================
 # PHASE (atravessar Barrier fechada) — chamado pela Barrier via
-# has_method("set_phasing"), reaplicado todo frame enquanto sobrepõe.
+# has_method("set_phasing"), nas transições de entrada/saída do sensor.
 # Mexe SÓ no alpha; o flash de dano mexe só no RGB (_set_tint), então os
 # dois coexistem. Um terceiro efeito que queira o alpha exigiria o
 # "árbitro único de modulate" (ainda não implementado).

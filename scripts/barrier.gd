@@ -44,9 +44,7 @@ const TILE := 16  # tamanho do tile do jogo (px)
 # ---------------- NODES ----------------
 @onready var blocker: CollisionShape2D = $Blocker
 @onready var pass_sensor: Area2D = $PassSensor
-@onready var pass_sensor_shape: CollisionShape2D = $PassSensor/Shape
 @onready var enemy_sensor: Area2D = $EnemyPhaseSensor
-@onready var enemy_sensor_shape: CollisionShape2D = $EnemyPhaseSensor/Shape
 @onready var anim: AnimationPlayer = $AnimationPlayer
 
 # ---------------- STATE ----------------
@@ -72,9 +70,8 @@ func _ready() -> void:
 	is_closed = false
 	pass_sensor.body_entered.connect(_on_pass_entered)
 	pass_sensor.body_exited.connect(_on_pass_exited)
-	# EnemyPhaseSensor NÃO usa sinais (ver _physics_process): body_entered/
-	# body_exited são eventos de borda que podem não disparar com um
-	# deslocamento abrupto (knockback) — polling every frame é imune a isso.
+	enemy_sensor.body_entered.connect(_on_enemy_entered)
+	enemy_sensor.body_exited.connect(_on_enemy_exited)
 
 # Detecta giro manual (Inspector/gizmo) comparando a rotação a cada frame.
 # NOTIFICATION_TRANSFORM_CHANGED não se mostrou confiável em contexto @tool/
@@ -84,40 +81,6 @@ func _process(_delta: float) -> void:
 	if rotation != _last_rotation:
 		_last_rotation = rotation
 		_refresh_tile_rotation()
-
-## Consulta quem está SOBREPONDO o EnemyPhaseSensor agora mesmo, todo frame
-## físico, em vez de confiar em body_entered/body_exited. Auto-corretivo:
-## não importa se um deslocamento abrupto (knockback) "pulou" um evento —
-## no próximo frame a consulta vê a sobreposição real e corrige sozinha.
-## Só é feita a checagem enquanto a barreira está FECHADA (sem custo aberta).
-func _physics_process(_delta: float) -> void:
-	if Engine.is_editor_hint():
-		return
-
-	if not is_closed:
-		if not _overlapping_enemies.is_empty():
-			for e in _overlapping_enemies:
-				if is_instance_valid(e) and e.has_method("set_phasing"):
-					e.set_phasing(false)
-			_overlapping_enemies.clear()
-		return
-
-	var current := enemy_sensor.get_overlapping_bodies()
-
-	for body in current:
-		if not _overlapping_enemies.has(body):
-			_overlapping_enemies.append(body)
-		# Reaplica TODO frame, não só na entrada: é idempotente e barato, e
-		# torna o efeito auto-corretivo — se algo pisar no alpha do inimigo
-		# (ex.: o flash de dano), o frame seguinte restaura sozinho.
-		if body.has_method("set_phasing"):
-			body.set_phasing(true)
-
-	for body in _overlapping_enemies.duplicate():
-		if not is_instance_valid(body) or not current.has(body):
-			_overlapping_enemies.erase(body)
-			if is_instance_valid(body) and body.has_method("set_phasing"):
-				body.set_phasing(false)
 
 func _refresh_tile_rotation() -> void:
 	if not lock_visual_rotation:
@@ -212,6 +175,7 @@ func close() -> void:
 	else:
 		_enable_blocker()
 		_play_close_sfx()
+	_reconcile_phasing()
 	closed.emit()
 
 func open() -> void:
@@ -223,6 +187,7 @@ func open() -> void:
 	else:
 		_disable_blocker()
 		_play_open_sfx()
+	_reconcile_phasing()
 	opened.emit()
 
 # Métodos chamados pela AnimationPlayer (call-method track). SEM argumento,
@@ -271,3 +236,27 @@ func _frame_texture(n: int) -> Texture2D:
 	if frames.is_empty():
 		return null
 	return frames[clampi(n - 1, 0, frames.size() - 1)]
+
+# ---------------- EFEITO DE FANTASMA (inimigos atravessando) ----------------
+# Enquanto a barreira está FECHADA, quem estiver sobre ela fica
+# semitransparente (EnemyBase.set_phasing / phase_alpha).
+# _overlapping_enemies existe porque os sinais só avisam TRANSIÇÕES: quem já
+# estava sobrepondo quando close()/open() acontece não recebe sinal nenhum,
+# e precisa ser reconciliado (ver _reconcile_phasing).
+func _on_enemy_entered(body: Node2D) -> void:
+	if not _overlapping_enemies.has(body):
+		_overlapping_enemies.append(body)
+	if is_closed and body.has_method("set_phasing"):
+		body.set_phasing(true)
+
+func _on_enemy_exited(body: Node2D) -> void:
+	_overlapping_enemies.erase(body)
+	if is_instance_valid(body) and body.has_method("set_phasing"):
+		body.set_phasing(false)
+
+# Aplica o estado atual a quem já está sobrepondo. Chamado por close()/open(),
+# pois a mudança de estado da barreira não gera sinal de entrada/saída.
+func _reconcile_phasing() -> void:
+	for e in _overlapping_enemies:
+		if is_instance_valid(e) and e.has_method("set_phasing"):
+			e.set_phasing(is_closed)
