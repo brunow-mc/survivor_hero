@@ -1,5 +1,4 @@
 @tool
-class_name Barrier
 extends StaticBody2D
 
 const TILE := 16  # tamanho do tile do jogo (px)
@@ -97,8 +96,8 @@ func _apply_size() -> void:
 	# num script @tool o @onready pode capturar null se rodar antes de os filhos
 	# existirem e não se atualiza. Buscar aqui torna o preview do editor robusto.
 	var blk := get_node_or_null("Blocker") as CollisionShape2D
-	var pass_shape := get_node_or_null("PassSensor/Shape") as CollisionShape2D
-	var enemy_shape := get_node_or_null("EnemyPhaseSensor/Shape") as CollisionShape2D
+	var pass_shape := get_node_or_null("PassSensor/CollisionShape2D") as CollisionShape2D
+	var enemy_shape := get_node_or_null("EnemyPhaseSensor/CollisionShape2D") as CollisionShape2D
 	var tiles_container := get_node_or_null("Tiles") as Node2D
 	if blk == null or pass_shape == null or enemy_shape == null or tiles_container == null:
 		return
