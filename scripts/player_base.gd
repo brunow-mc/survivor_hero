@@ -60,9 +60,19 @@ var facing_direction: float = 1.0
 # =================================================
 var sprite_node: CanvasItem
 
-# Marcador BodyCenter (= centro do corpo). Referência canônica de "onde está
-# o corpo do player" — ver get_body_center_position().
+# =================================================
+# MARCADORES DE POSIÇÃO (nós da cena do player)
+# Todos com get_node_or_null: se faltarem, os consumidores degradam
+# graciosamente (fallback → BodyCenter → origem) em vez de spammar erros de
+# null. A ausência é avisada uma vez pelo AttackController.setup().
+# =================================================
+# Centro do corpo. Referência canônica de "onde está o corpo do player"
+# — ver get_body_center_position().
 @onready var body_center: Node2D = get_node_or_null("BodyCenter") as Node2D
+# Origem lateral dos projéteis (esquerda/direita conforme facing_direction).
+# Repassados ao AttackController pela classe concreta no _ready().
+@onready var attack_position_right: Node2D = get_node_or_null("AttackPositionRight")
+@onready var attack_position_left: Node2D = get_node_or_null("AttackPositionLeft")
 
 # =================================================
 # ÁUDIO HIT (CONTROLE)

@@ -7,11 +7,8 @@ extends PlayerBase
 @onready var anim: AnimationPlayer = $AnimationPlayer
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var attack_controller: AttackController = $AttackController
-# get_node_or_null: se os marcadores faltarem na cena, o controller
-# degrada graciosamente (fallback BodyCenter → origem) em vez de
-# spammar erros de null a cada disparo.
-@onready var attack_position_right: Node2D = get_node_or_null("AttackPositionRight")
-@onready var attack_position_left: Node2D = get_node_or_null("AttackPositionLeft")
+# attack_position_right/left vêm do PlayerBase (marcadores de cena, como o
+# BodyCenter) — aqui só são repassados ao AttackController no _ready().
 
 # =================================================
 # CONTROLE DE ANIMAÇÃO
