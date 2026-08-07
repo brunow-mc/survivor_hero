@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b08qdb7vcax1v"]
 
-[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player01.gd" id="1_goonh"]
+[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player_character.gd" id="1_goonh"]
 [ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch01.mp3" id="2_mdf7l"]
 [ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death01.mp3" id="3_5yre6"]
 [ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_g0tgi"]
@@ -133,7 +133,7 @@ death_volume_db = 1.75
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_g0tgi")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("5_mdf7l")
+texture = ExtResource("10_735tf")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]

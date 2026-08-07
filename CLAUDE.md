@@ -84,7 +84,7 @@ Entities and scenery tiles occlude each other by Y position (feet origin = the s
 ### Player
 
 - **`scripts/player_base.gd`** — `CharacterBody2D` base class: FSM (idle/walk/attack/dead), movement, `take_damage()`, flash effect, audio.
-- **`entities/players/major_heat.tscn`** — concrete player scene; extends `player_base.gd` via `scripts/player01.gd`.
+- **Concrete player scenes**: `entities/players/major_heat.tscn` and `sonic_gal.tscn` — **both use the same script `scripts/player_character.gd`** (extends `PlayerBase`), differing only by Inspector calibration and assets. Two layers, not three: `PlayerBase` (FSM, input movement, damage, audio — scene-agnostic) → `player_character.gd` (wires the concrete nodes, flip + `facing_direction`, the visual FSM, and the attack cycle whose duration comes from `anim.get_animation(...).length`). Unlike enemies, players have **no divergent archetypes** — every player walks by input and attacks via `AttackController` — so a third layer only appears if a future player diverges in *logic* (a dash, a transformation), never merely in art: animations are driven by **name and time** (`current_animation_position`), never by frame index, so a player with a different frame count shares the same script untouched. Named for its **role** (`player_character`), not for a mechanism (`player_animated` would age badly the moment a player animates differently).
 - Player has two child controller nodes: **`AttackController`** and **`PowerUpController`**.
 - Health state lives entirely in `GameStateGlobal` (registered via `register_player()`); the player node just calls `take_damage()` there.
 - Armor from `PowerUpStatsGlobal.get_armor_damage_reduction()` is applied before forwarding damage.
@@ -197,7 +197,7 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 
 | Group | Declared in | Consumed by |
 |---|---|---|
-| `Player` | **scene** — `major_heat.tscn` root (Groups tab) | camera, level-up, spawn manager, enemies, loadout bar, powers 04/05/06 |
+| `Player` | **scene** — each player scene's root (Groups tab) | camera, level-up, spawn manager, enemies, loadout bar, powers 04/05/06 |
 | `Enemy` | **code** — `enemy_base.gd` `_ready()` | spawn manager, power targeting, steering neighbours, knockback transfer |
 | `EnemyHurtbox` | **scene** — each enemy's `Hurtbox` node | every power's hit detection |
 | `PlayerHurtbox` | **scene** — player's `Hurtbox` node | enemy hitboxes (contact damage) |
