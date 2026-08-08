@@ -1,0 +1,204 @@
+[gd_scene format=3 uid="uid://gv8i6dlrb812"]
+
+[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player_character.gd" id="1_u20jd"]
+[ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch_sound_01.mp3" id="2_u20jd"]
+[ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death_sound_01.mp3" id="3_uh2f8"]
+[ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_l2ttg"]
+[ext_resource type="Texture2D" uid="uid://bn68wwxj162m5" path="res://sprites/heroes/batery_man/BM_walk_attack/BM_walk_attack_01.png" id="5_agybr"]
+[ext_resource type="Texture2D" uid="uid://bwmot3woef8iy" path="res://sprites/heroes/batery_man/BM_attack/BM_attack_01.png" id="6_l2ttg"]
+[ext_resource type="Texture2D" uid="uid://qbc0utaf5b3u" path="res://sprites/heroes/batery_man/BM_attack/BM_attack_02.png" id="7_c2ngk"]
+[ext_resource type="Texture2D" uid="uid://c4y71hmr7noqu" path="res://sprites/heroes/batery_man/BM_attack/BM_attack_03.png" id="8_3y3hx"]
+[ext_resource type="Texture2D" uid="uid://bbgst5vgfonx0" path="res://sprites/heroes/batery_man/BM_attack/BM_attack_04.png" id="9_i4t65"]
+[ext_resource type="Texture2D" uid="uid://c4wlvyflr7rli" path="res://sprites/heroes/batery_man/BM_idle/BM_idle_01.png" id="10_a0k8k"]
+[ext_resource type="Texture2D" uid="uid://busuoae33rb2k" path="res://sprites/heroes/batery_man/BM_idle/BM_idle_02.png" id="11_bxy11"]
+[ext_resource type="Texture2D" uid="uid://c4opl3mdwgx2l" path="res://sprites/heroes/batery_man/BM_idle/BM_idle_03.png" id="12_j3sf0"]
+[ext_resource type="Texture2D" uid="uid://c6231yvcavt41" path="res://sprites/heroes/batery_man/BM_idle/BM_idle_04.png" id="13_pe2xk"]
+[ext_resource type="Texture2D" uid="uid://b2hb2ooiewwed" path="res://sprites/heroes/batery_man/BM_walk/BM_walk_01.png" id="14_fenmx"]
+[ext_resource type="Texture2D" uid="uid://wqcd0cs2mgxp" path="res://sprites/heroes/batery_man/BM_walk/BM_walk_02.png" id="15_r25kn"]
+[ext_resource type="Texture2D" uid="uid://dhbe7s2xgw8w5" path="res://sprites/heroes/batery_man/BM_walk/BM_walk_03.png" id="16_yoldt"]
+[ext_resource type="Texture2D" uid="uid://bjxydtcx2mljo" path="res://sprites/heroes/batery_man/BM_walk/BM_walk_04.png" id="17_imgqy"]
+[ext_resource type="Texture2D" uid="uid://7ioyqixu51p7" path="res://sprites/heroes/batery_man/BM_walk_attack/BM_walk_attack_02.png" id="18_fewwv"]
+[ext_resource type="Texture2D" uid="uid://c2egfi5lkos6k" path="res://sprites/heroes/batery_man/BM_walk_attack/BM_walk_attack_03.png" id="19_r25he"]
+[ext_resource type="Texture2D" uid="uid://c7wy80h0dl5dx" path="res://sprites/heroes/batery_man/BM_walk_attack/BM_walk_attack_04.png" id="20_bdaep"]
+[ext_resource type="PackedScene" uid="uid://bo5tc8icd75ql" path="res://entities/controllers/attack_controller.tscn" id="21_dv8n2"]
+[ext_resource type="PackedScene" uid="uid://bva3jhodc5h5u" path="res://entities/controllers/power_up_controller.tscn" id="22_uj30u"]
+[ext_resource type="PackedScene" uid="uid://dlqhld5x854vn" path="res://ui/health_bar.tscn" id="23_sbf8y"]
+[ext_resource type="PackedScene" uid="uid://kcb5x3rnrxnf" path="res://ui/health_label.tscn" id="24_sfvxb"]
+[ext_resource type="Script" uid="uid://bjse65mxy6dld" path="res://scripts/test_powerups.gd" id="25_ss8de"]
+[ext_resource type="Script" uid="uid://d4m4yptp77s6n" path="res://scripts/test_attack_upgrades.gd" id="26_o40qt"]
+
+[sub_resource type="Animation" id="Animation_22j44"]
+length = 0.001
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("6_l2ttg")]
+}
+
+[sub_resource type="Animation" id="Animation_aacg7"]
+resource_name = "attack"
+length = 1.2
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("6_l2ttg"), ExtResource("8_3y3hx"), ExtResource("7_c2ngk"), ExtResource("9_i4t65"), ExtResource("6_l2ttg"), ExtResource("8_3y3hx"), ExtResource("6_l2ttg"), ExtResource("9_i4t65")]
+}
+
+[sub_resource type="Animation" id="Animation_bi81l"]
+resource_name = "idle"
+length = 1.2
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk"), ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk")]
+}
+
+[sub_resource type="Animation" id="Animation_dghas"]
+resource_name = "walk"
+length = 1.2
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy"), ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy")]
+}
+
+[sub_resource type="Animation" id="Animation_tb7ne"]
+resource_name = "walk_attack"
+length = 1.2
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("5_agybr"), ExtResource("18_fewwv"), ExtResource("19_r25he"), ExtResource("20_bdaep"), ExtResource("5_agybr"), ExtResource("18_fewwv"), ExtResource("19_r25he"), ExtResource("20_bdaep")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_10c06"]
+_data = {
+&"RESET": SubResource("Animation_22j44"),
+&"attack": SubResource("Animation_aacg7"),
+&"idle": SubResource("Animation_bi81l"),
+&"walk": SubResource("Animation_dghas"),
+&"walk_attack": SubResource("Animation_tb7ne")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b0kkn"]
+radius = 3.0
+height = 10.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ldj1t"]
+radius = 5.0
+height = 18.0
+
+[node name="Player03" type="CharacterBody2D" unique_id=1271785084 groups=["Player"]]
+z_index = 2
+y_sort_enabled = true
+collision_layer = 2
+collision_mask = 17
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_u20jd")
+hit_sound = ExtResource("2_u20jd")
+death_sound = ExtResource("3_uh2f8")
+hit_volume_db = -4.0
+death_volume_db = 1.75
+
+[node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_l2ttg")]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
+texture = ExtResource("6_l2ttg")
+offset = Vector2(0, -13)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
+libraries/ = SubResource("AnimationLibrary_10c06")
+
+[node name="AttackController" parent="." unique_id=536803343 instance=ExtResource("21_dv8n2")]
+primary_attack_id = 3
+
+[node name="PowerUpController" parent="." unique_id=82605970 instance=ExtResource("22_uj30u")]
+
+[node name="BodyCenter" type="Node2D" parent="." unique_id=1355616675]
+position = Vector2(0, -12)
+
+[node name="AttackPositionRight" type="Node2D" parent="." unique_id=2015214172]
+position = Vector2(17, -12)
+
+[node name="AttackPositionLeft" type="Node2D" parent="." unique_id=1503537839]
+position = Vector2(-17, -12)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=993337978]
+visible = false
+z_index = 1
+position = Vector2(0, -3)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_b0kkn")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+visible = false
+z_index = 1
+position = Vector2(0, -13)
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=565431735]
+shape = SubResource("CapsuleShape2D_ldj1t")
+debug_color = Color(0, 0.6862745, 0, 0.41960785)
+
+[node name="HealthBar" parent="." unique_id=2097574813 instance=ExtResource("23_sbf8y")]
+z_index = 5
+offset_left = -12.5
+offset_top = -31.0
+offset_right = 12.5
+offset_bottom = -28.0
+
+[node name="HealthLabel" parent="." unique_id=617375228 instance=ExtResource("24_sfvxb")]
+offset_left = -14.0
+offset_top = -40.0
+offset_right = 3.0
+offset_bottom = -29.0
+
+[node name="TestPowerups" type="Node" parent="." unique_id=1931299609]
+script = ExtResource("25_ss8de")
+
+[node name="TestAttackUpgrades" type="Node" parent="." unique_id=602593704]
+script = ExtResource("26_o40qt")

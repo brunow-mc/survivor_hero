@@ -29,11 +29,12 @@
 
 [sub_resource type="Animation" id="Animation_22j44"]
 length = 0.001
+step = 0.15
 
 [sub_resource type="Animation" id="Animation_aacg7"]
 resource_name = "attack"
 length = 0.6
-step = 0.143
+step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -51,7 +52,7 @@ tracks/0/keys = {
 resource_name = "idle"
 length = 0.6
 loop_mode = 1
-step = 0.143
+step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -69,7 +70,7 @@ tracks/0/keys = {
 resource_name = "walk"
 length = 0.6
 loop_mode = 1
-step = 0.143
+step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -86,7 +87,7 @@ tracks/0/keys = {
 [sub_resource type="Animation" id="Animation_tb7ne"]
 resource_name = "walk_attack"
 length = 0.6
-step = 0.143
+step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -133,7 +134,7 @@ death_volume_db = 1.75
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_yipme")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("8_g728n")
+texture = ExtResource("6_cvfnq")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
@@ -160,6 +161,7 @@ rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_b0kkn")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+visible = false
 z_index = 1
 position = Vector2(0, -13)
 collision_layer = 2

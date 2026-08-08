@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stages/y_sort_container.tscn" id="2_nunuq"]
 [ext_resource type="PackedScene" uid="uid://cwp5ull2dayfu" path="res://entities/stages/barrier.tscn" id="2_puonp"]
 [ext_resource type="AudioStream" uid="uid://dxfkvgluhmj15" path="res://audio/songs/Battle_in_the_Streets.mp3" id="5_jmh76"]
-[ext_resource type="PackedScene" uid="uid://b08qdb7vcax1v" path="res://entities/players/sonic_gal.tscn" id="5_puonp"]
+[ext_resource type="PackedScene" uid="uid://gv8i6dlrb812" path="res://entities/players/batery_man.tscn" id="5_puonp"]
 [ext_resource type="PackedScene" uid="uid://c5m683ttqoa7k" path="res://entities/camera.tscn" id="5_t4y0q"]
 [ext_resource type="PackedScene" uid="uid://d1mfsbxkoj7t5" path="res://ui/pause_menu.tscn" id="6_spj00"]
 [ext_resource type="PackedScene" uid="uid://cxeqfoj7lg4ui" path="res://ui/loadout_bar.tscn" id="7_frfcc"]
@@ -63,7 +63,7 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAJAAAAAAAAAAAAAAAQAPv/AAAAAAAAAAAkAPv/AAAAAAAAAABAAPv/AAAAAAAAAAD///v/AAACAAAAAAD+//r/AAACAAAAAAAKAPn/AAACAAAAAAAJAPn/AAACAAAAAAAMAPv/AAACAAAAAAA+APv/AAACAAAAAAA/APv/AAACAAAAAAD7//7/AAACAAAAAAD7//3/AAACAAAAAAD8//3/AAACAAAAAAA=")
 tile_set = ExtResource("2_dpt3t")
 
-[node name="Player02" parent="YSortContainer" unique_id=1271785084 instance=ExtResource("5_puonp")]
+[node name="Player03" parent="YSortContainer" unique_id=1271785084 instance=ExtResource("5_puonp")]
 position = Vector2(0, 12)
 
 [node name="TileMapBuildings" type="TileMapLayer" parent="." unique_id=994665058]
