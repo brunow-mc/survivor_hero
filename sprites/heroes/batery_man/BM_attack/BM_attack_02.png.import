@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csq2unxknf2jn"
-path="res://.godot/imported/SG_attack03.png-67ecd54ba685a1d350f299360a16612b.ctex"
+uid="uid://qbc0utaf5b3u"
+path="res://.godot/imported/BM_attack_02.png-5029caf345df079ba5e8f93803f7772b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_attack/SG_attack03.png"
-dest_files=["res://.godot/imported/SG_attack03.png-67ecd54ba685a1d350f299360a16612b.ctex"]
+source_file="res://sprites/heroes/batery_man/BM_attack/BM_attack_02.png"
+dest_files=["res://.godot/imported/BM_attack_02.png-5029caf345df079ba5e8f93803f7772b.ctex"]
 
 [params]
 

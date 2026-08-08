@@ -26,5 +26,5 @@ attack_sound_pitch_scale = 1.05
 secondary_sound = ExtResource("1_crwg2")
 secondary_sound_volume_db = 1.0
 secondary_sound_pitch_scale = 0.92
-attack_scale = 2.25
+attack_scale = 2.0
 metadata/_custom_type_script = "uid://cic4g8p3sqyeu"

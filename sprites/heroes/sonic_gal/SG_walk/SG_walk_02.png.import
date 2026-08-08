@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://j0cuy6vwgn4s"
-path="res://.godot/imported/SG_idle03.png-a8a4edd968555cb4a037623ba95d989b.ctex"
+uid="uid://d01mnbfklubrs"
+path="res://.godot/imported/SG_walk_02.png-1234fb15fe59a547d8e5b29a1b07d449.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_idle/SG_idle03.png"
-dest_files=["res://.godot/imported/SG_idle03.png-a8a4edd968555cb4a037623ba95d989b.ctex"]
+source_file="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_02.png"
+dest_files=["res://.godot/imported/SG_walk_02.png-1234fb15fe59a547d8e5b29a1b07d449.ctex"]
 
 [params]
 

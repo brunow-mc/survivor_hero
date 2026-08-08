@@ -181,6 +181,7 @@ collision_mask = 0
 script = ExtResource("1_tu85p")
 frames = Array[Texture2D]([ExtResource("2_cnhj1"), ExtResource("3_65q6k"), ExtResource("4_2wuva"), ExtResource("5_0mcu2"), ExtResource("6_i22gn"), ExtResource("7_y067p"), ExtResource("8_iule3"), ExtResource("9_127su"), ExtResource("10_02h6f"), ExtResource("11_mfer4"), ExtResource("12_5ngt0"), ExtResource("13_alaep")])
 close_sound = ExtResource("14_65q6k")
+open_sound = ExtResource("14_65q6k")
 
 [node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
 position = Vector2(0, 8)

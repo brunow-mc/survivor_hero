@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cv6awbagxfttb"
-path="res://.godot/imported/SG_idle04.png-de0a4a165a9195279c05c356b39e19f4.ctex"
+uid="uid://bbgst5vgfonx0"
+path="res://.godot/imported/BM_attack_04.png-de365e2f0342ae61a1ce118fdc2c01cb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_idle/SG_idle04.png"
-dest_files=["res://.godot/imported/SG_idle04.png-de0a4a165a9195279c05c356b39e19f4.ctex"]
+source_file="res://sprites/heroes/batery_man/BM_attack/BM_attack_04.png"
+dest_files=["res://.godot/imported/BM_attack_04.png-de365e2f0342ae61a1ce118fdc2c01cb.ctex"]
 
 [params]
 

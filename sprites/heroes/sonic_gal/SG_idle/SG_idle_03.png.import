@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cr5d8jnoq76cr"
-path="res://.godot/imported/SG_idle01.png-c7c1ea6489ccacc4eceb2574a2d2f43a.ctex"
+uid="uid://j0cuy6vwgn4s"
+path="res://.godot/imported/SG_idle_03.png-6b4a91cdcb9f436c275907eea28f289e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_idle/SG_idle01.png"
-dest_files=["res://.godot/imported/SG_idle01.png-c7c1ea6489ccacc4eceb2574a2d2f43a.ctex"]
+source_file="res://sprites/heroes/sonic_gal/SG_idle/SG_idle_03.png"
+dest_files=["res://.godot/imported/SG_idle_03.png-6b4a91cdcb9f436c275907eea28f289e.ctex"]
 
 [params]
 

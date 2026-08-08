@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_bsdjf")
-damage = 1.5
+damage = 2.0
 knockback_force = 0.0
 hit_sound = ExtResource("2_8j0b1")
 death_sound = ExtResource("1_f4s8h")

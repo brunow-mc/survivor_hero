@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d4b7hora7af5x"
-path="res://.godot/imported/SG_attack02.png-bdf58363dda4e38728ad0e1ca3d7d88b.ctex"
+path="res://.godot/imported/SG_attack_02.png-f2a9e266808c1fc2116d5181c58dba48.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_attack/SG_attack02.png"
-dest_files=["res://.godot/imported/SG_attack02.png-bdf58363dda4e38728ad0e1ca3d7d88b.ctex"]
+source_file="res://sprites/heroes/sonic_gal/SG_attack/SG_attack_02.png"
+dest_files=["res://.godot/imported/SG_attack_02.png-f2a9e266808c1fc2116d5181c58dba48.ctex"]
 
 [params]
 

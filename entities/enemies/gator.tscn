@@ -176,11 +176,13 @@ animation = &"idle"
 offset = Vector2(0, -13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=671557648]
+visible = false
 z_index = 1
 position = Vector2(0, -10)
 shape = SubResource("CircleShape2D_jriy7")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1805246739 groups=["EnemyHurtbox"]]
+visible = false
 z_index = 1
 position = Vector2(0, -13)
 collision_layer = 260

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0cwkkffe5nd4"
-path="res://.godot/imported/SG_walk_attack03.png-5ba0acc6bf413d942cc94f57c72e78ff.ctex"
+uid="uid://b2hb2ooiewwed"
+path="res://.godot/imported/BM_walk_01.png-a714519dc729297bb473dc67967a093a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack03.png"
-dest_files=["res://.godot/imported/SG_walk_attack03.png-5ba0acc6bf413d942cc94f57c72e78ff.ctex"]
+source_file="res://sprites/heroes/batery_man/BM_walk/BM_walk_01.png"
+dest_files=["res://.godot/imported/BM_walk_01.png-a714519dc729297bb473dc67967a093a.ctex"]
 
 [params]
 

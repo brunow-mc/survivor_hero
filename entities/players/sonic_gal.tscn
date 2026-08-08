@@ -1,25 +1,25 @@
 [gd_scene format=3 uid="uid://b08qdb7vcax1v"]
 
 [ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player_character.gd" id="1_goonh"]
-[ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch01.mp3" id="2_mdf7l"]
-[ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death01.mp3" id="3_5yre6"]
+[ext_resource type="AudioStream" uid="uid://c8iat3i7a5cyg" path="res://audio/effects/voice/ouch03.mp3" id="2_goonh"]
+[ext_resource type="AudioStream" uid="uid://cnvmebvqqoj4k" path="res://audio/effects/voice/death03.mp3" id="3_mdf7l"]
 [ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_g0tgi"]
-[ext_resource type="Texture2D" uid="uid://dc2q6qksl7qag" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk01.png" id="5_goonh"]
-[ext_resource type="Texture2D" uid="uid://davi2j8qux3ul" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack04.png" id="5_mdf7l"]
-[ext_resource type="Texture2D" uid="uid://bs1ldxjuj031u" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack01.png" id="6_5yre6"]
-[ext_resource type="Texture2D" uid="uid://d4b7hora7af5x" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack02.png" id="7_g0tgi"]
-[ext_resource type="Texture2D" uid="uid://csq2unxknf2jn" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack03.png" id="8_vqida"]
-[ext_resource type="Texture2D" uid="uid://qekgik7020jf" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack04.png" id="9_pwokh"]
-[ext_resource type="Texture2D" uid="uid://cr5d8jnoq76cr" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle01.png" id="10_735tf"]
-[ext_resource type="Texture2D" uid="uid://bel7rerexn7qy" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle02.png" id="11_gry0s"]
-[ext_resource type="Texture2D" uid="uid://j0cuy6vwgn4s" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle03.png" id="12_hl43m"]
-[ext_resource type="Texture2D" uid="uid://cv6awbagxfttb" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle04.png" id="13_k4v8m"]
-[ext_resource type="Texture2D" uid="uid://d01mnbfklubrs" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk02.png" id="14_mdf7l"]
-[ext_resource type="Texture2D" uid="uid://bq1b52rlkrok7" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk03.png" id="15_5yre6"]
-[ext_resource type="Texture2D" uid="uid://dodsebjdlrshf" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk04.png" id="16_g0tgi"]
-[ext_resource type="Texture2D" uid="uid://cyibmccocg6sc" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack01.png" id="18_ki5dj"]
-[ext_resource type="Texture2D" uid="uid://b6op3n13gxjdr" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack02.png" id="19_fo7x7"]
-[ext_resource type="Texture2D" uid="uid://0cwkkffe5nd4" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack03.png" id="20_bp8ng"]
+[ext_resource type="Texture2D" uid="uid://dc2q6qksl7qag" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_01.png" id="5_goonh"]
+[ext_resource type="Texture2D" uid="uid://davi2j8qux3ul" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack_04.png" id="5_mdf7l"]
+[ext_resource type="Texture2D" uid="uid://bs1ldxjuj031u" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack_01.png" id="6_5yre6"]
+[ext_resource type="Texture2D" uid="uid://d4b7hora7af5x" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack_02.png" id="7_g0tgi"]
+[ext_resource type="Texture2D" uid="uid://csq2unxknf2jn" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack_03.png" id="8_vqida"]
+[ext_resource type="Texture2D" uid="uid://qekgik7020jf" path="res://sprites/heroes/sonic_gal/SG_attack/SG_attack_04.png" id="9_pwokh"]
+[ext_resource type="Texture2D" uid="uid://cr5d8jnoq76cr" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle_01.png" id="10_735tf"]
+[ext_resource type="Texture2D" uid="uid://bel7rerexn7qy" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle_02.png" id="11_gry0s"]
+[ext_resource type="Texture2D" uid="uid://j0cuy6vwgn4s" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle_03.png" id="12_hl43m"]
+[ext_resource type="Texture2D" uid="uid://cv6awbagxfttb" path="res://sprites/heroes/sonic_gal/SG_idle/SG_idle_04.png" id="13_k4v8m"]
+[ext_resource type="Texture2D" uid="uid://d01mnbfklubrs" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_02.png" id="14_mdf7l"]
+[ext_resource type="Texture2D" uid="uid://bq1b52rlkrok7" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_03.png" id="15_5yre6"]
+[ext_resource type="Texture2D" uid="uid://dodsebjdlrshf" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_04.png" id="16_g0tgi"]
+[ext_resource type="Texture2D" uid="uid://cyibmccocg6sc" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack_01.png" id="18_ki5dj"]
+[ext_resource type="Texture2D" uid="uid://b6op3n13gxjdr" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack_02.png" id="19_fo7x7"]
+[ext_resource type="Texture2D" uid="uid://0cwkkffe5nd4" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack_03.png" id="20_bp8ng"]
 [ext_resource type="PackedScene" uid="uid://bo5tc8icd75ql" path="res://entities/controllers/attack_controller.tscn" id="21_73qht"]
 [ext_resource type="PackedScene" uid="uid://bva3jhodc5h5u" path="res://entities/controllers/power_up_controller.tscn" id="22_wdr7u"]
 [ext_resource type="PackedScene" uid="uid://dlqhld5x854vn" path="res://ui/health_bar.tscn" id="23_xaw5b"]
@@ -125,15 +125,15 @@ collision_mask = 17
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_goonh")
-hit_sound = ExtResource("2_mdf7l")
-death_sound = ExtResource("3_5yre6")
-hit_volume_db = -4.0
-death_volume_db = 1.75
+hit_sound = ExtResource("2_goonh")
+death_sound = ExtResource("3_mdf7l")
+death_volume_db = 3.5
+death_pitch_scale = 1.1
 
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_g0tgi")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("10_735tf")
+texture = ExtResource("5_goonh")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
@@ -161,7 +161,6 @@ rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_b0kkn")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
-visible = false
 z_index = 1
 position = Vector2(0, -13)
 collision_layer = 2

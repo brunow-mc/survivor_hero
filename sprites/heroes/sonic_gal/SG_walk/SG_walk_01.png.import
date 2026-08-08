@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dodsebjdlrshf"
-path="res://.godot/imported/SG_walk04.png-6c9a715caae642aa50abf189751c6a7d.ctex"
+uid="uid://dc2q6qksl7qag"
+path="res://.godot/imported/SG_walk_01.png-b501cdb5fd7bb31ce76b06d86b25a2be.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/sonic_gal/SG_walk/SG_walk04.png"
-dest_files=["res://.godot/imported/SG_walk04.png-6c9a715caae642aa50abf189751c6a7d.ctex"]
+source_file="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_01.png"
+dest_files=["res://.godot/imported/SG_walk_01.png-b501cdb5fd7bb31ce76b06d86b25a2be.ctex"]
 
 [params]
 
