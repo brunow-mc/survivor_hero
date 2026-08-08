@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://b08qdb7vcax1v"]
 
 [ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player_character.gd" id="1_goonh"]
-[ext_resource type="AudioStream" uid="uid://c8iat3i7a5cyg" path="res://audio/effects/voice/ouch03.mp3" id="2_goonh"]
-[ext_resource type="AudioStream" uid="uid://cnvmebvqqoj4k" path="res://audio/effects/voice/death03.mp3" id="3_mdf7l"]
+[ext_resource type="AudioStream" uid="uid://c8iat3i7a5cyg" path="res://audio/effects/voice/ouch_sound_02.mp3" id="2_goonh"]
+[ext_resource type="AudioStream" uid="uid://cnvmebvqqoj4k" path="res://audio/effects/voice/death_sound_02.mp3" id="3_mdf7l"]
 [ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_g0tgi"]
 [ext_resource type="Texture2D" uid="uid://dc2q6qksl7qag" path="res://sprites/heroes/sonic_gal/SG_walk/SG_walk_01.png" id="5_goonh"]
 [ext_resource type="Texture2D" uid="uid://davi2j8qux3ul" path="res://sprites/heroes/sonic_gal/SG_walk_attack/SG_walk_attack_04.png" id="5_mdf7l"]

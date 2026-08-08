@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="HitData" format=3 uid="uid://b1n0yqubqsnmf"]
 
 [ext_resource type="Script" uid="uid://36q17kpid15g" path="res://data/hit_data/hit_data.gd" id="1_6oovn"]
-[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit02.mp3" id="1_j2gx8"]
-[ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit01.mp3" id="2_psctl"]
+[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit_sound_02.mp3" id="1_j2gx8"]
+[ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit_sound_01.mp3" id="2_psctl"]
 
 [resource]
 script = ExtResource("1_6oovn")

@@ -245,6 +245,7 @@ Each entry carries a **description** (the quoted value after `=`) stating **wher
 - **Restart must reset autoload state**: `reload_current_scene()` rebuilds only the stage — autoloads and **everything they own survive it**. `GameStateGlobal.restart_game()` is the single place that clears cross-session state (XP, spawning, audio), and any new autoload that accumulates runtime state must be reset there too. This really bit: the `AudioManager` pool's players are children of the autoload, not of the stage, so an attack sound kept playing into the next run long after the attack scene had been freed.
 - **Deferred calls for spawning**: use `call_deferred` or `add_child` then set `global_position` afterward (so `_ready` runs before position is overwritten).
 - **Audio buses**: SFX plays on the `"SFX"` bus. Powers that manage looping audio set `handles_own_audio = true` on their `AttackData` to suppress the controller from also playing it.
+- **Audio export naming**: every configurable sound exposes three exports named `<name>_sound`, `<name>_sound_volume_db` (default `0.0`) and `<name>_sound_pitch_scale` (default `1.0`), passed straight to `AudioManagerGlobal.play_sound_2d(sound, position, volume_db, pitch_scale)`. Sounds are played through the AudioManager's pool — **no per-scene `AudioStreamPlayer` node**. Older code predates this convention and still uses shorter names; migrate to this form when touching it.
 
 ## Known bugs
 

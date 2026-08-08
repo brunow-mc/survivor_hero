@@ -43,7 +43,11 @@ const TILE := 16  # tamanho do tile do jogo (px)
 
 @export_group("Audio")
 @export var close_sound: AudioStream
+@export var close_sound_volume_db: float = 0.0
+@export var close_sound_pitch_scale: float = 1.0
 @export var open_sound: AudioStream
+@export var open_sound_volume_db: float = 0.0
+@export var open_sound_pitch_scale: float = 1.0
 
 # ---------------- NODES ----------------
 @onready var blocker: CollisionShape2D = $Blocker
@@ -210,11 +214,21 @@ func _disable_blocker() -> void:   # desliga o colisor (barreira aberta)
 
 func _play_close_sfx() -> void:
 	if close_sound:
-		AudioManagerGlobal.play_sound_2d(close_sound, global_position)
+		AudioManagerGlobal.play_sound_2d(
+			close_sound,
+			global_position,
+			close_sound_volume_db,
+			close_sound_pitch_scale
+		)
 
 func _play_open_sfx() -> void:
 	if open_sound:
-		AudioManagerGlobal.play_sound_2d(open_sound, global_position)
+		AudioManagerGlobal.play_sound_2d(
+			open_sound,
+			global_position,
+			open_sound_volume_db,
+			open_sound_pitch_scale
+		)
 
 # ---------------- FRAMES (chamados pela AnimationPlayer via call-method) ----------------
 # 12 métodos SEM argumento (mesmo motivo de _enable_blocker/_disable_blocker):

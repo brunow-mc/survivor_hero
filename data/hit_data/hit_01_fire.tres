@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="HitData" format=3 uid="uid://n0usdei31tmp"]
 
-[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit02.mp3" id="1_6voxq"]
-[ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit01.mp3" id="2_tkih4"]
+[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit_sound_02.mp3" id="1_6voxq"]
+[ext_resource type="AudioStream" uid="uid://bbojscbnndmw7" path="res://audio/effects/hit/hit_sound_01.mp3" id="2_tkih4"]
 [ext_resource type="Script" uid="uid://36q17kpid15g" path="res://data/hit_data/hit_data.gd" id="3_5ukd8"]
 
 [resource]
