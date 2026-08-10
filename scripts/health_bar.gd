@@ -70,9 +70,25 @@ func _initialize_bars() -> void:
 	delay_bar.value = current_health
 	
 	health_bar.max_value = max_health
-	health_bar.value = current_health
-	
+	health_bar.value = _display_value(current_health)
+
 	_update_health_color()
+
+# ======================================
+# VALOR EXIBIDO (piso de 1 pixel)
+# A barra tem ~25px para 100 de vida (1px a cada 4 pontos), então valores
+# baixos arredondam para ZERO pixel e a barra some — o jogador acha que
+# morreu com 1-3 de vida. Com vida > 0, eleva ao mínimo que ainda pinta 1px.
+# Só afeta o DESENHO: current_health/target_health seguem com o valor real,
+# e a cor continua sendo calculada pela vida verdadeira.
+# ======================================
+func _display_value(value: float) -> float:
+	if value <= 0.0:
+		return 0.0
+	var bar_width: float = health_bar.size.x
+	if bar_width <= 0.0:
+		return value
+	return maxf(value, max_health / bar_width)
 
 # ======================================
 # PROCESS (ANIMAÇÃO)
@@ -81,7 +97,13 @@ func _process(delta: float) -> void:
 	# Anima barra verde
 	if abs(current_health - target_health) > 0.1:
 		current_health = lerp(current_health, target_health, damage_animation_speed * delta)
-		health_bar.value = current_health
+		health_bar.value = _display_value(current_health)
+		_update_health_color()
+	elif current_health != target_health:
+		# ASSENTA o valor final: lerp é assintótico e o laço acima para com
+		# ~0.1 de resíduo, então o alvo exato nunca era atribuído.
+		current_health = target_health
+		health_bar.value = _display_value(current_health)
 		_update_health_color()
 	
 	# Timer da DelayBar
