@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bf8ywq2nam8y7"
-path="res://.godot/imported/MH_attack01.png-4c0dfb935d790c34807d6227029048ed.ctex"
+uid="uid://bjs4bxn030qxc"
+path="res://.godot/imported/MH_attack_02.png-3c94fe97c35a04034552060e173e70bc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/major_heat/MH_attack/MH_attack01.png"
-dest_files=["res://.godot/imported/MH_attack01.png-4c0dfb935d790c34807d6227029048ed.ctex"]
+source_file="res://sprites/heroes/major_heat/MH_attack/MH_attack_02.png"
+dest_files=["res://.godot/imported/MH_attack_02.png-3c94fe97c35a04034552060e173e70bc.ctex"]
 
 [params]
 

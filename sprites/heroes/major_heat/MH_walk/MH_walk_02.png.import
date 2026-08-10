@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dakwhncxpbugs"
-path="res://.godot/imported/MH_walk02.png-8cdaa656284fd9d41d64e8f5fe05b76f.ctex"
+path="res://.godot/imported/MH_walk_02.png-e33b4397ab28bdb2f4417aa03fb369f6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/major_heat/MH_walk/MH_walk02.png"
-dest_files=["res://.godot/imported/MH_walk02.png-8cdaa656284fd9d41d64e8f5fe05b76f.ctex"]
+source_file="res://sprites/heroes/major_heat/MH_walk/MH_walk_02.png"
+dest_files=["res://.godot/imported/MH_walk_02.png-e33b4397ab28bdb2f4417aa03fb369f6.ctex"]
 
 [params]
 

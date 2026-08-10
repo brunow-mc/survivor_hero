@@ -128,6 +128,7 @@ wall_min_slide_angle = 0.0
 script = ExtResource("1_goonh")
 hit_sound = ExtResource("2_goonh")
 death_sound = ExtResource("3_mdf7l")
+hit_volume_db = 1.8
 death_volume_db = 3.5
 death_pitch_scale = 1.1
 

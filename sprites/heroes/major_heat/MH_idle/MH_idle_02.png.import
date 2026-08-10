@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://doeymgcddrxxv"
-path="res://.godot/imported/MH_walk01.png-691aadce64f031d112df0c2577f0e9b4.ctex"
+uid="uid://cy1am7hyv7y1j"
+path="res://.godot/imported/MH_idle_02.png-b4f82ee23281a0041094c0c045e850f1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/heroes/major_heat/MH_walk/MH_walk01.png"
-dest_files=["res://.godot/imported/MH_walk01.png-691aadce64f031d112df0c2577f0e9b4.ctex"]
+source_file="res://sprites/heroes/major_heat/MH_idle/MH_idle_02.png"
+dest_files=["res://.godot/imported/MH_idle_02.png-b4f82ee23281a0041094c0c045e850f1.ctex"]
 
 [params]
 
