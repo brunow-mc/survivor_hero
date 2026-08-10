@@ -14,8 +14,8 @@ class_name XPItem
 # ======================================
 @export_group("Audio")
 @export var collect_sound: AudioStream
-@export var collect_volume: float = 0.0
-@export var collect_pitch: float = 1.0
+@export var collect_sound_volume_db: float = 0.0
+@export var collect_sound_pitch_scale: float = 1.0
 
 # ======================================
 # ESTADO
@@ -106,4 +106,4 @@ func collect() -> void:
 # ======================================
 func _play_collect_sound() -> void:
 	if collect_sound:
-		AudioManagerGlobal.play_sound(collect_sound, collect_volume, collect_pitch)
+		AudioManagerGlobal.play_sound(collect_sound, collect_sound_volume_db, collect_sound_pitch_scale)

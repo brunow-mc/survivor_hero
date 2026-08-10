@@ -24,11 +24,11 @@ enum PlayerState {
 @export var hit_sound: AudioStream
 @export var death_sound: AudioStream
 
-@export var hit_volume_db: float = 0.0
-@export var hit_pitch_scale: float = 1.0
+@export var hit_sound_volume_db: float = 0.0
+@export var hit_sound_pitch_scale: float = 1.0
 
-@export var death_volume_db: float = 0.0
-@export var death_pitch_scale: float = 1.0
+@export var death_sound_volume_db: float = 0.0
+@export var death_sound_pitch_scale: float = 1.0
 
 # =================================================
 # VISUAL EFFECTS
@@ -129,8 +129,8 @@ func _setup_audio() -> void:
 	if hit_sound:
 		audio_hit = AudioStreamPlayer.new()
 		audio_hit.stream = hit_sound
-		audio_hit.volume_db = hit_volume_db
-		audio_hit.pitch_scale = hit_pitch_scale
+		audio_hit.volume_db = hit_sound_volume_db
+		audio_hit.pitch_scale = hit_sound_pitch_scale
 		audio_hit.bus = "SFX"
 		audio_hit.finished.connect(_on_hit_audio_finished)
 		add_child(audio_hit)
@@ -138,8 +138,8 @@ func _setup_audio() -> void:
 	if death_sound:
 		audio_death = AudioStreamPlayer.new()
 		audio_death.stream = death_sound
-		audio_death.volume_db = death_volume_db
-		audio_death.pitch_scale = death_pitch_scale
+		audio_death.volume_db = death_sound_volume_db
+		audio_death.pitch_scale = death_sound_pitch_scale
 		audio_death.bus = "SFX"
 		add_child(audio_death)
 

@@ -1,18 +1,18 @@
 extends Node2D
 
-
-
+# =================================================
+# NODES
+# =================================================
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
-@onready var hit_02_sound: AudioStreamPlayer2D = $hit02_sound
 
-
-
-
-
+# =================================================
+# READY
+# =================================================
 func _ready() -> void:
 	anim.play("impact")
-	#hit_02_sound.play()
 
-
+# =================================================
+# TIMER
+# =================================================
 func _on_timer_timeout() -> void:
 	queue_free()

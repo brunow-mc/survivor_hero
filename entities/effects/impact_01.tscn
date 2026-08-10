@@ -2,7 +2,6 @@
 
 [ext_resource type="Texture2D" uid="uid://y3dgokc5rwfl" path="res://sprites/effects/impact01.png" id="1_ap7h6"]
 [ext_resource type="Script" uid="uid://ddxkjcycvqo74" path="res://scripts/impact_01.gd" id="1_f772q"]
-[ext_resource type="AudioStream" uid="uid://baea5rm2xfijj" path="res://audio/effects/hit/hit_sound_02.mp3" id="3_pv3dv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f772q"]
 atlas = ExtResource("1_ap7h6")
@@ -40,7 +39,7 @@ animations = [{
 "speed": 12.0
 }]
 
-[node name="Node2D" type="Node2D" unique_id=52078059]
+[node name="Impact01" type="Node2D" unique_id=52078059]
 z_index = 1
 script = ExtResource("1_f772q")
 
@@ -53,9 +52,5 @@ animation = &"impact"
 wait_time = 0.5
 one_shot = true
 autostart = true
-
-[node name="hit02_sound" type="AudioStreamPlayer2D" parent="." unique_id=722416412]
-stream = ExtResource("3_pv3dv")
-attenuation = 3.270794e-05
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

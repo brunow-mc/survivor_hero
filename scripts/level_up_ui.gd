@@ -5,8 +5,8 @@ extends CanvasLayer
 # ======================================
 @export_group("Audio")
 @export var level_up_sound: AudioStream
-@export var level_up_volume: float = 0.0
-@export var level_up_pitch: float = 1.0
+@export var level_up_sound_volume_db: float = 0.0
+@export var level_up_sound_pitch_scale: float = 1.0
 
 # Referências aos botões
 @onready var option1: Button = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/OptionsContainer/Option1
@@ -80,7 +80,7 @@ func _populate_options() -> void:
 func _show_menu() -> void:
 	"""Exibe o menu (jogo já está pausado pelo LevelUpManager)"""
 	if level_up_sound:
-		AudioManagerGlobal.play_sound(level_up_sound, level_up_volume, level_up_pitch)
+		AudioManagerGlobal.play_sound(level_up_sound, level_up_sound_volume_db, level_up_sound_pitch_scale)
 
 	visible = true
 

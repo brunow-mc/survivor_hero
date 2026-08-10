@@ -48,7 +48,7 @@ process_mode = 3
 layer = 100
 script = ExtResource("1_level_up_script")
 level_up_sound = ExtResource("5_rjfvn")
-level_up_volume = -2.0
+level_up_sound_volume_db = -2.0
 
 [node name="Overlay" type="ColorRect" parent="." unique_id=1175686134]
 anchors_preset = 15
