@@ -72,14 +72,6 @@ tile_set = ExtResource("1_kt1c8")
 
 [node name="Camera" parent="." unique_id=815368857 instance=ExtResource("5_t4y0q")]
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=1729084543]
-stream = ExtResource("5_jmh76")
-volume_db = 6.0
-autoplay = true
-max_distance = 200000.0
-attenuation = 1e-05
-bus = &"Music"
-
 [node name="XPBar" parent="." unique_id=1852906834 instance=ExtResource("9_dpt3t")]
 visible = false
 
@@ -103,3 +95,10 @@ max_distance_from_player = 420.0
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
 grid_sample_spacing = 64.0
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
+stream = ExtResource("5_jmh76")
+volume_db = 5.0
+autoplay = true
+bus = &"Music"
+parameters/looping = true
