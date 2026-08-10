@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://we752kvbgfxl" path="res://entities/items/xp_item_02.tscn" id="4_6f417"]
 [ext_resource type="Texture2D" uid="uid://bgve81qr4xs00" path="res://sprites/enemies/gator/gator_idle.png" id="4_jno6b"]
 [ext_resource type="Texture2D" uid="uid://b4bubvtixdhs8" path="res://sprites/enemies/gator/gator.png" id="5_6f417"]
+[ext_resource type="PackedScene" uid="uid://bg33gkayu217w" path="res://entities/effects/impact_01.tscn" id="5_frgl2"]
 [ext_resource type="PackedScene" uid="uid://df26g71i6ubmd" path="res://entities/shadows/shadow_02.tscn" id="6_cvy10"]
 [ext_resource type="Texture2D" uid="uid://ign6kg51beaq" path="res://sprites/enemies/gator/gator_walk_attack.png" id="6_frgl2"]
 
@@ -159,6 +160,7 @@ drop_chance = 0.7
 max_drop_amount = 2
 drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp"), SubResource("Resource_joiy7")])
 flash_color = Color(0.627451, 0, 0, 1)
+death_effect = ExtResource("5_frgl2")
 steer_slice_count = 16
 steer_detect_radius = 30.0
 steer_enemy_clearance = 26.0

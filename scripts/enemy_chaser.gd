@@ -1,7 +1,5 @@
 extends EnemyBase
 
-const IMPACT_01 = preload("uid://bg33gkayu217w")
-
 # =================================================
 # NODES
 # =================================================
@@ -26,14 +24,6 @@ func _ready() -> void:
 # =================================================
 func dead_state() -> void:
 	queue_free()
-
-# =================================================
-# OVERRIDE: DEATH EFFECT
-# =================================================
-func _spawn_death_effect() -> void:
-	var impact = IMPACT_01.instantiate()
-	add_sibling(impact)
-	impact.position = position
 
 # =================================================
 # HITBOX

@@ -82,6 +82,10 @@ enum EnemyState {
 ## brigariam se algum efeito futuro também mexer no alpha (ver CLAUDE.md /
 ## nota do "árbitro único de modulate", ainda não implementado).
 @export_range(0.0, 1.0, 0.05) var phase_alpha: float = 0.4
+## Cena instanciada quando o inimigo morre (impacto, explosão…). Vazio = sem
+## efeito. Nasce no BodyCenter, no mesmo parent do inimigo (ver
+## _spawn_death_effect). Configurável por inimigo, como a drop_table.
+@export var death_effect: PackedScene
 
 # =================================================
 # CONTEXT STEERING
@@ -903,10 +907,24 @@ func _on_damage_timer_timeout() -> void:
 		player.take_damage(damage_per_tick)
 
 # =================================================
-# MÉTODOS VIRTUAIS
+# DEATH EFFECT
+# Instancia a cena de death_effect na morte. Nulo-seguro (sem cena = sem
+# efeito), como a drop_table. Nasce no CENTRO DO CORPO — usar `position`
+# (a origem da cena) colocaria o efeito nos PÉS — e no mesmo parent do
+# inimigo, o mesmo padrão de _spawn_single_drop_item.
+# Subclasses podem sobrescrever se precisarem de algo diferente.
 # =================================================
 func _spawn_death_effect() -> void:
-	pass
+	if not death_effect:
+		return
 
+	var effect := death_effect.instantiate()
+	var spawn_pos := get_body_center_position()
+	get_parent().call_deferred("add_child", effect)
+	effect.global_position = spawn_pos
+
+# =================================================
+# MÉTODOS VIRTUAIS
+# =================================================
 func dead_state() -> void:
 	pass
