@@ -50,7 +50,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_bi81l"]
 resource_name = "idle"
-length = 1.2
+length = 1.8
 loop_mode = 1
 step = 0.15
 tracks/0/type = "value"
@@ -60,15 +60,15 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk"), ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk")]
+"values": [ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk"), ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk"), ExtResource("10_a0k8k"), ExtResource("11_bxy11"), ExtResource("12_j3sf0"), ExtResource("13_pe2xk")]
 }
 
 [sub_resource type="Animation" id="Animation_dghas"]
 resource_name = "walk"
-length = 1.2
+length = 1.8
 loop_mode = 1
 step = 0.15
 tracks/0/type = "value"
@@ -78,10 +78,10 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy"), ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy")]
+"values": [ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy"), ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy"), ExtResource("14_fenmx"), ExtResource("15_r25kn"), ExtResource("16_yoldt"), ExtResource("17_imgqy")]
 }
 
 [sub_resource type="Animation" id="Animation_tb7ne"]
@@ -134,7 +134,7 @@ death_sound_volume_db = 1.75
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_l2ttg")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("6_l2ttg")
+texture = ExtResource("17_imgqy")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
