@@ -16,6 +16,7 @@ collision_mask = 2
 script = ExtResource("1_mjlqx")
 xp_value = 3
 collect_sound = ExtResource("2_4kn6p")
+collect_sound_pitch_scale = 0.9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=457609296]
 visible = false
