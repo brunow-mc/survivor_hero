@@ -9,9 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://cjso66frhav22" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_02.png" id="7_8aj74"]
 [ext_resource type="Texture2D" uid="uid://cm1215b8old1h" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_03.png" id="8_033am"]
 [ext_resource type="Texture2D" uid="uid://dlvenwlij5ldt" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_04.png" id="9_r1yi5"]
-[ext_resource type="Texture2D" uid="uid://bo8ei2k4mciml" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_02.png" id="10_oddul"]
-[ext_resource type="Texture2D" uid="uid://cvb46wb7lltta" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_03.png" id="11_b26kh"]
-[ext_resource type="Texture2D" uid="uid://dbv6km82chk0y" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_04.png" id="12_qaycj"]
+[ext_resource type="Texture2D" uid="uid://bcppybqi048p3" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_02.png" id="10_o31vl"]
+[ext_resource type="Texture2D" uid="uid://cbam0c6knuf72" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_03.png" id="11_oddul"]
+[ext_resource type="Texture2D" uid="uid://d28uuxq8b67a7" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_04.png" id="12_b26kh"]
 [ext_resource type="Texture2D" uid="uid://ctang5r7tkcmc" path="res://sprites/heroes/bo_girl/BG_walk/BG_walk_01.png" id="18_6utx6"]
 [ext_resource type="Texture2D" uid="uid://bqwrbiabuc2gg" path="res://sprites/heroes/bo_girl/BG_walk/BG_walk_02.png" id="19_tmnsm"]
 [ext_resource type="Texture2D" uid="uid://dta8wlfkkv2yw" path="res://sprites/heroes/bo_girl/BG_walk/BG_walk_03.png" id="20_8aj74"]
@@ -63,7 +63,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("5_o31vl"), ExtResource("10_oddul"), ExtResource("11_b26kh"), ExtResource("12_qaycj")]
+"values": [ExtResource("5_o31vl"), ExtResource("10_o31vl"), ExtResource("11_oddul"), ExtResource("12_b26kh")]
 }
 
 [sub_resource type="Animation" id="Animation_dghas"]
