@@ -4,18 +4,13 @@
 [ext_resource type="AudioStream" uid="uid://c8iat3i7a5cyg" path="res://audio/effects/voice/ouch_sound_02.mp3" id="2_033am"]
 [ext_resource type="AudioStream" uid="uid://cnvmebvqqoj4k" path="res://audio/effects/voice/death_sound_02.mp3" id="3_r1yi5"]
 [ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_qaycj"]
-[ext_resource type="Texture2D" uid="uid://b7lu4ndn1s5r" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_08.png" id="5_6utx6"]
-[ext_resource type="Texture2D" uid="uid://buk32kggcg5kp" path="res://sprites/heroes/bo_girl/BG_walk_attack/BG_walk_attack_08.png" id="5_033am"]
 [ext_resource type="Texture2D" uid="uid://42rmx1nmtxss" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_01.png" id="5_o31vl"]
 [ext_resource type="Texture2D" uid="uid://c4pupnadjhh0u" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_01.png" id="6_tmnsm"]
 [ext_resource type="Texture2D" uid="uid://cjso66frhav22" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_02.png" id="7_8aj74"]
 [ext_resource type="Texture2D" uid="uid://cm1215b8old1h" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_03.png" id="8_033am"]
 [ext_resource type="Texture2D" uid="uid://dlvenwlij5ldt" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_04.png" id="9_r1yi5"]
-[ext_resource type="Texture2D" uid="uid://cwwvwpb7trhyn" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_05.png" id="10_0f6uv"]
 [ext_resource type="Texture2D" uid="uid://bo8ei2k4mciml" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_02.png" id="10_oddul"]
 [ext_resource type="Texture2D" uid="uid://cvb46wb7lltta" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_03.png" id="11_b26kh"]
-[ext_resource type="Texture2D" uid="uid://4y851u8o0l76" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_06.png" id="11_bnhd2"]
-[ext_resource type="Texture2D" uid="uid://tif7150yem11" path="res://sprites/heroes/bo_girl/BG_attack/BG_attack_07.png" id="12_eu17v"]
 [ext_resource type="Texture2D" uid="uid://dbv6km82chk0y" path="res://sprites/heroes/bo_girl/BG_idle/BG_idle_04.png" id="12_qaycj"]
 [ext_resource type="Texture2D" uid="uid://ctang5r7tkcmc" path="res://sprites/heroes/bo_girl/BG_walk/BG_walk_01.png" id="18_6utx6"]
 [ext_resource type="Texture2D" uid="uid://bqwrbiabuc2gg" path="res://sprites/heroes/bo_girl/BG_walk/BG_walk_02.png" id="19_tmnsm"]
@@ -30,10 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://kcb5x3rnrxnf" path="res://ui/health_label.tscn" id="24_p78sp"]
 [ext_resource type="Script" uid="uid://bjse65mxy6dld" path="res://scripts/test_powerups.gd" id="25_apr7x"]
 [ext_resource type="Texture2D" uid="uid://civ10uav3275r" path="res://sprites/heroes/bo_girl/BG_walk_attack/BG_walk_attack_04.png" id="25_eu17v"]
-[ext_resource type="Texture2D" uid="uid://dqmx2ii4n7whf" path="res://sprites/heroes/bo_girl/BG_walk_attack/BG_walk_attack_05.png" id="26_e7bhu"]
 [ext_resource type="Script" uid="uid://d4m4yptp77s6n" path="res://scripts/test_attack_upgrades.gd" id="26_m4we2"]
-[ext_resource type="Texture2D" uid="uid://l0c8a03gio27" path="res://sprites/heroes/bo_girl/BG_walk_attack/BG_walk_attack_06.png" id="27_gdmx0"]
-[ext_resource type="Texture2D" uid="uid://c3mnsju6pqa4g" path="res://sprites/heroes/bo_girl/BG_walk_attack/BG_walk_attack_07.png" id="28_cc5q6"]
 
 [sub_resource type="Animation" id="Animation_22j44"]
 length = 0.001
@@ -41,7 +33,7 @@ step = 0.15
 
 [sub_resource type="Animation" id="Animation_aacg7"]
 resource_name = "attack"
-length = 1.8
+length = 0.6
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -50,15 +42,15 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("6_tmnsm"), ExtResource("7_8aj74"), ExtResource("8_033am"), ExtResource("9_r1yi5"), ExtResource("10_0f6uv"), ExtResource("11_bnhd2"), ExtResource("12_eu17v"), ExtResource("5_6utx6"), ExtResource("10_0f6uv"), ExtResource("11_bnhd2"), ExtResource("12_eu17v"), ExtResource("5_6utx6")]
+"values": [ExtResource("6_tmnsm"), ExtResource("7_8aj74"), ExtResource("8_033am"), ExtResource("9_r1yi5")]
 }
 
 [sub_resource type="Animation" id="Animation_bi81l"]
 resource_name = "idle"
-length = 1.8
+length = 0.6
 loop_mode = 1
 step = 0.15
 tracks/0/type = "value"
@@ -68,15 +60,15 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("5_o31vl"), ExtResource("10_oddul"), ExtResource("11_b26kh"), ExtResource("12_qaycj"), ExtResource("5_o31vl"), ExtResource("10_oddul"), ExtResource("11_b26kh"), ExtResource("12_qaycj"), ExtResource("5_o31vl"), ExtResource("10_oddul"), ExtResource("11_b26kh"), ExtResource("12_qaycj")]
+"values": [ExtResource("5_o31vl"), ExtResource("10_oddul"), ExtResource("11_b26kh"), ExtResource("12_qaycj")]
 }
 
 [sub_resource type="Animation" id="Animation_dghas"]
 resource_name = "walk"
-length = 1.8
+length = 0.6
 loop_mode = 1
 step = 0.15
 tracks/0/type = "value"
@@ -86,15 +78,15 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("18_6utx6"), ExtResource("19_tmnsm"), ExtResource("20_8aj74"), ExtResource("21_033am"), ExtResource("18_6utx6"), ExtResource("19_tmnsm"), ExtResource("20_8aj74"), ExtResource("21_033am"), ExtResource("18_6utx6"), ExtResource("19_tmnsm"), ExtResource("20_8aj74"), ExtResource("21_033am")]
+"values": [ExtResource("18_6utx6"), ExtResource("19_tmnsm"), ExtResource("20_8aj74"), ExtResource("21_033am")]
 }
 
 [sub_resource type="Animation" id="Animation_tb7ne"]
 resource_name = "walk_attack"
-length = 1.8
+length = 0.6
 step = 0.15
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -103,10 +95,10 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2, 1.35, 1.5, 1.65),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("22_r1yi5"), ExtResource("23_0f6uv"), ExtResource("24_bnhd2"), ExtResource("25_eu17v"), ExtResource("26_e7bhu"), ExtResource("27_gdmx0"), ExtResource("28_cc5q6"), ExtResource("5_033am"), ExtResource("26_e7bhu"), ExtResource("27_gdmx0"), ExtResource("28_cc5q6"), ExtResource("5_033am")]
+"values": [ExtResource("22_r1yi5"), ExtResource("23_0f6uv"), ExtResource("24_bnhd2"), ExtResource("25_eu17v")]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_10c06"]

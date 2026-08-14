@@ -135,7 +135,7 @@ death_sound_pitch_scale = 1.1
 [node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_g0tgi")]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
-texture = ExtResource("10_735tf")
+texture = ExtResource("9_pwokh")
 offset = Vector2(0, -13)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]

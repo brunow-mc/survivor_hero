@@ -187,11 +187,13 @@ open_sound_volume_db = 2.0
 open_sound_pitch_scale = 0.75
 
 [node name="Blocker" type="CollisionShape2D" parent="." unique_id=768013928]
+visible = false
 position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_7egqp")
 disabled = true
 
 [node name="PassSensor" type="Area2D" parent="." unique_id=1281692190]
+visible = false
 collision_layer = 0
 collision_mask = 2
 monitorable = false
@@ -201,6 +203,7 @@ position = Vector2(0, 8)
 shape = SubResource("RectangleShape2D_jpx2q")
 
 [node name="EnemyPhaseSensor" type="Area2D" parent="." unique_id=1611274623]
+visible = false
 collision_layer = 0
 collision_mask = 4
 monitorable = false
