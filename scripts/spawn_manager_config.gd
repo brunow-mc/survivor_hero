@@ -92,8 +92,17 @@ extends Node
 ## Habilitar teleporte de inimigos distantes
 @export var teleport_enabled: bool = true
 
-## Distância máxima do player antes de teleportar (px)
-@export var max_distance_from_player: float = 350.0
+## Distância HORIZONTAL máxima do player antes de teleportar (px).
+## Separado do vertical porque a tela é retangular (480x270): a área de
+## spawn é mais larga que alta, então uma distância única serviria mal aos
+## dois eixos. Deve ficar MAIOR que a borda externa de spawn desse eixo
+## (meia tela + spawn_margin_max_horizontal), senão o inimigo já nasce
+## elegível a teleporte.
+@export var max_distance_from_player_horizontal: float = 430.0
+
+## Distância VERTICAL máxima do player antes de teleportar (px).
+## Mesma regra: > meia tela + spawn_margin_max_vertical.
+@export var max_distance_from_player_vertical: float = 325.0
 
 ## Intervalo para checar e teleportar inimigos (segundos)
 @export var teleport_check_interval: float = 2.0
@@ -196,7 +205,8 @@ func initialize_spawn_manager() -> void:
 	
 	# Transfere configurações de teleport
 	SpawnManagerGlobal.teleport_enabled = teleport_enabled
-	SpawnManagerGlobal.max_distance_from_player = max_distance_from_player
+	SpawnManagerGlobal.max_distance_from_player_horizontal = max_distance_from_player_horizontal
+	SpawnManagerGlobal.max_distance_from_player_vertical = max_distance_from_player_vertical
 	SpawnManagerGlobal.teleport_check_interval = teleport_check_interval
 	SpawnManagerGlobal.max_teleports_per_frame = max_teleports_per_frame
 	

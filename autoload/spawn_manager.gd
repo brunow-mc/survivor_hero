@@ -84,9 +84,11 @@ var initial_budget: float = 0.0
 ## Habilitar teleporte de inimigos distantes
 @export var teleport_enabled: bool = true
 
-## Distância máxima do player antes de teleportar (px)
-## Inimigos além desta distância serão teleportados
-@export var max_distance_from_player: float = 350.0
+## Limites de teleporte por EIXO (retangulares, acompanhando a forma da tela
+## e da área de spawn). Inimigos além do limite em QUALQUER eixo são
+## teleportados. Definidos pelo SpawnManagerConfig por stage.
+@export var max_distance_from_player_horizontal: float = 430.0
+@export var max_distance_from_player_vertical: float = 325.0
 
 ## Intervalo para checar e teleportar inimigos (segundos)
 @export var teleport_check_interval: float = 2.0
@@ -153,6 +155,24 @@ var game_time: float = 0.0
 var difficulty_multiplier: float = 1.0
 var is_spawning_enabled: bool = false
 
+# =================================================
+# CACHE DA GRADE NAVEGÁVEL
+# scan_navigable_grid() é a parte cara do spawn: por PONTO da grade faz uma
+# consulta ao NavigationServer + uma de física. Mas navmesh e paredes são
+# ESTÁTICOS — o resultado só muda quando a CÂMERA se move (a faixa é
+# construída ao redor dela). Sem cache, um frame que spawna 5 inimigos varria
+# a grade 5 vezes produzindo o mesmo resultado, e o custo explodia ao reduzir
+# grid_sample_spacing (metade do espaçamento = ~4x mais pontos).
+# Invalidação: câmera moveu mais de meia célula, ou o espaçamento mudou.
+# Ficar levemente desatualizado degrada de forma segura — a faixa fica
+# deslocada em no máximo meia célula, nunca aprova ponto inválido (a
+# navegabilidade não muda) e o filtro offscreen roda sempre com a câmera atual.
+# =================================================
+var _grid_cache: Array = []
+var _grid_cache_camera_pos: Vector2 = Vector2.INF
+var _grid_cache_spacing: float = -1.0
+var _grid_cache_valid: bool = false
+
 ## Delay inicial antes do primeiro spawn (segundos)
 ## Garante que sistema de navegação está inicializado
 var initial_spawn_delay: float = 0.5
@@ -176,6 +196,13 @@ var safe_teleport_positions: Array[Vector2] = []
 # PERFORMANCE: shape reutilizado em is_safe_from_walls
 var _wall_check_circle: CircleShape2D = CircleShape2D.new()
 
+# PERFORMANCE: query reutilizada em get_snapped_navigable_point.
+# Era criada com .new() a cada PONTO da grade — no laço mais quente do
+# sistema, isso significava centenas de alocações por varredura (e o
+# lixo correspondente). Os campos fixos são configurados uma vez aqui;
+# só `position` muda a cada chamada.
+var _point_query: PhysicsPointQueryParameters2D = PhysicsPointQueryParameters2D.new()
+
 # =================================================
 # REFERÊNCIAS
 # =================================================
@@ -192,6 +219,11 @@ var enemy_container: Node2D = null
 # READY
 # =================================================
 func _ready() -> void:
+	# Campos fixos da query reutilizada (só `position` muda por chamada)
+	_point_query.collision_mask = 1  # Layer 1 = environment/walls
+	_point_query.collide_with_areas = false
+	_point_query.collide_with_bodies = true
+
 	# Aguarda a cena carregar completamente
 	await get_tree().process_frame
 	set_process(false)  # Desativado até start_spawning() ser chamado
@@ -226,6 +258,7 @@ func start_spawning() -> void:
 	# Budget parte da reserva inicial (rajada de abertura); 0 = começo frio.
 	spawn_budget = initial_budget
 	difficulty_multiplier = 1.0
+	_grid_cache_valid = false  # nova partida: descarta a grade da anterior
 	
 	# Ativa spawning
 	is_spawning_enabled = true
@@ -331,39 +364,48 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 	if not player or not is_instance_valid(player):
 		return
 	
-	# FASE 0: PREPARA cache de posições seguras (1x por ciclo)
+	# FASE 1: COLETA inimigos que precisam teleportar.
+	# Feita ANTES de preparar o cache: é uma checagem BARATA (uma distância
+	# por inimigo, sem consulta de física/navmesh), enquanto o cache varre e
+	# valida a grade inteira. Na ordem anterior o cache era preparado sempre,
+	# a cada teleport_check_interval, mesmo com ZERO inimigos elegíveis — e
+	# todo esse trabalho era descartado logo abaixo.
+	var enemies: Array[Node] = get_tree().get_nodes_in_group("Enemy")
+	var enemies_to_teleport: Array = []
+
+	for enemy in enemies:
+		if not enemy or not is_instance_valid(enemy):
+			continue
+
+		# Distância por EIXO. O teste é RETANGULAR (não radial) para
+		# acompanhar a forma da tela e da faixa de spawn: um raio único
+		# ficaria curto num eixo e folgado no outro. Bônus: sem raiz
+		# quadrada — comparação direta de componentes.
+		var offset: Vector2 = enemy.global_position - player.global_position
+
+		# Se ultrapassou o limite em QUALQUER eixo, marca para teleport
+		if absf(offset.x) > max_distance_from_player_horizontal \
+				or absf(offset.y) > max_distance_from_player_vertical:
+			enemies_to_teleport.append(enemy)
+
+			# LIMITE: Se atingiu max_teleports_per_frame, para
+			if max_teleports_per_frame > 0 and enemies_to_teleport.size() >= max_teleports_per_frame:
+				break  # Resto fica para próximo check
+
+	# Ninguém longe → sai SEM varrer a grade
+	if enemies_to_teleport.is_empty():
+		return
+
+	# FASE 0: PREPARA cache de posições seguras (só agora que sabemos que
+	# há alguém para teleportar)
 	prepare_safe_teleport_cache()
-	
+
 	# Se cache está vazio, não há posições válidas
 	if safe_teleport_positions.is_empty():
 		if debug_enabled:
 			print("⚠️ Cache de teleport vazio - sem posições seguras disponíveis")
 		return
-	
-	# Pega todos os inimigos
-	var enemies: Array[Node] = get_tree().get_nodes_in_group("Enemy")
-	var enemies_to_teleport: Array = []
-	
-	# FASE 1: COLETA inimigos que precisam teleportar
-	for enemy in enemies:
-		if not enemy or not is_instance_valid(enemy):
-			continue
-		
-		# Calcula distância até o player
-		var distance_to_player: float = enemy.global_position.distance_to(player.global_position)
-		
-		# Se está muito longe, marca para teleport
-		if distance_to_player > max_distance_from_player:
-			enemies_to_teleport.append(enemy)
-			
-			# LIMITE: Se atingiu max_teleports_per_frame, para
-			if max_teleports_per_frame > 0 and enemies_to_teleport.size() >= max_teleports_per_frame:
-				break  # Resto fica para próximo check
-	
-	# Se não há inimigos para teleportar, sai
-	if enemies_to_teleport.is_empty():
-		return
-	
+
 	# FASE 2: ATRIBUI posições do cache (O(1) por inimigo)
 	var teleported_count: int = 0
 	
@@ -415,8 +457,8 @@ func prepare_safe_teleport_cache() -> void:
 	"""
 	safe_teleport_positions.clear()
 	
-	# Varre grade e filtra clusters offscreen
-	var clusters: Array = scan_navigable_grid()
+	# Varre grade (cacheada) e filtra clusters offscreen
+	var clusters: Array = get_navigable_grid()
 	var offscreen: Array = filter_offscreen_clusters(clusters)
 	
 	if offscreen.is_empty():
@@ -737,8 +779,8 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	# GRID SAMPLING: Varredura inteligente
 	# =========================================
 	
-	# 1. Escaneia grade e encontra clusters navegáveis
-	var clusters: Array = scan_navigable_grid()
+	# 1. Grade navegável (cacheada — ver get_navigable_grid)
+	var clusters: Array = get_navigable_grid()
 	
 	# Armazena para debug visual
 	last_scanned_clusters = clusters
@@ -791,6 +833,21 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 		print("   Cluster escolhido: ", chosen_cluster.size(), " pontos")
 	
 	return spawn_pos
+
+## Grade navegável, reaproveitada enquanto continuar válida (ver _grid_cache).
+## Todo consumidor deve chamar ESTE método, nunca scan_navigable_grid() direto.
+func get_navigable_grid() -> Array:
+	var cam: Vector2 = get_camera_position()
+
+	if (not _grid_cache_valid
+			or _grid_cache_spacing != grid_sample_spacing
+			or cam.distance_to(_grid_cache_camera_pos) > grid_sample_spacing * 0.5):
+		_grid_cache = scan_navigable_grid()
+		_grid_cache_camera_pos = cam
+		_grid_cache_spacing = grid_sample_spacing
+		_grid_cache_valid = true
+
+	return _grid_cache
 
 func scan_navigable_grid() -> Array:
 	"""
@@ -1044,13 +1101,11 @@ func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 	# =========================================
 	var space_state := player.get_world_2d().direct_space_state
 
-	var query := PhysicsPointQueryParameters2D.new()
-	query.position = closest_point
-	query.collision_mask = 1  # Layer 1 = environment/walls
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
+	# Reutiliza a query cacheada — evita uma alocação por ponto da grade.
+	# collision_mask/collide_with_* são fixos e setados no _ready().
+	_point_query.position = closest_point
 
-	var result := space_state.intersect_point(query, 1)
+	var result := space_state.intersect_point(_point_query, 1)
 
 	if result.size() > 0:
 		return Vector2.INF
