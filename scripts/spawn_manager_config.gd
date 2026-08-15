@@ -126,7 +126,19 @@ extends Node
 ## A validação de paredes testa o círculo nesta posição.
 @export var body_center_offset: Vector2 = Vector2(0, -14)
 
-## Raio de captura do snap ao navmesh (px)
+## Camadas consultadas para saber se um ponto é chão navegável.
+##
+## OPCIONAL — deixe VAZIO no caso normal: as camadas são resolvidas sozinhas
+## pelo grupo "NavigableTileMap". Preencha apenas como OVERRIDE explícito.
+##
+## ATENÇÃO: marcar uma camada aqui (ou no grupo) NÃO declara que ela é toda
+## navegável — declara apenas "consulte esta camada". Quem decide é cada
+## tile, pelo seu polígono de navegação. Por isso uma camada mista como
+## TileMapBuildings (tiles de colisão + tiles de navegação) entra sem
+## problema: só os tiles com polígono de navegação são aceitos.
+@export var navigable_tilemap_layers: Array[TileMapLayer] = []
+
+## Raio de captura do snap ao chão navegável (px)
 ## Pontos da grade a até esta distância são "grudados" no ponto navegável
 ## mais próximo — a grade grossa enxerga corredores estreitos sem custo.
 @export var nav_snap_radius: float = 32.0
@@ -215,6 +227,24 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.min_distance_from_walls = min_distance_from_walls
 	SpawnManagerGlobal.body_center_offset = body_center_offset
 	SpawnManagerGlobal.nav_snap_radius = nav_snap_radius
+
+	# Resolve as camadas de chão navegável: export (override) → grupo →
+	# varredura da cena. Mesma cascata do container Y-sort.
+	# O último degrau existe porque falhar aqui significa ZERO spawn no
+	# jogo inteiro — degrada, mas avisa (contrato do projeto).
+	var nav_layers: Array[TileMapLayer] = navigable_tilemap_layers.duplicate()
+
+	if nav_layers.is_empty():
+		for node in get_tree().get_nodes_in_group("NavigableTileMap"):
+			if node is TileMapLayer:
+				nav_layers.append(node as TileMapLayer)
+
+	if nav_layers.is_empty():
+		_collect_tilemap_layers(get_tree().current_scene, nav_layers)
+		push_warning("SpawnManagerConfig: nenhuma TileMapLayer no grupo 'NavigableTileMap' e o export 'Navigable Tilemap Layers' está vazio. Caindo para uma varredura da cena (%d camadas) — funciona, mas marque as camadas navegáveis no grupo para tornar isso explícito." % nav_layers.size())
+
+	SpawnManagerGlobal.navigable_tilemap_layers = nav_layers
+	SpawnManagerGlobal.invalidate_nav_layer_cache()
 	
 	# Transfere configurações de Grid Sampling
 	SpawnManagerGlobal.grid_sample_spacing = grid_sample_spacing
@@ -231,6 +261,17 @@ func initialize_spawn_manager() -> void:
 	print("   Teleport: ", "ATIVADO" if teleport_enabled else "DESATIVADO")
 	print("   Grid Sampling: ", grid_sample_spacing, "px | Debug: ", "SIM" if debug_draw_enabled else "NÃO")
 	print("   Margens: Min(", spawn_margin_min_horizontal, ",", spawn_margin_min_vertical, ") Max(", spawn_margin_max_horizontal, ",", spawn_margin_max_vertical, ")")
+	print("   Camadas navegáveis: ", nav_layers.map(func(l): return l.name))
+
+## Último recurso da resolução de camadas: coleta toda TileMapLayer da cena.
+## Camadas sem navegação são descartadas de graça pelo SpawnManager.
+func _collect_tilemap_layers(node: Node, out: Array[TileMapLayer]) -> void:
+	if not node:
+		return
+	if node is TileMapLayer:
+		out.append(node as TileMapLayer)
+	for child in node.get_children():
+		_collect_tilemap_layers(child, out)
 
 # =================================================
 # DEBUG OVERLAY

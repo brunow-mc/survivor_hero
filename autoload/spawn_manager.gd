@@ -168,6 +168,25 @@ var is_spawning_enabled: bool = false
 # deslocada em no máximo meia célula, nunca aprova ponto inválido (a
 # navegabilidade não muda) e o filtro offscreen roda sempre com a câmera atual.
 # =================================================
+## Quanto a câmera pode andar antes de a grade ser revarrida (px).
+## É uma DISTÂNCIA FIXA, deliberadamente independente de grid_sample_spacing:
+## antes era "meia célula", o que amarrava a FREQUÊNCIA das varreduras à
+## resolução da grade — reduzir o espaçamento pela metade dobrava o número de
+## varreduras por segundo E quadruplicava os pontos de cada uma (~7x mais
+## consultas ao servidor por segundo). O que define a tolerância aqui não é a
+## resolução, e sim quanto a faixa de spawn pode ficar deslocada e ainda
+## servir — e a faixa tem mais de 100px de espessura, então dezenas de px de
+## defasagem são inofensivos (o filtro offscreen roda sempre com a câmera atual).
+const GRID_CACHE_MOVE_THRESHOLD: float = 64.0
+
+## Camadas consultadas para saber se um ponto é chão navegável.
+## Resolvidas pelo SpawnManagerConfig (export -> grupo "NavigableTileMap").
+## Marcar a camada aqui NÃO diz que ela é toda navegável — quem decide é
+## cada tile (ver _get_nav_layer_data).
+var navigable_tilemap_layers: Array[TileMapLayer] = []
+var _nav_layer_data: Array = []
+var _nav_cache_built: bool = false
+
 var _grid_cache: Array = []
 var _grid_cache_camera_pos: Vector2 = Vector2.INF
 var _grid_cache_spacing: float = -1.0
@@ -226,7 +245,7 @@ func _ready() -> void:
 
 	# Aguarda a cena carregar completamente
 	await get_tree().process_frame
-	set_process(false)  # Desativado até start_spawning() ser chamado
+	set_physics_process(false)  # Desativado até start_spawning() ser chamado
 
 # =================================================
 # INICIALIZAÇÃO
@@ -262,7 +281,7 @@ func start_spawning() -> void:
 	
 	# Ativa spawning
 	is_spawning_enabled = true
-	set_process(true)
+	set_physics_process(true)
 	
 	print("✅ SpawnManager iniciado!")
 	print("   Delay inicial: ", initial_spawn_delay, "s (garante navegação pronta)")
@@ -272,13 +291,20 @@ func stop_spawning() -> void:
 	Para o sistema de spawn.
 	"""
 	is_spawning_enabled = false
-	set_process(false)
+	set_physics_process(false)
 	print("⏸️ SpawnManager parado!")
 
 # =================================================
 # PROCESS (Loop Principal)
 # =================================================
-func _process(delta: float) -> void:
+## Roda em _physics_process, NÃO em _process. O spawn faz centenas de
+## consultas ao servidor de física por varredura (intersect_point,
+## intersect_shape) e o direct_space_state é feito para ser consultado
+## durante o FRAME DE FÍSICA. Chamado do frame idle, ele força o servidor a
+## sincronizar — custo que não aparece como tempo de script (fica no Process
+## Time) e que escalava com a quantidade de pontos da grade.
+## Bônus: o delta aqui é fixo, então o acúmulo de budget fica mais estável.
+func _physics_process(delta: float) -> void:
 	if not is_spawning_enabled:
 		return
 	
@@ -841,7 +867,7 @@ func get_navigable_grid() -> Array:
 
 	if (not _grid_cache_valid
 			or _grid_cache_spacing != grid_sample_spacing
-			or cam.distance_to(_grid_cache_camera_pos) > grid_sample_spacing * 0.5):
+			or cam.distance_to(_grid_cache_camera_pos) > GRID_CACHE_MOVE_THRESHOLD):
 		_grid_cache = scan_navigable_grid()
 		_grid_cache_camera_pos = cam
 		_grid_cache_spacing = grid_sample_spacing
@@ -947,7 +973,8 @@ func scan_navigable_grid() -> Array:
 	
 	# Agrupa pontos adjacentes em clusters
 	var clusters: Array = group_adjacent_points(navigable_points, spacing)
-	
+
+
 	if debug_enabled:
 		print("🔍 Grid Scan OTIMIZADO (4 retângulos): ", navigable_points.size(), " pontos navegáveis")
 		print("   Clusters: ", clusters.size())
@@ -957,43 +984,74 @@ func scan_navigable_grid() -> Array:
 
 func group_adjacent_points(points: Array, threshold: float) -> Array:
 	"""
-	Agrupa pontos navegáveis adjacentes em clusters.
-	Usa algoritmo flood-fill simplificado.
+	Agrupa pontos navegáveis adjacentes em clusters (flood-fill).
+
+	PERFORMANCE — três correções sobre a versão original, que era CÚBICA:
+	1. `visited` é Dictionary (busca O(1)); era Array, cujo `in` faz
+	   varredura LINEAR — dentro de dois laços aninhados.
+	2. Vizinhos vêm de um HASH ESPACIAL (só as 9 células ao redor), em vez
+	   de varrer TODOS os pontos a cada item da fila. Mesma técnica do grid
+	   espacial do steering dos inimigos.
+	3. A fila avança por índice; `pop_front()` num Array desloca todos os
+	   elementos a cada chamada.
+
+	Isso é o que tornava `grid_sample_spacing` explosivo: metade do
+	espaçamento = 4x mais pontos = ~64x mais trabalho na versão antiga.
 	"""
 	if points.is_empty():
 		return []
-	
-	var clusters: Array = []
-	var visited: Array = []
+
 	var adjacency_threshold: float = threshold * 1.5  # Margem de 50%
-	
+
+	# Hash espacial. Célula = adjacency_threshold, então todo vizinho válido
+	# cai na própria célula ou numa das 8 adjacentes.
+	var cell_size: float = adjacency_threshold
+	var buckets: Dictionary = {}
 	for point in points:
-		if point in visited:
+		var cell := Vector2i(floori(point.x / cell_size), floori(point.y / cell_size))
+		if buckets.has(cell):
+			buckets[cell].append(point)
+		else:
+			buckets[cell] = [point]
+
+	var clusters: Array = []
+	var visited: Dictionary = {}
+
+	for point in points:
+		if visited.has(point):
 			continue
-		
+
 		# Novo cluster
 		var cluster: Array = [point]
 		var queue: Array = [point]
-		visited.append(point)
-		
-		# Flood fill
-		while not queue.is_empty():
-			var current: Vector2 = queue.pop_front()
-			
-			# Procura vizinhos não visitados
-			for other in points:
-				if other in visited:
-					continue
-				
-				# Se está próximo o suficiente, adiciona ao cluster
-				if current.distance_to(other) <= adjacency_threshold:
-					cluster.append(other)
-					queue.append(other)
-					visited.append(other)
-		
+		visited[point] = true
+
+		# Flood fill — consulta só as células vizinhas, não todos os pontos
+		var head: int = 0
+		while head < queue.size():
+			var current: Vector2 = queue[head]
+			head += 1
+
+			var base_cell := Vector2i(floori(current.x / cell_size), floori(current.y / cell_size))
+			for dx in range(-1, 2):
+				for dy in range(-1, 2):
+					var cell := base_cell + Vector2i(dx, dy)
+					if not buckets.has(cell):
+						continue
+
+					for other in buckets[cell]:
+						if visited.has(other):
+							continue
+
+						# Se está próximo o suficiente, entra no cluster
+						if current.distance_to(other) <= adjacency_threshold:
+							cluster.append(other)
+							queue.append(other)
+							visited[other] = true
+
 		# Adiciona cluster à lista
 		clusters.append(cluster)
-	
+
 	return clusters
 
 func get_camera_position() -> Vector2:
@@ -1066,33 +1124,69 @@ func filter_offscreen_clusters(clusters: Array) -> Array:
 
 func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 	"""
-	SNAP AO NAVMESH: em vez de exigir que o ponto da grade caia em cima
-	da malha, "gruda" o ponto no navmesh mais próximo (se estiver dentro
-	do raio de captura nav_snap_radius).
+	SNAP AO CHÃO NAVEGÁVEL: em vez de exigir que o ponto da grade caia em
+	cima de uma célula navegável, "gruda" o ponto na célula navegável mais
+	próxima (se estiver dentro do raio de captura nav_snap_radius).
 
-	Isso permite que a grade grossa (64px, barata) enxergue faixas finas
-	de navmesh (corredores estreitos) sem jamais aprovar um ponto FORA
-	da malha — o ponto retornado está sempre sobre o navmesh.
+	Isso permite que a grade grossa enxergue faixas finas (corredores
+	estreitos) sem jamais aprovar um ponto fora do chão caminhável.
+
+	FONTE DA VERDADE: os próprios tiles, via TileData.get_navigation_polygon()
+	— exatamente o dado a partir do qual o Godot gera o navmesh.
+
+	Antes isto perguntava a NavigationServer2D.map_get_closest_point(), que faz
+	busca LINEAR em todas as regiões do mapa. O TileMapLayer cria UMA REGIÃO
+	POR TILE (3762 no stage01, ~7500 triângulos), então cada consulta custava
+	~140 us e uma varredura de 288 pontos travava o frame por ~40 ms. Ler do
+	tile é busca de hash. A equivalência foi verificada empiricamente rodando
+	os dois métodos lado a lado: ZERO divergências de veredito em 27 varreduras.
 
 	Retorna o ponto grudado, ou Vector2.INF se não capturável.
 	"""
-	# Validação: precisa do player para acessar o world_2d
 	if not player or not is_instance_valid(player):
 		return Vector2.INF
 
-	# =========================================
-	# SNAP: NAVIGATION LAYER
-	# =========================================
-	var navigation_map: RID = player.get_world_2d().navigation_map
+	var best: Vector2 = Vector2.INF
+	var best_dist: float = nav_snap_radius
 
-	var closest_point := NavigationServer2D.map_get_closest_point(
-		navigation_map,
-		check_pos
-	)
+	for data in _get_nav_layer_data():
+		var layer: TileMapLayer = data["layer"]
+		if not is_instance_valid(layer):
+			continue
 
-	# Fora do raio de captura — ponto da grade longe demais de
-	# qualquer área navegável
-	if check_pos.distance_to(closest_point) > nav_snap_radius:
+		var cells: Dictionary = data["cells"]
+		var half: Vector2 = data["half"]
+		var cell_radius: int = data["cell_radius"]
+		var local: Vector2 = layer.to_local(check_pos)
+		var center_cell: Vector2i = layer.local_to_map(local)
+
+		for dx in range(-cell_radius, cell_radius + 1):
+			for dy in range(-cell_radius, cell_radius + 1):
+				var cell := Vector2i(center_cell.x + dx, center_cell.y + dy)
+				if not cells.has(cell):
+					continue
+
+				# Ponto mais próximo DENTRO do retângulo da célula.
+				# Aproximação aceita: um tile cujo polígono de navegação
+				# cobre só parte do tile é tratado como o tile inteiro. A
+				# validação de física logo abaixo e o clearance do spawn
+				# cobrem o resíduo — não há risco de spawn dentro de parede.
+				var c: Vector2 = layer.map_to_local(cell)
+				var clamped := Vector2(
+					clampf(local.x, c.x - half.x, c.x + half.x),
+					clampf(local.y, c.y - half.y, c.y + half.y)
+				)
+				var world: Vector2 = layer.to_global(clamped)
+				var d: float = check_pos.distance_to(world)
+				if d <= best_dist:
+					best_dist = d
+					best = world
+			if best_dist == 0.0:
+				break  # já está sobre célula navegável; nada fica mais perto
+		if best_dist == 0.0:
+			break
+
+	if best == Vector2.INF:
 		return Vector2.INF
 
 	# =========================================
@@ -1103,21 +1197,104 @@ func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 
 	# Reutiliza a query cacheada — evita uma alocação por ponto da grade.
 	# collision_mask/collide_with_* são fixos e setados no _ready().
-	_point_query.position = closest_point
+	_point_query.position = best
 
-	var result := space_state.intersect_point(_point_query, 1)
-
-	if result.size() > 0:
+	if space_state.intersect_point(_point_query, 1).size() > 0:
 		return Vector2.INF
 
-	return closest_point
+	return best
+
+
+## Navegabilidade por célula, PRÉ-COMPUTADA.
+##
+## Os TileMaps são estáticos, então "esta célula é navegável?" nunca muda em
+## runtime. Sem o cache, cada ponto da grade fazia ~75 chamadas de
+## get_cell_tile_data() (5x5 células x 3 camadas) = ~25 us; com ele, viram
+## buscas de hash. Se alguma fase futura alterar tiles em runtime — ou
+## nav_snap_radius —, chame invalidate_nav_layer_cache().
+##
+## O filtro é POR TILE, nunca por camada: uma camada como TileMapBuildings
+## mistura tiles de colisão e tiles de navegação, e só os que têm polígono de
+## navegação entram. Camadas cujo TileSet não tem nenhuma camada de navegação
+## (ex.: decoração) são descartadas inteiras, de graça.
+func _get_nav_layer_data() -> Array:
+	if _nav_cache_built:
+		var stale: bool = false
+		for data in _nav_layer_data:
+			if not is_instance_valid(data["layer"]):
+				stale = true
+				break
+		if not stale:
+			return _nav_layer_data
+
+	_nav_layer_data.clear()
+	_nav_cache_built = true
+
+	for layer in navigable_tilemap_layers:
+		if not is_instance_valid(layer) or layer.tile_set == null:
+			continue
+
+		var ts: TileSet = layer.tile_set
+		var nav_layer_count: int = ts.get_navigation_layers_count()
+		if nav_layer_count <= 0:
+			continue
+
+		var cells: Dictionary = {}
+		var orphan_cells: Array[Vector2i] = []
+		for cell in layer.get_used_cells():
+			# Célula pintada cuja fonte não existe mais no TileSet (fonte
+			# removida/reimportada depois da pintura). get_cell_tile_data()
+			# emitiria erro do C++ nesses casos, então checa antes.
+			var source_id: int = layer.get_cell_source_id(cell)
+			if source_id < 0 or not ts.has_source(source_id):
+				orphan_cells.append(cell)
+				continue
+
+			var td: TileData = layer.get_cell_tile_data(cell)
+			if td == null:
+				continue
+			for i in nav_layer_count:
+				if td.get_navigation_polygon(i) != null:
+					cells[cell] = true
+					break
+
+		if not orphan_cells.is_empty():
+			var where: PackedStringArray = []
+			for c in orphan_cells.slice(0, 8):
+				var w: Vector2 = layer.to_global(layer.map_to_local(c))
+				where.append("celula %s ~ mundo (%.0f, %.0f)" % [c, w.x, w.y])
+			push_warning("SpawnManager: a camada '%s' tem %d celula(s) apontando para fontes de TileSet que nao existem mais (tiles orfaos). Foram ignoradas, mas sao dados invalidos na cena e valem uma limpeza no editor: %s" % [
+				layer.name, orphan_cells.size(), ", ".join(where)
+			])
+
+		if cells.is_empty():
+			continue
+
+		var tile_size := Vector2(ts.tile_size)
+		_nav_layer_data.append({
+			"layer": layer,
+			"cells": cells,
+			"half": tile_size * 0.5,
+			"cell_radius": int(ceil(nav_snap_radius / minf(tile_size.x, tile_size.y))),
+		})
+
+	if _nav_layer_data.is_empty():
+		push_warning("SpawnManager: nenhuma camada com tiles navegáveis encontrada — NÃO HAVERÁ SPAWN. Marque as TileMapLayer que contêm tiles de navegação no grupo 'NavigableTileMap', ou preencha 'Navigable Tilemap Layers' no SpawnManagerConfig.")
+
+	return _nav_layer_data
+
+
+## Descarta o cache de navegabilidade (e a grade, que deriva dele).
+func invalidate_nav_layer_cache() -> void:
+	_nav_cache_built = false
+	_grid_cache_valid = false
 
 
 func is_position_navigable(check_pos: Vector2) -> bool:
 	"""
-	Verifica se uma posição é navegável (via snap ao navmesh).
-	Para pontos já sobre a malha (ex: validação de teleporte), o snap
-	é identidade e isto equivale à checagem direta.
+	Verifica se uma posição é navegável (via snap ao chão navegável).
+	Para pontos já sobre uma célula navegável (ex: validação de teleporte),
+	o snap é identidade e isto equivale à checagem direta.
 	"""
 	return get_snapped_navigable_point(check_pos) != Vector2.INF
 
