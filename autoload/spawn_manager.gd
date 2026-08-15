@@ -158,15 +158,17 @@ var is_spawning_enabled: bool = false
 # =================================================
 # CACHE DA GRADE NAVEGÁVEL
 # scan_navigable_grid() é a parte cara do spawn: por PONTO da grade faz uma
-# consulta ao NavigationServer + uma de física. Mas navmesh e paredes são
-# ESTÁTICOS — o resultado só muda quando a CÂMERA se move (a faixa é
-# construída ao redor dela). Sem cache, um frame que spawna 5 inimigos varria
-# a grade 5 vezes produzindo o mesmo resultado, e o custo explodia ao reduzir
-# grid_sample_spacing (metade do espaçamento = ~4x mais pontos).
-# Invalidação: câmera moveu mais de meia célula, ou o espaçamento mudou.
-# Ficar levemente desatualizado degrada de forma segura — a faixa fica
-# deslocada em no máximo meia célula, nunca aprova ponto inválido (a
-# navegabilidade não muda) e o filtro offscreen roda sempre com a câmera atual.
+# consulta de navegabilidade (nos tiles) + uma de física. Mas o chão e as
+# paredes são ESTÁTICOS — o resultado só muda quando a CÂMERA se move (a faixa
+# é construída ao redor dela). Sem cache, um frame que spawna 5 inimigos varria
+# a grade 5 vezes produzindo o mesmo resultado, e o custo cresce ~4x a cada
+# vez que grid_sample_spacing é reduzido pela metade.
+# Invalidação: câmera moveu mais de GRID_CACHE_MOVE_THRESHOLD, ou o
+# espaçamento mudou. Ficar desatualizado degrada de forma segura: a faixa fica
+# deslocada, nunca aprova ponto inválido (a navegabilidade não muda) e o filtro
+# offscreen roda sempre com a câmera atual. O CUSTO da defasagem é de outra
+# natureza — a borda dianteira da faixa fica sub-amostrada enquanto o player
+# avança, enviesando os candidatos para TRÁS dele.
 # =================================================
 ## Quanto a câmera pode andar antes de a grade ser revarrida (px).
 ## É uma DISTÂNCIA FIXA, deliberadamente independente de grid_sample_spacing:
@@ -175,9 +177,12 @@ var is_spawning_enabled: bool = false
 ## varreduras por segundo E quadruplicava os pontos de cada uma (~7x mais
 ## consultas ao servidor por segundo). O que define a tolerância aqui não é a
 ## resolução, e sim quanto a faixa de spawn pode ficar deslocada e ainda
-## servir — e a faixa tem mais de 100px de espessura, então dezenas de px de
-## defasagem são inofensivos (o filtro offscreen roda sempre com a câmera atual).
-const GRID_CACHE_MOVE_THRESHOLD: float = 64.0
+## servir — e a faixa tem ~100px de espessura.
+## CALIBRAÇÃO: valores altos economizam varreduras mas enviesam o spawn para
+## trás do player (a faixa dianteira fica defasada). Como a varredura ficou
+## ~10x mais barata ao migrar para leitura de tiles, o certo é manter este
+## valor BAIXO — a economia deixou de ser necessária.
+const GRID_CACHE_MOVE_THRESHOLD: float = 8.0
 
 ## Camadas consultadas para saber se um ponto é chão navegável.
 ## Resolvidas pelo SpawnManagerConfig (export -> grupo "NavigableTileMap").
@@ -192,8 +197,10 @@ var _grid_cache_camera_pos: Vector2 = Vector2.INF
 var _grid_cache_spacing: float = -1.0
 var _grid_cache_valid: bool = false
 
-## Delay inicial antes do primeiro spawn (segundos)
-## Garante que sistema de navegação está inicializado
+## Delay inicial antes do primeiro spawn (segundos).
+## O SPAWN não depende mais do navmesh (lê navegabilidade dos tiles), mas o
+## PATHFINDING dos inimigos depende — o delay evita que os primeiros inimigos
+## nasçam antes de a navegação estar pronta e fiquem parados.
 var initial_spawn_delay: float = 0.5
 var time_since_start: float = 0.0
 
@@ -212,8 +219,11 @@ var last_scanned_clusters: Array = []
 # Preparado 1x por ciclo, consumido durante teleports
 var safe_teleport_positions: Array[Vector2] = []
 
-# PERFORMANCE: shape reutilizado em is_safe_from_walls
+# PERFORMANCE: shape e query reutilizados em is_safe_from_walls.
+# Os campos fixos são configurados uma vez no _ready(); por chamada só
+# variam o raio do círculo e a transform.
 var _wall_check_circle: CircleShape2D = CircleShape2D.new()
+var _wall_query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
 
 # PERFORMANCE: query reutilizada em get_snapped_navigable_point.
 # Era criada com .new() a cada PONTO da grade — no laço mais quente do
@@ -242,6 +252,10 @@ func _ready() -> void:
 	_point_query.collision_mask = 1  # Layer 1 = environment/walls
 	_point_query.collide_with_areas = false
 	_point_query.collide_with_bodies = true
+
+	# Idem para a query de área (só raio e transform mudam por chamada)
+	_wall_query.shape = _wall_check_circle
+	_wall_query.collision_mask = 1  # Layer 1 = TileMap collision (paredes)
 
 	# Aguarda a cena carregar completamente
 	await get_tree().process_frame
@@ -297,13 +311,13 @@ func stop_spawning() -> void:
 # =================================================
 # PROCESS (Loop Principal)
 # =================================================
-## Roda em _physics_process, NÃO em _process. O spawn faz centenas de
-## consultas ao servidor de física por varredura (intersect_point,
-## intersect_shape) e o direct_space_state é feito para ser consultado
-## durante o FRAME DE FÍSICA. Chamado do frame idle, ele força o servidor a
-## sincronizar — custo que não aparece como tempo de script (fica no Process
-## Time) e que escalava com a quantidade de pontos da grade.
-## Bônus: o delta aqui é fixo, então o acúmulo de budget fica mais estável.
+## Roda em _physics_process, NÃO em _process. O spawn consulta o
+## direct_space_state (intersect_point, intersect_shape), que é feito para ser
+## consultado durante o FRAME DE FÍSICA — do frame idle o estado pode estar em
+## trânsito. Bônus: o delta aqui é fixo, então o acúmulo de budget fica estável.
+## NÃO é otimização: foi tentado como tal durante a caça ao engasgo e o pico
+## apenas migrou de Process Time para Physics Time, com a mesma altura. Foi
+## mantido por correção, não por desempenho.
 func _physics_process(delta: float) -> void:
 	if not is_spawning_enabled:
 		return
@@ -594,9 +608,10 @@ func _take_position_fitting_enemy(enemy: Node) -> Vector2:
 
 func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	"""
-	Validação DETALHADA com tracking (apenas para DEBUG).
-	Retorna Dictionary com resultado e motivos de rejeição.
-	
+	Validação DETALHADA com tracking. Só é chamada quando debug_enabled
+	está ligado (ver prepare_safe_teleport_cache) — a versão de produção
+	é validate_teleport_position().
+
 	Mantém os 3 checks separados (incluindo navegabilidade) para
 	fins de diagnóstico/estatística, mesmo que na prática o ponto
 	já tenha vindo navegável do scan.
@@ -607,23 +622,23 @@ func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 		"safe_from_walls": false,
 		"safe_from_enemies": false
 	}
-	
+
 	# 1. Navegável básico
 	result.navigable = is_position_navigable(pos)
 	if not result.navigable:
 		return result
-	
+
 	# 2. Espaço livre ao redor do CENTRO DO CORPO (mesma regra
 	# de is_valid_enemy_position)
 	result.safe_from_walls = is_safe_from_walls(pos + body_center_offset, min_distance_from_walls)
 	if not result.safe_from_walls:
 		return result
-	
+
 	# 3. Seguro de outros inimigos
 	result.safe_from_enemies = is_safe_from_other_enemies(pos)
 	if not result.safe_from_enemies:
 		return result
-	
+
 	# Todas validações passaram
 	result.approved = true
 	return result
@@ -648,17 +663,17 @@ func is_safe_from_walls(pos: Vector2, safety_radius: float) -> bool:
 	if not player or not is_instance_valid(player):
 		return false
 
-	var space = player.get_world_2d().direct_space_state
-	var params = PhysicsShapeQueryParameters2D.new()
-	
-	# Reutiliza shape cacheado — evita criar objeto novo a cada chamada
+	var space := player.get_world_2d().direct_space_state
+
+	# Query e shape são reutilizados entre chamadas — esta função roda ~150x
+	# num frame de teleporte, e alocar os dois objetos toda vez era puro lixo.
+	# shape/collision_mask são fixos e setados no _ready(); aqui só variam o
+	# raio e a posição.
 	_wall_check_circle.radius = safety_radius
-	params.shape = _wall_check_circle
-	params.transform = Transform2D(0, pos)
-	params.collision_mask = 1  # Layer 1 = TileMap collision (paredes)
-	
+	_wall_query.transform = Transform2D(0, pos)
+
 	# Verifica se há colisão dentro do círculo
-	var results = space.intersect_shape(params, 1)
+	var results := space.intersect_shape(_wall_query, 1)
 	
 	# Se results vazio = sem colisão = seguro
 	return results.is_empty()
