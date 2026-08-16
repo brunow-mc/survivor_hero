@@ -40,7 +40,7 @@ enum EnemyState {
 # PATHFINDING
 # =================================================
 @export_group("Pathfinding")
-@export var path_recalc_interval: float = 0.5
+@export var path_recalc_interval: float = 1.0
 
 # =================================================
 # VISUAL
@@ -240,12 +240,23 @@ func _setup_base() -> void:
 		# waypoints e RVO todos no mesmo referencial do corpo.
 		_nav_anchor = navigation_agent.get_parent() as Node2D
 	
-	# Path timer
+	# Path timer.
+	# ESCALONADO POR INSTÂNCIA, mesma ideia do steer_update_interval: o
+	# primeiro ciclo recebe uma duração ALEATÓRIA dentro do intervalo, e a
+	# partir daí o Timer volta sozinho ao wait_time normal. O intervalo
+	# efetivo não muda — só a FASE.
+	# Sem isso, os inimigos nascidos no mesmo frame (o spawn nasce em
+	# RAJADAS, quando o budget cruza o limiar) ficam com timers em fase e
+	# recalculam rota todos no mesmo frame, para sempre. Cada recálculo
+	# custa ~370us, então um grupo sincronizado vira um pico periódico de
+	# vários ms num único frame. Escalonar espalha o mesmo trabalho.
+	# A rota inicial NÃO depende deste timer (makepath() é chamado logo
+	# abaixo, e de novo pelo SpawnManager após posicionar o inimigo).
 	path_timer = Timer.new()
 	path_timer.wait_time = path_recalc_interval
 	path_timer.timeout.connect(_on_path_timer_timeout)
 	add_child(path_timer)
-	path_timer.start()
+	path_timer.start(randf() * path_recalc_interval)
 	
 	# Damage timer
 	damage_timer = Timer.new()

@@ -182,7 +182,7 @@ var is_spawning_enabled: bool = false
 ## trás do player (a faixa dianteira fica defasada). Como a varredura ficou
 ## ~10x mais barata ao migrar para leitura de tiles, o certo é manter este
 ## valor BAIXO — a economia deixou de ser necessária.
-const GRID_CACHE_MOVE_THRESHOLD: float = 8.0
+const GRID_CACHE_MOVE_THRESHOLD: float = 16.0
 
 ## Camadas consultadas para saber se um ponto é chão navegável.
 ## Resolvidas pelo SpawnManagerConfig (export -> grupo "NavigableTileMap").
@@ -224,6 +224,15 @@ var safe_teleport_positions: Array[Vector2] = []
 # variam o raio do círculo e a transform.
 var _wall_check_circle: CircleShape2D = CircleShape2D.new()
 var _wall_query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
+
+# PERFORMANCE: lista de inimigos reaproveitada dentro do mesmo frame de
+# física (ver _get_enemies).
+var _enemy_cache: Array[Node] = []
+var _enemy_cache_frame: int = -1
+
+# Guarda de repetição do aviso "nenhum cluster offscreen" (ver
+# find_spawn_position). Rearmado a cada spawn bem-sucedido.
+var _warned_no_offscreen: bool = false
 
 # PERFORMANCE: query reutilizada em get_snapped_navigable_point.
 # Era criada com .new() a cada PONTO da grade — no laço mais quente do
@@ -292,13 +301,15 @@ func start_spawning() -> void:
 	spawn_budget = initial_budget
 	difficulty_multiplier = 1.0
 	_grid_cache_valid = false  # nova partida: descarta a grade da anterior
-	
+	_enemy_cache_frame = -1    # a lista de inimigos da partida anterior morreu junto
+	_warned_no_offscreen = false
+
 	# Ativa spawning
 	is_spawning_enabled = true
 	set_physics_process(true)
 	
 	print("✅ SpawnManager iniciado!")
-	print("   Delay inicial: ", initial_spawn_delay, "s (garante navegação pronta)")
+	print("   Delay inicial: ", initial_spawn_delay, "s (aguarda a navegação ficar pronta para o pathfinding)")
 
 func stop_spawning() -> void:
 	"""
@@ -410,7 +421,7 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 	# valida a grade inteira. Na ordem anterior o cache era preparado sempre,
 	# a cada teleport_check_interval, mesmo com ZERO inimigos elegíveis — e
 	# todo esse trabalho era descartado logo abaixo.
-	var enemies: Array[Node] = get_tree().get_nodes_in_group("Enemy")
+	var enemies: Array[Node] = _get_enemies()
 	var enemies_to_teleport: Array = []
 
 	for enemy in enemies:
@@ -748,7 +759,7 @@ func can_spawn_more() -> bool:
 	if not player or not is_instance_valid(player):
 		return false
 	
-	var enemies_alive := get_tree().get_nodes_in_group("Enemy").size()
+	var enemies_alive := _get_enemies().size()
 	return enemies_alive < max_enemies
 
 # =================================================
@@ -833,11 +844,15 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	if offscreen_clusters.is_empty():
 		failed_spawn_attempts += 1
 		
-		if show_spawn_warnings:
-			push_warning("⚠️ SpawnManager: Nenhum cluster offscreen encontrado!")
-			push_warning("   Clusters totais: ", clusters.size(), " | Offscreen: 0")
-			push_warning("   Possível causa: Player muito perto de paredes ou área navegável pequena")
-		
+		# Avisa UMA VEZ por episódio. Esta condição dura enquanto durar
+		# (player encurralado, área navegável pequena) e find_spawn_position
+		# roda a cada frame de física — sem a guarda são milhares de avisos,
+		# cada um com rastreamento de pilha. O flag é rearmado quando um
+		# spawn volta a ter sucesso, então um novo episódio avisa de novo.
+		if show_spawn_warnings and not _warned_no_offscreen:
+			_warned_no_offscreen = true
+			push_warning("SpawnManager: nenhum cluster offscreen encontrado — spawn suspenso ate normalizar. Clusters totais: %d | Offscreen: 0. Causa provavel: player muito perto de paredes, ou area navegavel pequena para as margens de spawn configuradas." % clusters.size())
+
 		return Vector2.ZERO
 	
 	# 4. Escolhe cluster aleatório
@@ -868,11 +883,14 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 				print("⚠️ Spawn abortado: nenhum ponto seguro no cluster (", chosen_cluster.size(), " pontos)")
 			return Vector2.ZERO
 
+	# Spawn bem-sucedido: rearma o aviso de "sem cluster offscreen".
+	_warned_no_offscreen = false
+
 	if debug_enabled:
 		print("✅ Grid Sampling: Spawn em ", spawn_pos)
 		print("   Clusters: ", clusters.size(), " | Offscreen: ", offscreen_clusters.size())
 		print("   Cluster escolhido: ", chosen_cluster.size(), " pontos")
-	
+
 	return spawn_pos
 
 ## Grade navegável, reaproveitada enquanto continuar válida (ver _grid_cache).
@@ -1140,8 +1158,8 @@ func filter_offscreen_clusters(clusters: Array) -> Array:
 func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 	"""
 	SNAP AO CHÃO NAVEGÁVEL: em vez de exigir que o ponto da grade caia em
-	cima de uma célula navegável, "gruda" o ponto na célula navegável mais
-	próxima (se estiver dentro do raio de captura nav_snap_radius).
+	cima de uma célula navegável, "gruda" o ponto no CENTRO da célula
+	navegável mais próxima (se estiver dentro do raio nav_snap_radius).
 
 	Isso permite que a grade grossa enxergue faixas finas (corredores
 	estreitos) sem jamais aprovar um ponto fora do chão caminhável.
@@ -1181,21 +1199,35 @@ func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 				if not cells.has(cell):
 					continue
 
-				# Ponto mais próximo DENTRO do retângulo da célula.
-				# Aproximação aceita: um tile cujo polígono de navegação
-				# cobre só parte do tile é tratado como o tile inteiro. A
-				# validação de física logo abaixo e o clearance do spawn
-				# cobrem o resíduo — não há risco de spawn dentro de parede.
 				var c: Vector2 = layer.map_to_local(cell)
+
+				# SELEÇÃO (qual célula vence): distância até o ponto mais
+				# próximo do RETÂNGULO da célula. Medir até o centro encolheria
+				# o alcance efetivo do nav_snap_radius em até meia diagonal do
+				# tile, tirando células de borda que hoje são alcançáveis.
+				# Aproximação aceita: um tile cujo polígono de navegação cobre
+				# só parte do tile é tratado como o tile inteiro. A validação de
+				# física abaixo e o clearance do spawn cobrem o resíduo.
 				var clamped := Vector2(
 					clampf(local.x, c.x - half.x, c.x + half.x),
 					clampf(local.y, c.y - half.y, c.y + half.y)
 				)
-				var world: Vector2 = layer.to_global(clamped)
-				var d: float = check_pos.distance_to(world)
+				var d: float = check_pos.distance_to(layer.to_global(clamped))
+
 				if d <= best_dist:
 					best_dist = d
-					best = world
+					# POSIÇÃO DEVOLVIDA: o CENTRO da célula, nunca a borda.
+					# Prender ao retângulo joga todo ponto vindo de fora
+					# exatamente na FRONTEIRA do tile — isto é, o mais colado
+					# possível na parede vizinha. Era a causa sistemática de
+					# inimigos nascendo encostados em paredes (o método antigo,
+					# via map_get_closest_point, tinha o mesmo viés).
+					# O centro é, por definição, o ponto mais distante das
+					# bordas daquela célula; num corredor de 1 tile é a linha
+					# central do corredor. Ganho duplo: melhor posicionamento E
+					# mais pontos aprovados no is_safe_from_walls, que roda
+					# DEPOIS do snap — corredores estreitos ganham candidatos.
+					best = layer.to_global(c)
 			if best_dist == 0.0:
 				break  # já está sobre célula navegável; nada fica mais perto
 		if best_dist == 0.0:
@@ -1321,23 +1353,39 @@ func is_safe_from_other_enemies(check_pos: Vector2) -> bool:
 	# Se validação está desabilitada, sempre retorna true
 	if min_distance_between_enemies <= 0:
 		return true
-	
-	# Pega todos os inimigos existentes
-	var enemies: Array[Node] = get_tree().get_nodes_in_group("Enemy")
-	
-	# Verifica distância para cada inimigo
-	for enemy in enemies:
-		if not enemy or not is_instance_valid(enemy):
+
+	# Compara o QUADRADO da distância — evita uma raiz quadrada por inimigo
+	# num laço que roda (nº de candidatos x nº de inimigos) vezes por ciclo.
+	var min_dist_sq: float = min_distance_between_enemies * min_distance_between_enemies
+
+	# Distâncias em frame de PÉS: check_pos é um ponto do chão e
+	# enemy.global_position é a origem (pés) do inimigo — os dois lados na
+	# mesma referência. Aqui NÃO se usa o BodyCenter de propósito.
+	for enemy in _get_enemies():
+		if not is_instance_valid(enemy):
 			continue
-		
-		var distance_to_enemy: float = check_pos.distance_to(enemy.global_position)
-		
-		# Se está muito próximo de outro inimigo, não é válido
-		if distance_to_enemy < min_distance_between_enemies:
+
+		if check_pos.distance_squared_to(enemy.global_position) < min_dist_sq:
 			return false
-	
+
 	# Nenhum inimigo muito próximo, é válido
 	return true
+
+
+## Lista de inimigos vivos, cacheada por FRAME DE FÍSICA.
+##
+## is_safe_from_other_enemies() roda >100x num frame de teleporte, e cada
+## chamada fazia um get_nodes_in_group("Enemy") — que ALOCA um Array novo a
+## cada vez. A lista só muda quando um inimigo nasce ou morre: a morte é
+## coberta pelo is_instance_valid de quem consome, e o nascimento invalida
+## este cache explicitamente (ver spawn_enemy), porque um mesmo frame pode
+## spawnar vários inimigos e o segundo precisa "enxergar" o primeiro.
+func _get_enemies() -> Array[Node]:
+	var frame: int = Engine.get_physics_frames()
+	if frame != _enemy_cache_frame:
+		_enemy_cache = get_tree().get_nodes_in_group("Enemy")
+		_enemy_cache_frame = frame
+	return _enemy_cache
 
 func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0, offset: Vector2 = Vector2.INF) -> bool:
 	"""
@@ -1410,6 +1458,12 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	
 	# Define posição real APÓS _ready()
 	enemy.global_position = spawn_pos
+
+	# O add_child acima já rodou o _ready() do inimigo (e portanto o
+	# add_to_group("Enemy")). Invalida o cache para que um segundo spawn
+	# NESTE MESMO frame respeite min_distance_between_enemies em relação a
+	# este que acabou de nascer.
+	_enemy_cache_frame = -1
 	
 	# Recalcula rota da posição correta de spawn
 	# Mesmo fix já aplicado aos teleportes (Passo 1)
@@ -1433,7 +1487,7 @@ func get_enemies_alive() -> int:
 	"""
 	Retorna quantidade de inimigos vivos.
 	"""
-	return get_tree().get_nodes_in_group("Enemy").size()
+	return _get_enemies().size()
 
 func get_current_difficulty() -> float:
 	"""
