@@ -76,7 +76,7 @@ visible = false
 
 [node name="SpawnManagerConfig" parent="." unique_id=100682162 instance=ExtResource("10_spawn_config")]
 max_enemies = 115
-initial_budget = 2.0
+initial_budget = 20.0
 spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 max_difficulty_multiplier = 50.0
