@@ -20,7 +20,7 @@ var xp_to_next_level: int = 0  # SAÍDA: recalculado pela curva a cada nível. N
 # ======================================
 var base_xp_requirement: int = 4     # XP do 1º level-up e base de TODOS os modos (nível 1 = este valor).
 var xp_scaling_factor: float = 1.2  # Só EXPONENTIAL usa: razão do crescimento geométrico (composta por nível).
-var xp_power_exponent: float = 1.3   # Só POWER usa: expoente polinomial (1.0≈linear, ~1.5 rampa suave, 2.0 quadrática).
+var xp_power_exponent: float = 1.25   # Só POWER usa: expoente polinomial (1.0≈linear, ~1.5 rampa suave, 2.0 quadrática).
 var xp_scaling_type: ScalingType = ScalingType.POWER  # Modo de progressão (ver enum).
 
 enum ScalingType {
