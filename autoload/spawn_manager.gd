@@ -184,11 +184,13 @@ var is_spawning_enabled: bool = false
 ## valor BAIXO — a economia deixou de ser necessária.
 const GRID_CACHE_MOVE_THRESHOLD: float = 16.0
 
-## Camadas consultadas para saber se um ponto é chão navegável.
-## Resolvidas pelo SpawnManagerConfig (export -> grupo "NavigableTileMap").
-## Marcar a camada aqui NÃO diz que ela é toda navegável — quem decide é
-## cada tile (ver _get_nav_layer_data).
-var navigable_tilemap_layers: Array[TileMapLayer] = []
+## Camadas onde inimigos podem NASCER. Não têm relação com a navegação:
+## quem move inimigo é o navmesh, que não passa por aqui.
+## Resolvidas pelo SpawnManagerConfig (export preenchido -> essas camadas;
+## export vazio -> varredura da cena).
+## Listar a camada NÃO diz que ela é toda navegável — quem decide é cada
+## tile (ver _get_nav_layer_data).
+var enemy_spawn_ground_layers: Array[TileMapLayer] = []
 var _nav_layer_data: Array = []
 var _nav_cache_built: bool = false
 
@@ -1277,7 +1279,7 @@ func _get_nav_layer_data() -> Array:
 	_nav_layer_data.clear()
 	_nav_cache_built = true
 
-	for layer in navigable_tilemap_layers:
+	for layer in enemy_spawn_ground_layers:
 		if not is_instance_valid(layer) or layer.tile_set == null:
 			continue
 
@@ -1326,7 +1328,7 @@ func _get_nav_layer_data() -> Array:
 		})
 
 	if _nav_layer_data.is_empty():
-		push_warning("SpawnManager: nenhuma camada com tiles navegáveis encontrada — NÃO HAVERÁ SPAWN. Marque as TileMapLayer que contêm tiles de navegação no grupo 'NavigableTileMap', ou preencha 'Navigable Tilemap Layers' no SpawnManagerConfig.")
+		push_warning("SpawnManager: nenhuma camada com tiles navegáveis encontrada — NÃO HAVERÁ SPAWN. Verifique se a cena tem TileMapLayer com polígono de navegação no TileSet, ou corrija 'Enemy Spawn Ground Layers' no SpawnManagerConfig.")
 
 	return _nav_layer_data
 

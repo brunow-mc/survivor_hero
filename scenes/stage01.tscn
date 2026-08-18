@@ -74,7 +74,7 @@ visible = false
 [node name="GameOverMenu" parent="." unique_id=2038781857 instance=ExtResource("7_ydume")]
 visible = false
 
-[node name="SpawnManagerConfig" parent="." unique_id=100682162 instance=ExtResource("10_spawn_config")]
+[node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_spawn_ground_layers") instance=ExtResource("10_spawn_config")]
 max_enemies = 115
 initial_budget = 2.0
 spawn_margin_min_horizontal = 30.0
@@ -83,6 +83,7 @@ max_difficulty_multiplier = 50.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
+enemy_spawn_ground_layers = [NodePath("../TileMapRoad"), NodePath("../TileMapBuildings")]
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
 stream = ExtResource("5_jmh76")

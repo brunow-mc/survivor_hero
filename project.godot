@@ -47,7 +47,6 @@ Player="DECLARADO NA CENA: raiz de major_heat.tscn (aba Grupos). Precisa vir da 
 PlayerHurtbox="DECLARADO NA CENA: no Hurtbox do player. Sem ele o player NAO recebe dano de contato dos inimigos (PlayerBase avisa no _ready)."
 EnemyHurtbox="DECLARADO NA CENA: no Hurtbox de CADA cena de inimigo. Sem ele o inimigo fica INVULNERAVEL (EnemyBase avisa uma vez por cena)."
 YSortContainer="DECLARADO NA CENA: raiz de y_sort_container.tscn, entao toda instancia ja nasce nele. SpawnManagerConfig o usa para achar o pai dos inimigos spawnados."
-NavigableTileMap="DECLARADO NA CENA: nas TileMapLayer que contem tiles com poligono de navegacao (ex: TileMapRoad, TileMapBuildings). Marcar a camada NAO diz que ela e toda navegavel - quem decide e cada tile. SpawnManagerConfig o usa para achar o chao valido de spawn; sem ele, ZERO spawn."
 Enemy="DECLARADO POR CODIGO em enemy_base.gd (_ready). NAO ticar em cenas — declaracao dupla foi o que criou o grupo morto Enemies."
 Power="DECLARADO POR CODIGO em base_power.gd (_ready); depende do super._ready() nas subclasses. NAO ticar em cenas. RESERVADO: sem consumidor hoje."
 XPItems="DECLARADO POR CODIGO em xp_item.gd (_ready). NAO ticar em cenas. RESERVADO: sem consumidor hoje. Cobre so itens que usam xp_item.gd."

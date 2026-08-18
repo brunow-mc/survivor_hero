@@ -126,17 +126,21 @@ extends Node
 ## A validação de paredes testa o círculo nesta posição.
 @export var body_center_offset: Vector2 = Vector2(0, -14)
 
-## Camadas consultadas para saber se um ponto é chão navegável.
+## Camadas onde inimigos PODEM NASCER.
 ##
-## OPCIONAL — deixe VAZIO no caso normal: as camadas são resolvidas sozinhas
-## pelo grupo "NavigableTileMap". Preencha apenas como OVERRIDE explícito.
+## VAZIO = toda camada da cena que tenha polígono de navegação é elegível.
+## Esse é um padrão declarado, não um esquecimento — é o caso normal.
 ##
-## ATENÇÃO: marcar uma camada aqui (ou no grupo) NÃO declara que ela é toda
-## navegável — declara apenas "consulte esta camada". Quem decide é cada
-## tile, pelo seu polígono de navegação. Por isso uma camada mista como
-## TileMapBuildings (tiles de colisão + tiles de navegação) entra sem
-## problema: só os tiles com polígono de navegação são aceitos.
-@export var navigable_tilemap_layers: Array[TileMapLayer] = []
+## PREENCHIDO = só as camadas listadas geram spawn. Serve para EXCLUIR uma
+## área do spawn sem excluí-la da navegação (inimigos continuam podendo
+## ANDAR nela: quem move inimigo é o navmesh, que não passa por aqui).
+##
+## ATENÇÃO: listar uma camada NÃO declara que ela é toda navegável — declara
+## apenas "consulte esta camada". Quem decide é cada tile, pelo seu polígono
+## de navegação. Por isso uma camada mista como TileMapBuildings (tiles de
+## colisão + tiles de navegação) entra sem problema: só os tiles com
+## polígono são aceitos.
+@export var enemy_spawn_ground_layers: Array[TileMapLayer] = []
 
 ## Raio de captura do snap ao chão navegável (px)
 ## Pontos da grade a até esta distância são "grudados" no ponto navegável
@@ -228,22 +232,37 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.body_center_offset = body_center_offset
 	SpawnManagerGlobal.nav_snap_radius = nav_snap_radius
 
-	# Resolve as camadas de chão navegável: export (override) → grupo →
-	# varredura da cena. Mesma cascata do container Y-sort.
-	# O último degrau existe porque falhar aqui significa ZERO spawn no
-	# jogo inteiro — degrada, mas avisa (contrato do projeto).
-	var nav_layers: Array[TileMapLayer] = navigable_tilemap_layers.duplicate()
+	# Resolve o chão de spawn: DOIS estados, nenhum deles é "esquecimento".
+	#   export preenchido -> só essas camadas
+	#   export vazio      -> varre a cena (tudo com navegação é elegível)
+	# Não existe caminho por grupo: um único lugar decide, e ele é visível
+	# no Inspector.
+	var nav_layers: Array[TileMapLayer] = []
+	var quebradas: int = 0
+
+	for layer in enemy_spawn_ground_layers:
+		if is_instance_valid(layer):
+			nav_layers.append(layer)
+		else:
+			# Slot vazio. Duas origens, mesmo resultado: alguém adicionou uma
+			# linha no array sem atribuir nada, ou a camada foi APAGADA.
+			# (Renomear ou mover NÃO cai aqui: o editor reescreve o NodePath
+			# sozinho. Editar o .tscn fora da Godot, sim.)
+			# Nunca é escolha, sempre é erro de cena — e sem este aviso o
+			# jogo rodaria calado com menos áreas de spawn.
+			quebradas += 1
+
+	if quebradas > 0:
+		push_warning("SpawnManagerConfig: %d de %d entradas de 'Enemy Spawn Ground Layers' estão vazias (slot sem camada atribuída, ou a camada foi apagada da cena). O spawn vai rodar com %d camada(s) — atribua ou remova as linhas vazias no Inspector." % [
+			quebradas, enemy_spawn_ground_layers.size(), nav_layers.size()
+		])
 
 	if nav_layers.is_empty():
-		for node in get_tree().get_nodes_in_group("NavigableTileMap"):
-			if node is TileMapLayer:
-				nav_layers.append(node as TileMapLayer)
-
-	if nav_layers.is_empty():
+		# Padrão declarado, não falha: sem lista, todo chão navegável serve.
+		# Camadas sem polígono de navegação são descartadas de graça depois.
 		_collect_tilemap_layers(get_tree().current_scene, nav_layers)
-		push_warning("SpawnManagerConfig: nenhuma TileMapLayer no grupo 'NavigableTileMap' e o export 'Navigable Tilemap Layers' está vazio. Caindo para uma varredura da cena (%d camadas) — funciona, mas marque as camadas navegáveis no grupo para tornar isso explícito." % nav_layers.size())
 
-	SpawnManagerGlobal.navigable_tilemap_layers = nav_layers
+	SpawnManagerGlobal.enemy_spawn_ground_layers = nav_layers
 	SpawnManagerGlobal.invalidate_nav_layer_cache()
 	
 	# Transfere configurações de Grid Sampling
@@ -261,9 +280,10 @@ func initialize_spawn_manager() -> void:
 	print("   Teleport: ", "ATIVADO" if teleport_enabled else "DESATIVADO")
 	print("   Grid Sampling: ", grid_sample_spacing, "px | Debug: ", "SIM" if debug_draw_enabled else "NÃO")
 	print("   Margens: Min(", spawn_margin_min_horizontal, ",", spawn_margin_min_vertical, ") Max(", spawn_margin_max_horizontal, ",", spawn_margin_max_vertical, ")")
-	print("   Camadas navegáveis: ", nav_layers.map(func(l): return l.name))
+	print("   Chão de spawn: ", nav_layers.map(func(l): return l.name),
+		" (lista explícita)" if not enemy_spawn_ground_layers.is_empty() else " (cena inteira)")
 
-## Último recurso da resolução de camadas: coleta toda TileMapLayer da cena.
+## Usado quando o export está vazio: coleta toda TileMapLayer da cena.
 ## Camadas sem navegação são descartadas de graça pelo SpawnManager.
 func _collect_tilemap_layers(node: Node, out: Array[TileMapLayer]) -> void:
 	if not node:
