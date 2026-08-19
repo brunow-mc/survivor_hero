@@ -84,6 +84,7 @@ enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
 enemy_spawn_ground_layers = [NodePath("../TileMapRoad"), NodePath("../TileMapBuildings")]
+debug_draw_enabled = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
 stream = ExtResource("5_jmh76")

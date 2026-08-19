@@ -450,8 +450,10 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 		return
 
 	# FASE 0: PREPARA cache de posições seguras (só agora que sabemos que
-	# há alguém para teleportar)
-	prepare_safe_teleport_cache()
+	# há alguém para teleportar). O tamanho do cache é DERIVADO da demanda
+	# real deste ciclo — não de max_teleports_per_frame diretamente, que é
+	# apenas o teto dela. Assim mudar aquele export ajusta isto sozinho.
+	prepare_safe_teleport_cache(enemies_to_teleport.size())
 
 	# Se cache está vazio, não há posições válidas
 	if safe_teleport_positions.is_empty():
@@ -501,65 +503,104 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 	if debug_enabled and teleported_count > 0:
 		print("✅ Total teleportado neste ciclo: ", teleported_count, " inimigos\n")
 
-func prepare_safe_teleport_cache() -> void:
+## Quantas posições validar por inimigo a teleportar.
+## NÃO é folga estética: o consumidor (_take_position_fitting_enemy) REJEITA
+## posições que não cabem para o inimigo específico — um Red Gator não entra
+## onde um Gator entra. Sem margem, o inimigo grande ficaria sem opção e
+## esperaria o próximo ciclo, o que seria regressão de comportamento.
+const TELEPORT_CACHE_MARGIN: int = 3
+
+## Piso do cache, alinhado com as 16 tentativas que _take_position_fitting_enemy
+## faz por inimigo: com menos que isso, um único inimigo grande já esgotaria a
+## busca dele.
+const TELEPORT_CACHE_MIN: int = 16
+
+
+func prepare_safe_teleport_cache(needed: int) -> void:
 	"""
 	Prepara cache de posições pré-validadas para teleport.
 	Executado 1x por ciclo de teleport (a cada teleport_check_interval).
-	
-	DEBUG MODE: Registra estatísticas detalhadas.
+
+	VALIDA SOB DEMANDA. Antes validava TODOS os pontos de TODOS os clusters
+	offscreen para consumir no máximo max_teleports_per_frame — trabalho
+	descartado por construção, e a proporção descartada CRESCIA com a horda
+	(is_safe_from_other_enemies percorre todos os inimigos vivos por ponto),
+	justo quando o frame está mais apertado.
+
+	Agora o embaralhamento acontece nos CANDIDATOS (troca de posições, custo
+	desprezível) em vez de nos aprovados, e a validação para ao atingir o
+	alvo. Mesma distribuição aleatória, sem validar o que não seria usado.
+
+	`needed` = quantos inimigos vão teleportar NESTE ciclo.
+
+	DEBUG MODE: Registra estatísticas detalhadas. Atenção: os contadores agora
+	descrevem a AMOSTRA examinada, não o universo de pontos offscreen.
 	"""
 	safe_teleport_positions.clear()
-	
+
+	if needed <= 0:
+		return
+
+	var target: int = maxi(needed * TELEPORT_CACHE_MARGIN, TELEPORT_CACHE_MIN)
+
 	# Varre grade (cacheada) e filtra clusters offscreen
 	var clusters: Array = get_navigable_grid()
 	var offscreen: Array = filter_offscreen_clusters(clusters)
-	
+
 	if offscreen.is_empty():
 		if debug_enabled:
 			print("⚠️ === CACHE VAZIO ===")
 			print("Sem clusters offscreen disponíveis")
 		return
-	
+
+	# Junta os pontos de todos os clusters e EMBARALHA ANTES de validar.
+	# É o que preserva a distribuição aleatória mesmo parando cedo.
+	var candidates: Array[Vector2] = []
+	for cluster in offscreen:
+		for point in cluster:
+			candidates.append(point)
+	candidates.shuffle()
+
 	# Contadores de debug
-	var total_points: int = 0
+	var examined: int = 0
 	var rejected_not_navigable: int = 0
 	var rejected_distance: int = 0
 	var rejected_enemies: int = 0
 	var approved: int = 0
-	
-	# PRÉ-VALIDA todos os pontos de todos os clusters
-	for cluster in offscreen:
-		for point in cluster:
-			total_points += 1
-			
-			if debug_enabled:
-				# VERSÃO DEBUG: Tracking detalhado
-				var validation_result = validate_teleport_position_debug(point)
-				
-				if validation_result.approved:
-					safe_teleport_positions.append(point)
-					approved += 1
-				else:
-					# Contabiliza rejeição
-					if not validation_result.navigable:
-						rejected_not_navigable += 1
-					elif not validation_result.safe_from_walls:
-						rejected_distance += 1
-					elif not validation_result.safe_from_enemies:
-						rejected_enemies += 1
+
+	for point in candidates:
+		if approved >= target:
+			break
+
+		examined += 1
+
+		if debug_enabled:
+			# VERSÃO DEBUG: Tracking detalhado
+			var validation_result = validate_teleport_position_debug(point)
+
+			if validation_result.approved:
+				safe_teleport_positions.append(point)
+				approved += 1
 			else:
-				# VERSÃO PRODUÇÃO: Simples e rápida
-				if validate_teleport_position(point):
-					safe_teleport_positions.append(point)
-					approved += 1
-	
-	# Embaralha cache para distribuição aleatória
-	safe_teleport_positions.shuffle()
-	
+				# Contabiliza rejeição
+				if not validation_result.navigable:
+					rejected_not_navigable += 1
+				elif not validation_result.safe_from_walls:
+					rejected_distance += 1
+				elif not validation_result.safe_from_enemies:
+					rejected_enemies += 1
+		else:
+			# VERSÃO PRODUÇÃO: Simples e rápida
+			if validate_teleport_position(point):
+				safe_teleport_positions.append(point)
+				approved += 1
+
 	# Debug detalhado
 	if debug_enabled:
 		print("\n🔄 === PREPARAÇÃO DE CACHE ===")
-		print("Total de pontos escaneados: ", total_points)
+		print("Demanda: ", needed, " inimigo(s) | alvo do cache: ", target)
+		print("Pontos offscreen disponíveis: ", candidates.size())
+		print("Pontos examinados: ", examined)
 		print("├─ Rejeitados (não navegável): ", rejected_not_navigable)
 		print("├─ Rejeitados (parede próxima < ", min_distance_from_walls, "px): ", rejected_distance)
 		print("├─ Rejeitados (perto de inimigos): ", rejected_enemies)
