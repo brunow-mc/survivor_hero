@@ -199,9 +199,9 @@ scale = Vector2(1.5, 1.5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1031221837]
 position = Vector2(0, -6)
 sprite_frames = SubResource("SpriteFrames_jno6b")
-animation = &"walk_attack"
-frame = 1
-frame_progress = 0.9194663
+animation = &"attack"
+frame = 2
+frame_progress = 0.01982046
 offset = Vector2(0, -13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
