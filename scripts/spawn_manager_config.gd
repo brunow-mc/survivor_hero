@@ -168,6 +168,13 @@ extends Node
 # READY
 # =================================================
 func _ready() -> void:
+	# [TEMPORARIO — PERF PROBE] remover junto com scripts/perf_probe.gd.
+	# Instanciado por class_name (sem uid nem caminho) porque e codigo
+	# descartavel e nao deve criar referencia a arquivo.
+	var perf_probe := PerfProbe.new()
+	perf_probe.name = "PerfProbe"
+	get_tree().root.add_child.call_deferred(perf_probe)
+
 	if auto_start:
 		# Aguarda 1 frame para garantir que tudo foi inicializado
 		await get_tree().process_frame
