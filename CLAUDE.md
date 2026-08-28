@@ -304,6 +304,30 @@ Inter-enemy avoidance is **context steering** (Reynolds/Fray family), not RVO. T
 - **The spawn logic itself is zoom-invariant and camera-free** (the snap returns `layer.to_global(cell_centre)`, pure world space, and `spawn_enemy` writes that same coordinate); every discrepancy above is confined to the overlay's own projection. Don't misread the parallax or the offset as the spawn system malfunctioning.
 - At zoom 1 the points only flash briefly near the screen edge (offscreen ones are culled), so the tool is of low practical use today. **Future fix:** draw in world space (a `Node2D` under the camera-affected world) instead of a `CanvasLayer`, so it inherits the camera transform and works at any zoom.
 
+## Performance budget (measured, not assumed)
+
+Target: **60 fps = 16.7 ms of CPU per frame**. Physics runs at a fixed 60 Hz while rendering runs free, so ~30% of drawn frames carry no physics tick — only the frames that *do* are worth measuring.
+
+Measured on the dev machine with ~116 live enemies, wall-clock deltas, V-Sync off (so no wait is counted as work):
+
+| Part | ms | Share |
+|---|---|---|
+| **navigation read** (`get_next_path_position()` × N) | **~4.6** | **~58%** |
+| engine servers (physics + navigation) | ~0.9 | |
+| move_and_slide | 0.62 | |
+| steering | 0.52 | |
+| **rendering** | **~0.5** | |
+| spawn + teleport + attacks | 0.14 | |
+| **total** | **~7.9 ms** | |
+
+Three conclusions that should stop old debates:
+
+- **Navigation is the only cost worth optimizing.** It is more than half of all CPU work, and it is a *single call* — the price of a navmesh with one region per tile (see Spawn system). Everything else is already negligible: steering, spawn, teleport, attacks and rendering **together** are under 1.8 ms.
+- **The stutters were never compute.** With V-Sync on, the same frame measured ~13.9 ms, of which ~7.5 ms was the game standing still waiting for the display; the judder came from the presentation path, not from work. A light CPU graph plus a bad feel means pacing, not load.
+- **Rendering is free (~0.5 ms).** A 480×270 pixel-art game is nowhere near GPU-bound. Do not look there.
+
+**Any future measurement must run with V-Sync disabled**, or the wait is silently attributed to whatever bucket closes the frame — which is exactly how a phantom "8.9 ms of engine/render cost" appeared and survived several rounds of analysis.
+
 ## Working style
 
 - One change at a time, with a test between each.

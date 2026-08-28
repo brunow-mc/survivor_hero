@@ -328,7 +328,7 @@ func _validate_scene_setup() -> void:
 # =================================================
 func _physics_process(delta: float) -> void:
 	var pos_before: Vector2 = global_position
-	
+
 	match status:
 		EnemyState.IDLE:
 			base_idle_state(delta)
@@ -341,7 +341,7 @@ func _physics_process(delta: float) -> void:
 			_avoidance_pending = false
 			dead_state()
 			return  # Não processa movimento de inimigos mortos
-	
+
 	# Se o avoidance está aguardando resposta do NavigationServer2D,
 	# o movimento será concluído em _on_velocity_computed.
 	# Guardamos delta e pos_before para uso lá.
@@ -349,7 +349,7 @@ func _physics_process(delta: float) -> void:
 		_pending_delta = delta
 		_pending_pos_before = pos_before
 		return
-	
+
 	_finish_movement(pos_before, delta)
 
 # =================================================
@@ -402,7 +402,7 @@ func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
 # =================================================
 func base_move(delta: float) -> void:
 	update_direction()
-	
+
 	if knockback != Vector2.ZERO:
 		# Knockback tem prioridade absoluta.
 		# Cancela avoidance pendente — não queremos desviar enquanto voando.

@@ -357,10 +357,10 @@ func _physics_process(delta: float) -> void:
 	# Teleporta inimigos distantes (se habilitado)
 	if teleport_enabled:
 		check_and_teleport_distant_enemies(delta)
-	
+
 	# Tenta spawnar inimigos (após delay)
 	try_spawn_enemies()
-	
+
 	# Emite dados para debug visual (se habilitado)
 	if debug_draw_enabled and not last_scanned_clusters.is_empty():
 		var debug_data: Dictionary = {
