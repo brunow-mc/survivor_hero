@@ -184,7 +184,6 @@ knockback_decay = 330.0
 drop_chance = 0.7
 max_drop_amount = 2
 drop_table = Array[ExtResource("2_jno6b")]([SubResource("Resource_dy3fp"), SubResource("Resource_joiy7")])
-flash_color = Color(0.627451, 0, 0, 1)
 death_effect = ExtResource("5_frgl2")
 steer_slice_count = 16
 steer_detect_radius = 30.0
