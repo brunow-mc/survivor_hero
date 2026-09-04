@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="11_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://cpjj1dgsuaw28" path="res://entities/enemies/gator.tscn" id="12_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="13_emoyi"]
+[ext_resource type="Script" uid="uid://dheoh4rbdoxkn" path="res://scripts/navmesh_merger.gd" id="17_n5wlp"]
 
 [sub_resource type="Resource" id="Resource_nunuq"]
 resource_name = "Gator"
@@ -90,3 +91,6 @@ stream = ExtResource("5_jmh76")
 volume_db = 5.0
 autoplay = true
 bus = &"Music"
+
+[node name="NavmeshMerger" type="Node2D" parent="." unique_id=572913852]
+script = ExtResource("17_n5wlp")

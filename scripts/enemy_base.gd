@@ -356,9 +356,7 @@ func _physics_process(delta: float) -> void:
 # MOVIMENTO FINAL (chamado diretamente OU via velocity_computed)
 # =================================================
 func _finish_movement(pos_before: Vector2, delta: float) -> void:
-	var _p_move: int = Time.get_ticks_usec()  # [TEMPORARIO — PERF PROBE]
 	move_and_slide()
-	PerfProbe.probe("move_and_slide", _p_move)  # [TEMPORARIO — PERF PROBE]
 	handle_knockback_transfer()
 	_guard_against_position_jump(pos_before, delta)
 
@@ -403,9 +401,7 @@ func _guard_against_position_jump(pos_before: Vector2, delta: float) -> void:
 # MOVIMENTO BASE
 # =================================================
 func base_move(delta: float) -> void:
-	var _p_nav: int = Time.get_ticks_usec()  # [TEMPORARIO — PERF PROBE]
 	update_direction()
-	PerfProbe.probe("navegacao", _p_nav)  # [TEMPORARIO — PERF PROBE]
 
 	if knockback != Vector2.ZERO:
 		# Knockback tem prioridade absoluta.

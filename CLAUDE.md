@@ -142,7 +142,7 @@ Budget-based, inspired by Vampire Survivors:
   - **The snap returns the CENTRE of the winning cell, never a point on its edge.** Two separate decisions: *which* cell wins is still decided by distance to the cell **rectangle** (measuring to centres instead would shrink the effective `nav_snap_radius` by up to half a tile diagonal and drop reachable border cells); *what position* is returned is the centre. Clamping into the rectangle — which both this and the old `map_get_closest_point` did — dropped every point coming from outside exactly **on the tile boundary**, i.e. as close to the neighbouring wall as geometrically possible. That was the systematic cause of enemies spawning glued to walls. The centre is by definition the point furthest from that cell's edges, and in a one-tile corridor it is the corridor's centre line. Double gain: better placement **and** more approved points, since `is_safe_from_walls()` runs *after* the snap — narrow corridors gain candidates that used to be rejected for wall proximity.
   - **Approximation, declared:** a tile whose navigation polygon covers only part of the tile is treated as the whole tile. The physics query and the spawn clearance check cover the residue — no risk of spawning inside a wall.
   - **Orphan cells:** `get_used_cells()` can return cells whose `source_id` no longer exists in the TileSet (source removed after painting). Calling `get_cell_tile_data()` on those raises a C++ error, so the source is validated first; the cells are skipped and reported once with their coordinates. This surfaced one real stray cell in `stage01` that had been invisible for months.
-- **The navmesh itself is untouched** and still has one region per tile, so **enemy pathfinding still pays that cost** on every `makepath()`. Collapsing it into a single baked region is real future work, but it must use **positive** geometry (the walkable tiles). Godot's `NavigationRegion2D` bake is **subtractive** ("everything in the rect minus the colliders"), which would turn deliberate map openings into navmesh and make a single forgotten collision tile a silent leak — a regression against the current tile-driven, positive definition.
+- **This scan reads tiles and is independent of the navmesh.** The navmesh has since been collapsed into a single baked region (see *NavmeshMerger*), which fixed the same linear scan on the pathfinding side; the two systems still share nothing but the tile data they both read. The merge is built from **positive** geometry (the walkable tiles) — never Godot's subtractive `NavigationRegion2D` bake ("everything in the rect minus the colliders"), which would turn deliberate map openings into navmesh and make a single forgotten collision tile a silent leak.
 - **Per-enemy spawn fit**: wall clearance is validated **at the body center** (`pos + body_center_offset`), answering "does this enemy's collider fit here?" — and uses the chosen enemy's own values from `EnemySpawnData`'s `Spawn Fit` group (`spawn_clearance_radius`, `body_center_offset`). Small enemies spawn in corridors that large ones can't. Clearance slightly below the collider radius is a legal calibration: it allows ~1-3px wall overlap that physics gently resolves on the first frame (used to raise density in tight corridors); going much lower risks depenetration ejecting the enemy through thin walls.
   - **`body_center_offset` shifts nothing — it only validates.** The enemy is placed with `enemy.global_position = spawn_pos`, i.e. its **feet** land exactly on the chosen point (correct: grid points are floor/navmesh positions). The offset merely tells the validator *where the collider will sit* so it can check walls there.
   - ⚠️ **It is a manual duplicate of the enemy scene's `BodyCenter` node position and must be kept in sync.** They already drifted once (Red Gator's resource was left at the default while its `BodyCenter` was at `-15`, so wall fit was validated at the wrong point). When you move a `BodyCenter`, update the matching `EnemySpawnData` — `SpawnManager._validate_body_center_offset()` now compares the two on first spawn of each enemy scene and warns if they diverge.
@@ -313,13 +313,15 @@ Measured on the dev machine with ~108 live enemies, wall-clock deltas, V-Sync of
 
 | Part | ms | Share |
 |---|---|---|
-| **navigation** (`update_direction()` × N) | **~3.1** | **~40%** |
+| **navigation** (`update_direction()` × N) | **~0.35** | |
 | engine servers (physics + navigation) | ~2.1 | |
 | move_and_slide | 0.60 | |
 | steering | 0.50 | |
 | **rendering** | **~0.5** | |
 | spawn + teleport + attacks | 0.14 | |
-| **total** | **~7.9 ms** | |
+| **total** | **~5.2 ms** | |
+
+The navigation row assumes the merged navmesh (see *NavmeshMerger*); before it, that single row cost **~3.1 ms** and dominated the frame.
 
 A frame with **no** physics tick costs ~0.5 ms — subtracting it from the full frame is how the engine-server row above was isolated, without instrumenting the engine.
 
@@ -327,24 +329,39 @@ Express the target as **fixed cost + cost per enemy**, never as "the game handle
 
 Three conclusions that should stop old debates:
 
-- **Navigation is the only cost worth optimizing.** Everything else is already negligible: steering, spawn, teleport, attacks and rendering **together** are under 1.8 ms — all closed subjects.
+- **There is no longer a dominant cost.** Navigation used to be ~40% of the frame; the merged navmesh removed it. Steering, spawn, teleport, attacks and rendering **together** are under 1.8 ms — all closed subjects. Before optimizing anything here again, measure: nothing left is known to be expensive.
 - **The stutters were never compute.** With V-Sync on, the same frame measured ~13.9 ms, of which ~7.5 ms was the game standing still waiting for the display; the judder came from the presentation path, not from work. A light CPU graph plus a bad feel means pacing, not load.
 - **Rendering is free (~0.5 ms).** A 480×270 pixel-art game is nowhere near GPU-bound. Do not look there.
 
 **Any future measurement must run with V-Sync disabled**, or the wait is silently attributed to whatever bucket closes the frame — which is exactly how a phantom "8.9 ms of engine/render cost" appeared and survived several rounds of analysis.
 
-### Anatomy of the navigation cost
+### NavmeshMerger — why the navmesh is baked, not per-tile
 
-Measured by a **deterministic bench** — fixed seed, fixed point pairs, queries issued straight at `NavigationServer2D` with the game stopped:
+`TileMapLayer` creates **one navigation region per tile** (3,762 in stage01). Every path query locates its start/end polygons by **linear scan over every polygon in the map**, so that scan — not the A* search — was the cost:
 
-- one path query ≈ **313 µs** = **249 µs locating** the start/end polygons + **64 µs** of A* search
-- `map_get_closest_point` ≈ **125 µs** per call, and every query makes two
+| | per-tile | merged |
+|---|---|---|
+| polygons | 3,762 | **206** |
+| `map_get_closest_point` | 125 µs | **3.7 µs** |
+| one path query | 313 µs | **19 µs** |
+| in game, per enemy per frame | 39 µs | **4.3 µs** |
 
-The localization is a **linear scan over every polygon in the map** (~7,500 of them, from the 3,762 per-tile navigation regions `TileMapLayer` creates). It is the *same* linear scan that already cost ~40 ms per spawn scan and forced reading tile data directly — reappearing through another door. **It scales with polygon count, never with enemy count.**
+It was the *same* linear scan that already cost ~40 ms per spawn scan and forced reading tile data directly — reappearing through another door. **It scales with polygon count, never with enemy count**, which is why cutting enemies never helped.
 
-In game, at `path_recalc_interval = 1.0`, the split is **~79% path recalculation / ~21% per-frame read** (~6 µs per enemy per frame).
+**`scripts/navmesh_merger.gd`** (a `Node2D` placed in each stage) replaces those regions with a single baked one. Non-obvious properties, all load-bearing:
 
-**Collapsing the navmesh into merged polygons is the only remaining fix.** Everything cheaper was measured and rejected — do not re-litigate these:
+- **It bakes in `_enter_tree()`.** Godot fires every `_enter_tree()` before any `_ready()`, so the mesh exists before `SpawnManager` starts and before any enemy calls `makepath()` — **regardless of where the node sits in the scene**. Moving it to `_ready()` would make correctness depend on tree order.
+- **It reads each tile's REAL polygon, never the cell.** Every navigable tile is a full 16×16 square today, so both would agree — which is exactly what makes the shortcut dangerous: it would pass every test now and break silently on the first partial tile. Square tiles take a fast path (maximal rectangles, 3,762 cells → 166 rectangles); any other shape goes through the general union untouched.
+- **`agent_radius = 0`** on the baked mesh, so the geometry matches the tiles exactly. Any positive value shrinks the mesh and changes where enemies can walk.
+- **Per-tile navigation is disabled only after the bake succeeds.** Any failure warns and leaves the native navigation intact — the map is never left unnavigable.
+- **It sweeps for layers with navigation** rather than taking a list, because that is the same union semantics the native navmesh applies. **Not** `enemy_spawn_ground_layers`, which decides where enemies are *born*, not where they *walk*.
+- **Reverting is one Inspector field**: `mode = PER_TILE`. The TileSet is never touched.
+- **`verify_connectivity`** (opt-in) samples 60 point pairs and warns if any route no longer reaches its target. Run it after editing scenery; leave it off otherwise. It is **asymmetric** — it detects a *lost* passage, never an *invented* one (a spurious diagonal join would keep every route working). Only playing catches that.
+- **A stage without the node still works**, on per-tile navigation — a silent performance regression, not a bug.
+
+**Waiting for the navigation server is a two-step handshake, and both steps are required.** `map_get_iteration_id() > 0` is the only legal query before the first synchronization — every other call, `map_get_closest_point` included, raises an engine error in that state. But it is **necessary, not sufficient**: the map can iterate before our region is in that iteration, and then the snap answers about an empty map and returns the *same* point for every input. Three separate bugs came from getting this wrong (a magic frame count, then an illegal probe, then a sufficient-looking one). Poll the iteration id first, then confirm a known mesh point snaps back onto itself.
+
+Everything cheaper than the merge was measured and rejected — do not re-litigate these:
 
 | Rejected | Measured |
 |---|---|
@@ -355,7 +372,7 @@ In game, at `path_recalc_interval = 1.0`, the split is **~79% path recalculation
 | staggering the per-frame read | 8% of the frame at absolute best, and degrades path following |
 | raising `path_recalc_interval` | **not a performance lever.** 1.0 s is already the responsiveness limit in play, and may need to go *lower* |
 
-**TileSet facts (verified) that constrain any navmesh work:** every navigation polygon in `road01`/`buildings01` is the full 16×16 tile square, and only navigation layer 0 / mask 1 is in use — so a merge loses nothing today. But **partial tile polygons are a planned future need**, so the merge must union the **real polygons**, never the cells: an implementation that assumes squares would pass every test today and break silently the day the first partial tile is drawn.
+**New stage checklist (navigation):** add a `Node2D` running `scripts/navmesh_merger.gd` anywhere in the stage — position in the tree does not matter. Leave `mode = MERGED`. Nothing else to wire.
 
 ## Working style
 
