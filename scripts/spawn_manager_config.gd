@@ -157,6 +157,11 @@ extends Node
 ## Visualizar grade e clusters (debug visual)
 @export var debug_draw_enabled: bool = false
 
+## Log de spawn e teleporte no Output — por que um spawn abortou, tamanho
+## do cluster escolhido, aproveitamento do cache de teleporte.
+## Verboso: ligar só durante uma medição.
+@export var debug_enabled: bool = false
+
 # =================================================
 # AUTO-INICIALIZAÇÃO
 # =================================================
@@ -268,7 +273,8 @@ func initialize_spawn_manager() -> void:
 	# Transfere configurações de Grid Sampling
 	SpawnManagerGlobal.grid_sample_spacing = grid_sample_spacing
 	SpawnManagerGlobal.debug_draw_enabled = debug_draw_enabled
-	
+	SpawnManagerGlobal.debug_enabled = debug_enabled
+
 	# Inicia o spawning
 	SpawnManagerGlobal.start_spawning()
 	
@@ -278,7 +284,7 @@ func initialize_spawn_manager() -> void:
 	print("   Minimal Budget: ", minimal_budget)
 	print("   Enemy Types: ", enemy_definitions.size())
 	print("   Teleport: ", "ATIVADO" if teleport_enabled else "DESATIVADO")
-	print("   Grid Sampling: ", grid_sample_spacing, "px | Debug: ", "SIM" if debug_draw_enabled else "NÃO")
+	print("   Grid Sampling: ", grid_sample_spacing, "px | Debug visual: ", "SIM" if debug_draw_enabled else "NÃO", " | Log: ", "SIM" if debug_enabled else "NÃO")
 	print("   Margens: Min(", spawn_margin_min_horizontal, ",", spawn_margin_min_vertical, ") Max(", spawn_margin_max_horizontal, ",", spawn_margin_max_vertical, ")")
 	print("   Chão de spawn: ", nav_layers.map(func(l): return l.name),
 		" (lista explícita)" if not enemy_spawn_ground_layers.is_empty() else " (cena inteira)")

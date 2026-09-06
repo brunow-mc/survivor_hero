@@ -119,11 +119,21 @@ var initial_budget: float = 0.0
 ## gator (0,-11) e inimigos maiores (red gator: 0,-16).
 @export var body_center_offset: Vector2 = Vector2(0, -14)
 
-## Raio de captura do snap ao navmesh (px)
-## Pontos da grade a até esta distância do navmesh são "grudados"
-## no ponto navegável mais próximo. Permite que a grade grossa
-## enxergue corredores estreitos sem custo de performance.
-## Recomendado: metade do grid_sample_spacing.
+## Raio de captura do snap (px). Pontos da grade a até esta distância
+## de chão navegável são "grudados" no centro da célula mais próxima.
+## É o que permite a uma grade grossa enxergar corredores estreitos.
+##
+## PISO: precisa ser MAIOR que grid_sample_spacing x 0.707. Esse fator
+## é a meia-diagonal de um quadrado da grade — a maior distância que
+## qualquer posição do mundo pode ter do ponto de grade mais próximo.
+## Abaixo disso a grade desenvolve pontos cegos e corredores inteiros
+## deixam de ser vistos, que é justamente o que o snap existe para
+## evitar. Com espaçamento 32, o piso e 22.6.
+##
+## Acima do espaçamento, pontos vizinhos da grade grudam na MESMA
+## celula e ela entra repetida na lista de candidatos. Nao e bug (a
+## repeticao pesa a favor de area aberta, e nao de fresta), mas
+## explica por que "Candidatos" pode passar do numero de celulas.
 @export var nav_snap_radius: float = 32.0
 
 # =================================================
@@ -602,7 +612,9 @@ func prepare_safe_teleport_cache(needed: int) -> void:
 		print("Pontos offscreen disponíveis: ", candidates.size())
 		print("Pontos examinados: ", examined)
 		print("├─ Rejeitados (não navegável): ", rejected_not_navigable)
-		print("├─ Rejeitados (parede próxima < ", min_distance_from_walls, "px): ", rejected_distance)
+		# Imprime a folga REALMENTE usada, nunca uma constante — foi um
+		# rótulo fixo que escondeu a divergência acima.
+		print("├─ Rejeitados (parede próxima < ", _get_min_spawn_clearance(), "px): ", rejected_distance)
 		print("├─ Rejeitados (perto de inimigos): ", rejected_enemies)
 		print("└─ APROVADOS: ", approved)
 		print("Cache final: ", safe_teleport_positions.size(), " posições seguras\n")
@@ -682,9 +694,13 @@ func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	if not result.navigable:
 		return result
 
-	# 2. Espaço livre ao redor do CENTRO DO CORPO (mesma regra
-	# de is_valid_enemy_position)
-	result.safe_from_walls = is_safe_from_walls(pos + body_center_offset, min_distance_from_walls)
+	# 2. Espaço livre ao redor do CENTRO DO CORPO.
+	# A FOLGA TEM QUE SER A MESMA DA PRODUÇÃO (validate_teleport_position),
+	# senão ligar o log muda o comportamento do jogo: este caminho já ficou
+	# preso em min_distance_from_walls (26) enquanto a produção usava a
+	# menor folga entre os inimigos (7-12), e o relatório acusava um cache
+	# esgotado que só existia com o debug ligado.
+	result.safe_from_walls = is_safe_from_walls(pos + body_center_offset, _get_min_spawn_clearance())
 	if not result.safe_from_walls:
 		return result
 
@@ -898,33 +914,46 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 
 		return Vector2.ZERO
 	
-	# 4. Escolhe cluster aleatório
-	var chosen_cluster: Array = offscreen_clusters.pick_random()
-	
-	# 5. Sorteia ponto dentro do cluster
-	var spawn_pos: Vector2 = chosen_cluster.pick_random()
-	
-	# 6. Validação extra: distância de paredes e de outros inimigos
-	#    (navegabilidade já garantida por scan_navigable_grid)
-	if not is_valid_enemy_position(spawn_pos, clearance, body_offset):
-		# Tenta outros pontos do mesmo cluster
-		var found_valid: bool = false
-		for point in chosen_cluster:
-			if is_valid_enemy_position(point, clearance, body_offset):
-				spawn_pos = point
-				found_valid = true
-				break
+	# 4. Sorteio POR PONTO, não por região.
+	#    Escolher a região primeiro dava a um corredor de 1 ponto a MESMA
+	#    chance de uma praça de 300 — e, quando esse ponto único reprovava,
+	#    a tentativa inteira era perdida. Juntando tudo numa lista e
+	#    embaralhando, cada ponto vira um bilhete: a proporcionalidade sai
+	#    de graça, sem calcular peso nenhum. É também o que
+	#    prepare_safe_teleport_cache() já fazia — os dois caminhos passam
+	#    a concordar.
+	var candidates: Array[Vector2] = []
+	for cluster in offscreen_clusters:
+		for point in cluster:
+			candidates.append(point)
+	candidates.shuffle()
 
-		# NENHUM ponto do cluster passou na validação completa:
-		# NÃO spawnar. Usar o ponto reprovado colocaria o corpo do
-		# inimigo dentro de paredes (a origem fica nos pés; o colisor
-		# se estende ~24px acima do ponto). O budget fica retido e o
-		# spawn tenta novamente no próximo frame.
-		if not found_valid:
-			failed_spawn_attempts += 1
-			if debug_enabled:
-				print("⚠️ Spawn abortado: nenhum ponto seguro no cluster (", chosen_cluster.size(), " pontos)")
-			return Vector2.ZERO
+	# 5. Valida na ordem embaralhada e PARA NO PRIMEIRO que servir.
+	#    No caso normal isso acontece no primeiro ou segundo ponto; o pior
+	#    caso é o mesmo de antes (percorrer tudo), agora com a diferença
+	#    de que o próximo ponto vem de outra área do mapa em vez de outro
+	#    canto da mesma fresta.
+	var spawn_pos: Vector2 = Vector2.ZERO
+	var found_valid: bool = false
+	var examined: int = 0
+	for point in candidates:
+		examined += 1
+		if is_valid_enemy_position(point, clearance, body_offset):
+			spawn_pos = point
+			found_valid = true
+			break
+
+	# NENHUM ponto offscreen passou na validação completa: NÃO spawnar.
+	# Usar um ponto reprovado colocaria o corpo do inimigo dentro de
+	# paredes (a origem fica nos pés; o colisor se estende acima do
+	# ponto). O budget fica retido e o spawn tenta de novo no próximo
+	# frame. Antes esta condição era "nenhum ponto do CLUSTER sorteado";
+	# agora só dispara se o mapa inteiro estiver ocupado.
+	if not found_valid:
+		failed_spawn_attempts += 1
+		if debug_enabled:
+			print("⚠️ Spawn abortado: nenhum ponto seguro offscreen (", candidates.size(), " candidatos)")
+		return Vector2.ZERO
 
 	# Spawn bem-sucedido: rearma o aviso de "sem cluster offscreen".
 	_warned_no_offscreen = false
@@ -932,7 +961,7 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	if debug_enabled:
 		print("✅ Grid Sampling: Spawn em ", spawn_pos)
 		print("   Clusters: ", clusters.size(), " | Offscreen: ", offscreen_clusters.size())
-		print("   Cluster escolhido: ", chosen_cluster.size(), " pontos")
+		print("   Candidatos: ", candidates.size(), " | Examinados: ", examined)
 
 	return spawn_pos
 

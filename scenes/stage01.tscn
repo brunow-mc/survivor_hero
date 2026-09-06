@@ -22,7 +22,7 @@
 resource_name = "Gator"
 script = ExtResource("11_fdwqw")
 enemy_scene = ExtResource("12_fdwqw")
-spawn_clearance_radius = 12.0
+spawn_clearance_radius = 7.0
 body_center_offset = Vector2(0, -10)
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
@@ -82,9 +82,12 @@ spawn_margin_min_horizontal = 30.0
 spawn_margin_min_vertical = 30.0
 max_difficulty_multiplier = 100.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
+max_teleports_per_frame = 50
 min_distance_between_enemies = 32.0
 min_distance_from_walls = 26.0
 enemy_spawn_ground_layers = [NodePath("../TileMapRoad"), NodePath("../TileMapBuildings")]
+debug_draw_enabled = true
+debug_enabled = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
 stream = ExtResource("5_jmh76")
