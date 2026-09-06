@@ -108,9 +108,14 @@ var initial_budget: float = 0.0
 
 ## Distância mínima de paredes (px), medida no CENTRO DO CORPO
 ## (ponto de spawn + body_center_offset), onde fica o colisor real.
-## Deve cobrir o raio do colisor do MAIOR inimigo + margem.
-## Gator: raio 13 | Red Gator: raio 16 | Recomendado: 20 (folga
-## para inimigos futuros maiores). Corredor mínimo spawnável ≈ 2x este valor.
+##
+## FALLBACK, nao o valor normal: quando o inimigo sorteado tem
+## EnemySpawnData, valem o spawn_clearance_radius e o
+## body_center_offset DELE. Este valor so entra quando nao ha inimigo
+## especifico (ex.: pre-filtro generico).
+##
+## Raios de colisor de corpo em uso: Gator 10 | Red Gator 15.
+## Corredor minimo spawnavel ~ 2x este valor.
 @export var min_distance_from_walls: float = 20.0
 
 ## Offset do centro do corpo em relação ao ponto de spawn (os pés).
