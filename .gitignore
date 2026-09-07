@@ -14,3 +14,6 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Snapshots de gravacao da Godot (lixo, nunca versionar)
+*.tmp

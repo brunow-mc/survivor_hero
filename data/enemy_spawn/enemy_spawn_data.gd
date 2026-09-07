@@ -35,15 +35,17 @@ extends Resource
 # =================================================
 @export_group("Spawn Fit")
 ## Raio de folga de paredes exigido no spawn, medido no centro do corpo.
-## = raio do colisor do inimigo + pequena margem.
-## Gator (colisor r13): 14 | Red Gator (r16): 17.
-## Corredor mínimo spawnável para este inimigo ≈ 2x este valor.
+## Referência: o raio do colisor do inimigo. Um pouco abaixo dele é
+## calibragem legítima — permite 1-3px de sobreposição que a física
+## resolve no primeiro quadro, e ganha corredores estreitos.
+##
+## Raios reais em uso: Gator 10 | Red Gator 15.
+## Calibragem em stage01: Gator 7 | Red Gator 16.
+##
+## O offset do centro do corpo NÃO fica aqui: o SpawnManager lê o nó
+## BodyCenter da própria cena do inimigo. Havia um body_center_offset
+## neste grupo, cópia manual daquele nó, e as duas já divergiram.
 @export var spawn_clearance_radius: float = 14.0
-
-## Offset do centro do corpo em relação à origem da cena (os pés).
-## Deve coincidir com o node BodyCenter da cena do inimigo.
-## Gator: (0,-11) | Red Gator: (0,-16).
-@export var body_center_offset: Vector2 = Vector2(0, -11)
 
 # =================================================
 # TEMPO DE DISPONIBILIDADE

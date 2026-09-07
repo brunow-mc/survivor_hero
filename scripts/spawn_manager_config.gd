@@ -117,14 +117,16 @@ extends Node
 ## Distância mínima entre inimigos no spawn (px)
 @export var min_distance_between_enemies: float = 48.0
 
-## Distância mínima de paredes (px), medida no CENTRO DO CORPO
-## (ponto de spawn + body_center_offset). Deve cobrir o raio do colisor
-## do MAIOR inimigo + margem. Recomendado: 20.
-@export var min_distance_from_walls: float = 20.0
-
-## Offset do centro do corpo em relação ao ponto de spawn (os pés).
-## A validação de paredes testa o círculo nesta posição.
-@export var body_center_offset: Vector2 = Vector2(0, -14)
+# A folga de parede NAO se calibra aqui. Ela vem do spawn_clearance_radius
+# de cada EnemySpawnData (grupo Spawn Fit, logo acima nesta mesma cena), e o
+# caso "inimigo desconhecido" usa SpawnManager.FALLBACK_WALL_CLEARANCE, que e
+# const de proposito. Havia um @export min_distance_from_walls aqui que nunca
+# teve efeito: _get_min_spawn_clearance() o usava como semente de uma busca
+# pelo MENOR valor, entao qualquer numero acima do menor inimigo era ignorado.
+#
+# O offset do centro do corpo tambem nao se configura aqui: o SpawnManager le
+# o no BodyCenter da propria cena do inimigo (_get_body_offset). Havia um
+# @export body_center_offset neste ponto, copia manual daquele no.
 
 ## Camadas onde inimigos PODEM NASCER.
 ##
@@ -233,8 +235,6 @@ func initialize_spawn_manager() -> void:
 	
 	# Transfere configurações de validação
 	SpawnManagerGlobal.min_distance_between_enemies = min_distance_between_enemies
-	SpawnManagerGlobal.min_distance_from_walls = min_distance_from_walls
-	SpawnManagerGlobal.body_center_offset = body_center_offset
 	SpawnManagerGlobal.nav_snap_radius = nav_snap_radius
 
 	# Resolve o chão de spawn: DOIS estados, nenhum deles é "esquecimento".

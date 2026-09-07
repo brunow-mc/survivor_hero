@@ -106,23 +106,20 @@ var initial_budget: float = 0.0
 ## Evita que inimigos spawnem muito próximos uns dos outros
 @export var min_distance_between_enemies: float = 48.0
 
-## Distância mínima de paredes (px), medida no CENTRO DO CORPO
-## (ponto de spawn + body_center_offset), onde fica o colisor real.
+## Folga de parede (px) usada quando NAO SE SABE qual inimigo e este.
 ##
-## FALLBACK, nao o valor normal: quando o inimigo sorteado tem
-## EnemySpawnData, valem o spawn_clearance_radius e o
-## body_center_offset DELE. Este valor so entra quando nao ha inimigo
-## especifico (ex.: pre-filtro generico).
+## Nao e calibragem, e rede de seguranca — por isso e const, e nao
+## @export. O valor normal vem sempre do spawn_clearance_radius do
+## EnemySpawnData do inimigo sorteado; esta constante so entra quando
+## nao existe definicao (fase sem enemy_definitions, ou inimigo cuja
+## cena nao consta na lista). Se ela estivesse no Inspector, pareceria
+## um botao de ajuste — e por anos foi calibrada sem efeito nenhum,
+## porque _get_min_spawn_clearance() a usa como semente de uma busca
+## pelo MENOR valor: com Gator em 7 e Red Gator em 16, qualquer valor
+## acima de 7 e descartado.
 ##
 ## Raios de colisor de corpo em uso: Gator 10 | Red Gator 15.
-## Corredor minimo spawnavel ~ 2x este valor.
-@export var min_distance_from_walls: float = 20.0
-
-## Offset do centro do corpo em relação ao ponto de spawn (os pés).
-## A validação de paredes testa o círculo NESTA posição — é onde o
-## colisor do inimigo realmente fica. Valor de referência entre o
-## gator (0,-11) e inimigos maiores (red gator: 0,-16).
-@export var body_center_offset: Vector2 = Vector2(0, -14)
+const FALLBACK_WALL_CLEARANCE: float = 20.0
 
 ## Raio de captura do snap (px). Pontos da grade a até esta distância
 ## de chão navegável são "grudados" no centro da célula mais próxima.
@@ -246,6 +243,11 @@ var _wall_query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.n
 # física (ver _get_enemies).
 var _enemy_cache: Array[Node] = []
 var _enemy_cache_frame: int = -1
+# Centro do corpo de cada inimigo, na mesma ordem do cache acima.
+# Invalidado pelos MESMOS eventos (nascimento, restart) — ver
+# _get_enemy_body_positions.
+var _enemy_bodies: PackedVector2Array = PackedVector2Array()
+var _enemy_bodies_frame: int = -1
 
 # Guarda de repetição do aviso "nenhum cluster offscreen" (ver
 # find_spawn_position). Rearmado a cada spawn bem-sucedido.
@@ -319,6 +321,7 @@ func start_spawning() -> void:
 	difficulty_multiplier = 1.0
 	_grid_cache_valid = false  # nova partida: descarta a grade da anterior
 	_enemy_cache_frame = -1    # a lista de inimigos da partida anterior morreu junto
+	_enemy_bodies_frame = -1
 	_warned_no_offscreen = false
 
 	# Ativa spawning
@@ -494,8 +497,11 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 
 		var pos_before: Vector2 = enemy.global_position
 
-		# Teleporta
-		enemy.global_position = pos
+		# Teleporta colocando o CENTRO DO CORPO no ponto (mesma regra de
+		# spawn_enemy — ver o comentário lá). O offset vem do nó BodyCenter
+		# da própria cena, então não depende de o inimigo constar em
+		# enemy_definitions: um inimigo sem definição também cai certo.
+		enemy.global_position = pos - _get_body_offset(enemy)
 		total_teleports += 1
 		teleported_count += 1
 
@@ -632,12 +638,12 @@ func validate_teleport_position(pos: Vector2) -> bool:
 	Na atribuição, cada inimigo re-testa o encaixe com a PRÓPRIA folga
 	(_take_position_fitting_enemy).
 	"""
-	return is_valid_enemy_position(pos, _get_min_spawn_clearance(), body_center_offset)
+	return is_valid_enemy_position(pos, _get_min_spawn_clearance())
 
 
 func _get_min_spawn_clearance() -> float:
 	"""Menor spawn_clearance_radius entre os inimigos definidos."""
-	var min_clearance: float = min_distance_from_walls
+	var min_clearance: float = FALLBACK_WALL_CLEARANCE
 	for def in enemy_definitions:
 		if def and def.spawn_clearance_radius < min_clearance:
 			min_clearance = def.spawn_clearance_radius
@@ -658,20 +664,22 @@ func _take_position_fitting_enemy(enemy: Node) -> Vector2:
 	EnemySpawnData; fallback: defaults globais). Vector2.INF se nenhuma
 	das posições testadas servir neste ciclo.
 	"""
-	var clearance: float = min_distance_from_walls
-	var offset: Vector2 = body_center_offset
+	var clearance: float = FALLBACK_WALL_CLEARANCE
 	var def := _find_definition_for_enemy(enemy)
 	if def:
 		clearance = def.spawn_clearance_radius
-		offset = def.body_center_offset
 
-	# Testa do fim para o início (cache já embaralhado); limita
-	# tentativas para não varrer o cache inteiro por inimigo.
+	# As posições do cache JÁ SÃO centros de corpo: o teleporte coloca o
+	# BodyCenter sobre o ponto (ver o `pos - offset` em teleport_distant_enemies,
+	# mesma regra de spawn_enemy). Somar o offset do corpo aqui testaria a
+	# parede 10 px (gator) ou 15 px (red gator) acima de onde o colisor vai
+	# ficar — resíduo da colocação antiga pelos pés, que o spawn já corrigiu.
+	# O que varia por inimigo é só a FOLGA, nunca o ponto.
 	var max_tries: int = mini(safe_teleport_positions.size(), 16)
 	for i in range(max_tries):
 		var idx: int = safe_teleport_positions.size() - 1 - i
 		var pos: Vector2 = safe_teleport_positions[idx]
-		if is_safe_from_walls(pos + offset, clearance):
+		if is_safe_from_walls(pos, clearance):
 			safe_teleport_positions.remove_at(idx)
 			return pos
 
@@ -702,14 +710,14 @@ func validate_teleport_position_debug(pos: Vector2) -> Dictionary:
 	# 2. Espaço livre ao redor do CENTRO DO CORPO.
 	# A FOLGA TEM QUE SER A MESMA DA PRODUÇÃO (validate_teleport_position),
 	# senão ligar o log muda o comportamento do jogo: este caminho já ficou
-	# preso em min_distance_from_walls (26) enquanto a produção usava a
+	# preso na folga global (26) enquanto a produção usava a
 	# menor folga entre os inimigos (7-12), e o relatório acusava um cache
 	# esgotado que só existia com o debug ligado.
-	result.safe_from_walls = is_safe_from_walls(pos + body_center_offset, _get_min_spawn_clearance())
+	result.safe_from_walls = is_safe_from_walls(pos, _get_min_spawn_clearance())
 	if not result.safe_from_walls:
 		return result
 
-	# 3. Seguro de outros inimigos
+	# 3. Seguro de outros inimigos — medido no mesmo ponto do teste acima.
 	result.safe_from_enemies = is_safe_from_other_enemies(pos)
 	if not result.safe_from_enemies:
 		return result
@@ -886,8 +894,7 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	if not player or not is_instance_valid(player):
 		return Vector2.ZERO
 
-	var clearance: float = enemy_data.spawn_clearance_radius if enemy_data else min_distance_from_walls
-	var body_offset: Vector2 = enemy_data.body_center_offset if enemy_data else body_center_offset
+	var clearance: float = enemy_data.spawn_clearance_radius if enemy_data else FALLBACK_WALL_CLEARANCE
 	
 	total_spawn_attempts += 1
 	
@@ -943,7 +950,7 @@ func find_spawn_position(enemy_data: EnemySpawnData = null) -> Vector2:
 	var examined: int = 0
 	for point in candidates:
 		examined += 1
-		if is_valid_enemy_position(point, clearance, body_offset):
+		if is_valid_enemy_position(point, clearance):
 			spawn_pos = point
 			found_valid = true
 			break
@@ -1424,29 +1431,69 @@ func is_position_navigable(check_pos: Vector2) -> bool:
 
 func is_safe_from_other_enemies(check_pos: Vector2) -> bool:
 	"""
-	Verifica se posição mantém distância mínima de outros inimigos.
-	Evita que inimigos spawnem muito próximos uns dos outros.
+	Verifica se a posição mantém distância mínima dos CORPOS dos inimigos
+	vivos. Evita que um inimigo nasça em cima de outro.
+
+	MEDIDO NO CENTRO DO CORPO, nos dois lados — mesma regra do teste de
+	parede logo acima em is_valid_enemy_position, e a convenção do resto
+	do projeto (ver "Entity anatomy" no CLAUDE.md). Os pés são âncora de
+	Y-sort, não corpo: nenhum colisor mora lá.
+
+	Media-se em pés antes, com a justificativa de que os dois lados
+	ficavam no mesmo referencial. Era internamente consistente e
+	geometricamente errado: comparava duas SOMBRAS NO CHÃO enquanto o
+	teste de parede, para o mesmo ponto, já media no corpo. Entre
+	inimigos de alturas iguais os dois dão o mesmo número (por isso o
+	erro nunca apareceu); entre alturas diferentes o desvio é a diferença
+	dos BodyCenter — 5 px entre gator (-10) e red gator (-15), mas seria
+	22 px entre um inimigo alto (-30) e um baixo (-8), o bastante para
+	aprovar um spawn sobreposto.
 	"""
 	# Se validação está desabilitada, sempre retorna true
 	if min_distance_between_enemies <= 0:
 		return true
 
+	# check_pos JÁ É o centro do corpo: o spawn coloca o BodyCenter sobre o
+	# ponto, então não há offset a aplicar aqui.
+
 	# Compara o QUADRADO da distância — evita uma raiz quadrada por inimigo
 	# num laço que roda (nº de candidatos x nº de inimigos) vezes por ciclo.
 	var min_dist_sq: float = min_distance_between_enemies * min_distance_between_enemies
 
-	# Distâncias em frame de PÉS: check_pos é um ponto do chão e
-	# enemy.global_position é a origem (pés) do inimigo — os dois lados na
-	# mesma referência. Aqui NÃO se usa o BodyCenter de propósito.
-	for enemy in _get_enemies():
-		if not is_instance_valid(enemy):
-			continue
-
-		if check_pos.distance_squared_to(enemy.global_position) < min_dist_sq:
+	# Posições já resolvidas uma vez por frame (ver _get_enemy_body_positions):
+	# chamar get_body_center_position() aqui dentro trocaria uma leitura de
+	# Vector2 por uma chamada com cadeia de fallback no laço mais quente do
+	# sistema de spawn.
+	for body_pos in _get_enemy_body_positions():
+		if check_pos.distance_squared_to(body_pos) < min_dist_sq:
 			return false
 
 	# Nenhum inimigo muito próximo, é válido
 	return true
+
+
+## Centro do corpo de cada inimigo vivo, cacheado por FRAME DE FÍSICA.
+##
+## Vive junto do cache de inimigos e é invalidado pelos mesmos eventos.
+## Existe para manter is_safe_from_other_enemies com custo de leitura de
+## propriedade: resolver o BodyCenter por inimigo A CADA CANDIDATO seria
+## (candidatos x inimigos) chamadas de método com fallback.
+func _get_enemy_body_positions() -> PackedVector2Array:
+	var frame: int = Engine.get_physics_frames()
+	if frame != _enemy_bodies_frame:
+		_enemy_bodies.clear()
+		for enemy in _get_enemies():
+			if not is_instance_valid(enemy):
+				continue
+			# get_body_center_position() é o acessor canônico do EnemyBase
+			# (BodyCenter -> _nav_anchor -> origem). O guard existe para o
+			# caso de o grupo "Enemy" ganhar um nó que não seja EnemyBase.
+			if enemy.has_method("get_body_center_position"):
+				_enemy_bodies.append(enemy.get_body_center_position())
+			else:
+				_enemy_bodies.append(enemy.global_position)
+		_enemy_bodies_frame = frame
+	return _enemy_bodies
 
 
 ## Lista de inimigos vivos, cacheada por FRAME DE FÍSICA.
@@ -1464,27 +1511,28 @@ func _get_enemies() -> Array[Node]:
 		_enemy_cache_frame = frame
 	return _enemy_cache
 
-func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0, offset: Vector2 = Vector2.INF) -> bool:
+func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0) -> bool:
 	"""
 	Validação extra de uma posição para inimigos (spawn normal ou teleport).
 	
 	PRECONDIÇÃO: pos deve vir de scan_navigable_grid() — a navegabilidade
 	básica já foi garantida ali (via is_position_navigable), então não é
 	re-checada aqui. Verificamos apenas:
-	1. Espaço livre ao redor (sem paredes dentro de min_distance_from_walls)
+	1. Espaço livre ao redor (sem paredes dentro de `clearance`)
 	2. Distância segura de outros inimigos
 	"""
-	# Checagem de paredes no CENTRO DO CORPO (onde o colisor fica),
-	# não nos pés: é o teste "o corpo cabe aqui sem tocar parede?".
-	# clearance/offset vêm do EnemySpawnData do inimigo sorteado
-	# (folga POR INIMIGO — o gator cabe onde o red gator não cabe);
-	# sem inimigo específico, caem nos defaults globais.
+	# `pos` JÁ É a posição do centro do corpo: o spawn coloca o BodyCenter
+	# sobre o ponto (ver spawn_enemy). Por isso as duas checagens medem
+	# direto em `pos`, sem correção — elas falam do mesmo colisor, que
+	# ficará exatamente ali.
+	#
+	# `clearance` continua vindo do EnemySpawnData do inimigo sorteado
+	# (folga POR INIMIGO — o gator cabe onde o red gator não cabe). O
+	# offset do corpo não entra aqui: quem o consome é a COLOCAÇÃO.
 	if clearance < 0.0:
-		clearance = min_distance_from_walls
-	if offset == Vector2.INF:
-		offset = body_center_offset
+		clearance = FALLBACK_WALL_CLEARANCE
 
-	if not is_safe_from_walls(pos + offset, clearance):
+	if not is_safe_from_walls(pos, clearance):
 		return false
 
 	if not is_safe_from_other_enemies(pos):
@@ -1495,28 +1543,26 @@ func is_valid_enemy_position(pos: Vector2, clearance: float = -1.0, offset: Vect
 # =================================================
 # SPAWN DE INIMIGO
 # =================================================
-# O body_center_offset do EnemySpawnData é uma DUPLICATA MANUAL da posição do
-# nó BodyCenter da cena do inimigo, usada para validar a folga de parede no
-# ponto certo. Se as duas divergirem, o spawn valida o lugar errado — e isso é
-# invisível em jogo (já aconteceu: Red Gator com 4px de erro). Avisa UMA VEZ
-# por cena de inimigo.
-var _warned_offset_scenes: Dictionary = {}
+func _get_body_offset(enemy: Node) -> Vector2:
+	"""
+	Deslocamento dos PÉS (origem da cena) até o centro do corpo, lido do
+	nó BodyCenter da própria cena do inimigo.
 
-func _validate_body_center_offset(enemy: Node, enemy_data: EnemySpawnData) -> void:
-	var scene_key: String = enemy.scene_file_path
-	if scene_key == "" or _warned_offset_scenes.has(scene_key):
-		return
-	_warned_offset_scenes[scene_key] = true
+	FONTE ÚNICA. Antes esse número era digitado uma segunda vez num campo
+	body_center_offset do EnemySpawnData, e as duas cópias já divergiram
+	(Red Gator no padrão enquanto o nó estava em -15), fazendo o spawn
+	colocar o corpo no lugar errado sem erro nenhum aparecer. Ler o nó
+	elimina a duplicata — e com ela o guarda que só existia para vigiá-la.
 
+	`position` (local), não `global_position`: o que queremos é o
+	deslocamento em relação à origem da cena.
+
+	Sem o marcador, devolve ZERO — os pés vão para o ponto, degradação
+	suave. O aviso já existe em EnemyBase._validate_scene_setup(), uma
+	vez por cena; não duplicar aqui.
+	"""
 	var marker: Node2D = enemy.get_node_or_null("BodyCenter") as Node2D
-	if marker == null:
-		return  # ausência do marcador já é avisada pelo EnemyBase
-
-	if not marker.position.is_equal_approx(enemy_data.body_center_offset):
-		push_warning(
-			"SpawnManager [%s]: body_center_offset do EnemySpawnData (%s) diverge do nó BodyCenter da cena (%s) — a folga de parede está sendo validada no ponto errado. Sincronize os dois."
-			% [scene_key.get_file(), enemy_data.body_center_offset, marker.position]
-		)
+	return marker.position if marker else Vector2.ZERO
 
 func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	"""
@@ -1533,24 +1579,42 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 	var parent_node: Node = enemy_container if is_instance_valid(enemy_container) else current_scene
 	parent_node.add_child(enemy)
 	
-	# Define posição real APÓS _ready()
-	enemy.global_position = spawn_pos
+	# Define posição real APÓS _ready(). O add_child acima já criou os
+	# filhos, então o nó BodyCenter já existe para ser lido aqui.
+	#
+	# O ponto de spawn recebe o CENTRO DO CORPO, não os pés. Como a origem
+	# da cena está nos pés, a origem vai para spawn_pos - offset do corpo.
+	#
+	# Motivo: o NavigationAgent2D é filho do BodyCenter, então quem percorre
+	# o navmesh enquanto o inimigo anda é o CORPO — os pés vão arrastados
+	# atrás, com frequência sobre tile de parede. Colocar os pés no ponto
+	# fazia o inimigo nascer numa configuração que ele nunca ocupa depois:
+	# no primeiro quadro de navegação o corpo estava fora do navmesh e era
+	# puxado ~10 px. Também não havia garantia nenhuma de que o corpo caía
+	# em chão navegável — só de que não havia parede ali.
+	enemy.global_position = spawn_pos - _get_body_offset(enemy)
 
 	# O add_child acima já rodou o _ready() do inimigo (e portanto o
 	# add_to_group("Enemy")). Invalida o cache para que um segundo spawn
 	# NESTE MESMO frame respeite min_distance_between_enemies em relação a
 	# este que acabou de nascer.
 	_enemy_cache_frame = -1
+	_enemy_bodies_frame = -1
 	
 	# Recalcula rota da posição correta de spawn
 	# Mesmo fix já aplicado aos teleportes (Passo 1)
 	if enemy.has_method("makepath"):
 		enemy.makepath()
 
-	_validate_body_center_offset(enemy, enemy_data)
-	
 	if debug_enabled:
-		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos, " | Budget: ", spawn_budget)
+		# O corpo tem que cair EXATAMENTE sobre o ponto validado. Se os dois
+		# divergirem, a colocação e a validação voltaram a falar de pontos
+		# diferentes. (Remover junto com o resto do debug.)
+		var body_at: Vector2 = enemy.get_body_center_position() if enemy.has_method("get_body_center_position") else enemy.global_position
+		var drift: float = body_at.distance_to(spawn_pos)
+		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos,
+			" | corpo em ", body_at, (" OK" if drift < 0.5 else " ⚠️ DESVIO %.1fpx" % drift),
+			" | Budget: ", spawn_budget)
 		if enemy_data.enemy_name == "Red Gator":
 			print("🔥🔥🔥 RED GATOR SPAWNED! 🔥🔥🔥")
 			print("   Game Time: ", game_time, "s")

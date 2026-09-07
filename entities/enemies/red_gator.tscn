@@ -204,13 +204,11 @@ frame_progress = 0.01982046
 offset = Vector2(0, -13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=681079943]
-visible = false
 z_index = 1
 position = Vector2(0, -15)
 shape = SubResource("CircleShape2D_c8u6y")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1627540138 groups=["EnemyHurtbox"]]
-visible = false
 z_index = 1
 position = Vector2(0, -19)
 collision_layer = 260
@@ -221,7 +219,6 @@ shape = SubResource("CircleShape2D_u5jqn")
 debug_color = Color(0, 0.6862745, 0, 0.41960785)
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=1612427453]
-visible = false
 z_index = 1
 position = Vector2(0, -21)
 collision_layer = 4
