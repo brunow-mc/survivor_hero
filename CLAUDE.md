@@ -290,7 +290,6 @@ Everything in the project that exists only to test or observe. **Kept here so no
 | `TestPowerups` — keys `1`–`8` apply powerups, `R` reset, `L` list, `S` stats | node in **all four** player scenes (`scripts/test_powerups.gd`) | **Stays.** In daily use |
 | `TestAttackUpgrades` — `E T Y U I O` raise each attack one level, `X` list | node in **all four** player scenes (`scripts/test_attack_upgrades.gd`) | **Stays.** In daily use |
 | Spawn log + grid overlay | `debug_enabled` / `debug_draw_enabled` on `SpawnManagerConfig`; `scenes/debug_draw_overlay.tscn`, `scripts/debug_draw_overlay.gd`, `scripts/debug_drawer.gd` | Gated, **off** in stage01. Files stay |
-| Spawn drift check (`corpo em (…) OK`) | inside the `debug_enabled` print in `spawn_enemy()` | **Temporary** — remove; it has served its purpose |
 | `NavmeshMerger` `log_bake` (default on) / `verify_connectivity` (default off) | `scripts/navmesh_merger.gd` | **Not test code.** Production diagnostics with a switch; both stay |
 
 **These two are nodes duplicated across the four player scenes (8 instances) only because players 2–4 were built as copies of player 1** — there is no technical reason for it: both find their target through the `Player` group in `_ready()`, so both could be autoloads, resolved once. A fifth player scene built from scratch would silently lack them. Worth collapsing when the player-selection system arrives.

@@ -1623,19 +1623,8 @@ func spawn_enemy(enemy_data: EnemySpawnData, spawn_pos: Vector2) -> void:
 		enemy.makepath()
 
 	if debug_enabled:
-		# O corpo tem que cair EXATAMENTE sobre o ponto validado. Se os dois
-		# divergirem, a colocação e a validação voltaram a falar de pontos
-		# diferentes. (Remover junto com o resto do debug.)
-		var body_at: Vector2 = enemy.get_body_center_position() if enemy.has_method("get_body_center_position") else enemy.global_position
-		var drift: float = body_at.distance_to(spawn_pos)
 		print("🔴 Spawned: ", enemy_data.enemy_name, " at ", spawn_pos,
-			" | corpo em ", body_at, (" OK" if drift < 0.5 else " ⚠️ DESVIO %.1fpx" % drift),
 			" | Budget: ", spawn_budget)
-		if enemy_data.enemy_name == "Red Gator":
-			print("🔥🔥🔥 RED GATOR SPAWNED! 🔥🔥🔥")
-			print("   Game Time: ", game_time, "s")
-			print("   Budget antes: ", spawn_budget + enemy_data.spawn_cost)
-			print("   Budget depois: ", spawn_budget)
 
 # =================================================
 # UTILITÁRIOS
