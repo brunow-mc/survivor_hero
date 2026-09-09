@@ -105,6 +105,11 @@ Minimum interval floor: `0.05s`. Recalculated whenever `PowerUpStatsGlobal.stats
 
 **Linking key:** `attack_id` (integer) connects `AttackData` ↔ `AttackUpgradeData` ↔ timer in `attack_timers` dictionary.
 
+**The RESOURCE owns the level ceiling — controllers ask, never check-and-write.** `AttackController.apply_upgrade()` calls `upgrade.level_up()`, exactly as `PowerUpController.apply_upgrade()` calls `powerup.level_up()`; the `max_level` test lives once, inside the resource. It used to be duplicated: `AttackUpgradeData.level_up()` existed with the rule inside it, and the controller re-implemented the same test and wrote `current_level += 1` itself — so editing the rule in the obvious place (the resource) would have changed powerups and silently left attacks alone. Same trap as the old duplicated `body_center_offset`, with a *rule* instead of a value. **Setting a level to zero (`disable_attack`, `remove_powerup`) is still a direct write on both sides** — that is a reset, not an increment, and the two controllers already agree.
+  - **Hitting max level returns `false` silently — it is not a warning.** It used to `push_warning`, which lit the editor's error panel every time a player simply maxed an attack. A full attack is normal gameplay; the caller decides whether to say anything (the debug tool prints). The *other* `push_warning` in that function — `Upgrade not found for attack_id` — stays, because an attack with no configured upgrade **is** a misconfiguration.
+
+**Adding a level to an existing attack means editing TWO places, and forgetting either fails silently.** `max_level` is its own `@export` (default `5`), **not** derived from the per-level arrays, while `_sum_int`/`_sum_float` accumulate over `min(current_level, arr.size())`. So: raise `max_level` and forget to extend an array → the new level is reachable but grants that array's bonus at the previous level's value, no error; extend the arrays and forget `max_level` → the new entries are unreachable dead data, no error. Both edits happen in the same `.tres` Inspector — do them together. (The arrays may legitimately have *different* lengths from each other: a shorter one simply stops contributing at its last entry, which is how "this attack gains projectiles only up to level 3" is expressed.)
+
 **Attack scenes** live in `entities/powers/`: `power_01_fire`, `power_02_ring`, `power_03_electricity`, `power_04_bo`, `power_05_gear`, `power_06_snowflake`. All extend **`BasePower`** (`scripts/base_power.gd`).
 
 **`BasePower`** — `Area2D` base for all projectiles: life-time countdown, per-enemy hit cooldown (`enemies_last_hit`), damage calculation (additive: `damage_upgrade_bonus + (damage_multiplier − 1.0)`), knockback multiplier from globals. Provides `calculate_projectile_spread_angles()`, `find_nearest_enemy_on_screen()`, `find_random_enemy_on_screen()`, and **`_enemy_body_position(enemy)`**.
@@ -282,16 +287,17 @@ Everything in the project that exists only to test or observe. **Kept here so no
 
 | What | Where | Status |
 |---|---|---|
-| `LevelUpDebug` — keys `Z`/`C`/`V` pick options 1/2/3 in the level-up menu | autoload in `project.godot` (`scripts/level_up_debug.gd`) | **Stays.** No removal planned. |
-| `TestPowerups` — keys `1`–`8` apply powerups, `R` reset, `L` list, `S` stats | node in **all four** player scenes (`scripts/test_powerups.gd`) | Stays for now; fate undecided |
-| `TestAttackUpgrades` — `E/F T/G Y/H U/J I/K O/L` raise/lower each attack level, `X` list | node in **all four** player scenes (`scripts/test_attack_upgrades.gd`) | Stays for now; fate undecided |
+| `TestPowerups` — keys `1`–`8` apply powerups, `R` reset, `L` list, `S` stats | node in **all four** player scenes (`scripts/test_powerups.gd`) | **Stays.** In daily use |
+| `TestAttackUpgrades` — `E T Y U I O` raise each attack one level, `X` list | node in **all four** player scenes (`scripts/test_attack_upgrades.gd`) | **Stays.** In daily use |
 | Spawn log + grid overlay | `debug_enabled` / `debug_draw_enabled` on `SpawnManagerConfig`; `scenes/debug_draw_overlay.tscn`, `scripts/debug_draw_overlay.gd`, `scripts/debug_drawer.gd` | Gated, **off** in stage01. Files stay |
 | Spawn drift check (`corpo em (…) OK`) | inside the `debug_enabled` print in `spawn_enemy()` | **Temporary** — remove; it has served its purpose |
 | `NavmeshMerger` `log_bake` (default on) / `verify_connectivity` (default off) | `scripts/navmesh_merger.gd` | **Not test code.** Production diagnostics with a switch; both stay |
 
-Two notes:
-- **Key collision:** `L` is bound in `TestPowerups` (list powerups) *and* in `TestAttackUpgrades` (Snow--). Both run at once.
-- **The `LevelUpDebug` autoload line carries a `##` prefix and is still loaded** — that prefix does not disable an autoload. Its `_ready()` print in the console is the proof. Don't read it as commented out.
+**These two are nodes duplicated across the four player scenes (8 instances) only because players 2–4 were built as copies of player 1** — there is no technical reason for it: both find their target through the `Player` group in `_ready()`, so both could be autoloads, resolved once. A fifth player scene built from scratch would silently lack them. Worth collapsing when the player-selection system arrives.
+
+**A debug tool must reach the game through the same door the game uses.** `TestAttackUpgrades` used to *lower* attack levels by writing `upgrade.current_level -= 1` directly, with the comment "no method for this" — while `AttackUpgradeData.level_down()` had existed all along, validated and never called. It was the only place in the project producing a state no real match can reach, so a bug appearing only after those keys might not have been a bug at all. The feature was **removed** rather than fixed: lowering a level is not a game mechanic, and it had never been used. If it ever becomes one, it starts in the controller with its own validation and the tool merely calls it.
+
+**A removed tool, for the record.** `LevelUpDebug` (keys `Z`/`C`/`V`) chose an option in the level-up menu by keyboard, back when no menu UI existed. Its own header said it would go "when the UI is ready"; the UI now works with keyboard, gamepad and mouse, so the tool survived purely on inertia. Removing it also removed `LevelUpManager.simulate_choice()` and `is_upgrade_active()`, which existed only to serve it. Note its autoload line read `##LevelUpDebug="…"` — the `##` did **not** comment it out, it became part of the singleton's *name*, which is why it kept loading and printing.
 
 Godot writes `<scene>.tscn<hash>.tmp` snapshots when saving; 12 of them had been committed. `*.tmp` is now in `.gitignore` — never version them.
 

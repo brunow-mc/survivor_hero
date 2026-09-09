@@ -387,13 +387,23 @@ func apply_upgrade(attack_id: int) -> bool:
 		push_warning("AttackController: Upgrade not found for attack_id %d" % attack_id)
 		return false
 	
-	if upgrade.current_level >= upgrade.max_level:
-		push_warning("⚠️ Attack '%s' already at max level %d" % [upgrade.attack_name, upgrade.max_level])
-		return false
-	
 	var was_level = upgrade.current_level
-	upgrade.current_level += 1
-	
+
+	# Quem guarda o teto é o RECURSO (AttackUpgradeData.level_up), não este
+	# controlador — mesma convenção do PowerUpController, que já chamava
+	# powerup.level_up(). A verificação vivia duplicada aqui: a regra estava
+	# escrita em dois lugares, e editar a do recurso não teria efeito nenhum
+	# sobre os ataques. Mesma classe de armadilha do antigo body_center_offset,
+	# só que com uma REGRA em vez de um valor.
+	#
+	# O retorno `false` é SILENCIOSO de propósito. Chegar ao nível máximo é
+	# estado normal de jogo, não defeito: era um push_warning, e acendia o
+	# painel de erros do editor quando o jogador simplesmente maximizava um
+	# ataque. Quem chama decide se comenta (o TestAttackUpgrades imprime).
+	# O push_warning acima fica, porque ali sim há defeito de configuração.
+	if not upgrade.level_up():
+		return false
+
 	if was_level == 0:
 		print("✅ Attack '%s' unlocked (level %d)" % [upgrade.attack_name, upgrade.current_level])
 	else:

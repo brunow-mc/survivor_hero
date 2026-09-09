@@ -3,13 +3,17 @@ extends Node
 # =================================================
 # TEST ATTACK UPGRADES - v1.3.0
 # =================================================
-# [E] Fire++    [F] Fire--
-# [T] Ring++    [G] Ring--
-# [Y] Elec++    [H] Elec--
-# [U] Bo++      [J] Bo--
-# [I] Gear++    [K] Gear--
-# [O] Snow++    [L] Snow--
+# [E] Fire+   [T] Ring+   [Y] Elec+
+# [U] Bo+     [I] Gear+   [O] Snow+
 # [X] List Levels
+#
+# SÓ SOBE NÍVEL, e sempre por attack_controller.apply_upgrade() — a mesma
+# porta que o menu de level-up usa. Existiu um par de teclas para BAIXAR
+# nível que escrevia `upgrade.current_level -= 1` direto no recurso, sem
+# passar por validação nenhuma: era o único ponto do projeto que produzia
+# um estado que o jogo real não alcança, e nunca teve uso. Se algum dia
+# baixar nível virar mecânica de jogo, ela nasce no AttackController com
+# validação própria, e esta ferramenta só chama.
 # =================================================
 
 var attack_controller: AttackController = null
@@ -25,12 +29,8 @@ func _ready() -> void:
 		if attack_controller:
 			print("\n✅ TestAttackUpgrades: AttackController encontrado!")
 			print("🎮 CONTROLES:")
-			print("   [E] Fire++    [F] Fire--")
-			print("   [T] Ring++    [G] Ring--")
-			print("   [Y] Elec++    [H] Elec--")
-			print("   [U] Bo++      [J] Bo--")
-			print("   [I] Gear++    [K] Gear--")
-			print("   [O] Snow++    [L] Snow--")
+			print("   [E] Fire+   [T] Ring+   [Y] Elec+")
+			print("   [U] Bo+     [I] Gear+   [O] Snow+")
 			print("   [X] List Levels\n")
 
 
@@ -39,50 +39,27 @@ func _input(event: InputEvent) -> void:
 		return
 	
 	match event.keycode:
-		KEY_E: _change(1, 1, "Fire")
-		KEY_F: _change(1, -1, "Fire")
-		KEY_T: _change(2, 1, "Ring")
-		KEY_G: _change(2, -1, "Ring")
-		KEY_Y: _change(3, 1, "Elec")
-		KEY_H: _change(3, -1, "Elec")
-		KEY_U: _change(4, 1, "Bo")
-		KEY_J: _change(4, -1, "Bo")
-		KEY_I: _change(5, 1, "Gear")
-		KEY_K: _change(5, -1, "Gear")
-		KEY_O: _change(6, 1, "Snow")
-		KEY_L: _change(6, -1, "Snow")
+		KEY_E: _raise(1, "Fire")
+		KEY_T: _raise(2, "Ring")
+		KEY_Y: _raise(3, "Elec")
+		KEY_U: _raise(4, "Bo")
+		KEY_I: _raise(5, "Gear")
+		KEY_O: _raise(6, "Snow")
 		KEY_X: _list()
 
 
-func _change(id: int, delta: int, attack_name: String) -> void:
+func _raise(id: int, attack_name: String) -> void:
 	var upgrade = attack_controller.find_upgrade(id)
-	
+
 	if not upgrade:
 		print("⚠️ '%s' (ID %d) sem upgrade configurado" % [attack_name, id])
 		return
-	
-	var old_level = upgrade.current_level
-	
-	# v1.3.27: Usar apply_upgrade() unificado
-	if delta > 0:
-		# Incrementar level
-		var success = attack_controller.apply_upgrade(id)
-		if not success:
-			print("⚠️ '%s' já está em max (Lv%d)" % [attack_name, upgrade.max_level])
-			return
-	else:
-		# Decrementar level (manipulação direta - não tem método para isso)
-		if old_level == 0:
-			print("⚠️ '%s' já está em min (Lv0)" % attack_name)
-			return
-		
-		upgrade.current_level -= 1
-		
-		if upgrade.current_level == 0:
-			print("🔒 '%s' LOCKED" % attack_name)
-		else:
-			print("⬇️ '%s' Lv%d → %d" % [attack_name, old_level, upgrade.current_level])
-	
+
+	# v1.3.27: Usar apply_upgrade() unificado — mesma porta do menu de level-up.
+	if not attack_controller.apply_upgrade(id):
+		print("⚠️ '%s' já está em max (Lv%d)" % [attack_name, upgrade.max_level])
+		return
+
 	_show_bonuses(upgrade)
 
 

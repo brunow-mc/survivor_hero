@@ -294,20 +294,7 @@ func _on_ui_option_selected(option_index: int) -> void:
 	apply_upgrade(option_index)
 
 # =================================================
-# SIMULAÇÃO (DEBUG)
-# =================================================
-func simulate_choice(choice_index: int) -> void:
-	if not is_waiting_for_choice:
-		print("⚠️ Não há escolha pendente no momento")
-		return
-	print("🎲 Simulando escolha %d (debug)" % (choice_index + 1))
-	apply_upgrade(choice_index)
-
-# =================================================
 # GETTERS
 # =================================================
-func is_upgrade_active() -> bool:
-	return is_waiting_for_choice
-
 func get_current_options() -> Array[Dictionary]:
 	return current_options.duplicate()
