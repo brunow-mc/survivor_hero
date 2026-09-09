@@ -524,17 +524,12 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 	if debug_enabled and teleported_count > 0:
 		print("✅ Total teleportado neste ciclo: ", teleported_count, " inimigos\n")
 
-## Quantas posições validar por inimigo a teleportar.
-## NÃO é folga estética: o consumidor (_take_position_fitting_enemy) REJEITA
-## posições que não cabem para o inimigo específico — um Red Gator não entra
-## onde um Gator entra. Sem margem, o inimigo grande ficaria sem opção e
-## esperaria o próximo ciclo, o que seria regressão de comportamento.
-const TELEPORT_CACHE_MARGIN: int = 3
-
-## Piso do cache, alinhado com as 16 tentativas que _take_position_fitting_enemy
-## faz por inimigo: com menos que isso, um único inimigo grande já esgotaria a
-## busca dele.
-const TELEPORT_CACHE_MIN: int = 16
+## Quantas posições _take_position_fitting_enemy testa por inimigo antes de
+## desistir do ciclo — e, por consequência, a ÚNICA constante que dimensiona o
+## cache de teleporte (ver prepare_safe_teleport_cache). Mora aqui, e não lá,
+## porque as duas coisas precisam sair do mesmo número: se divergirem, o cache
+## passa a ser grande ou pequeno demais sem que nada acuse.
+const MAX_TRIES_PER_ENEMY: int = 16
 
 
 func prepare_safe_teleport_cache(needed: int) -> void:
@@ -562,7 +557,28 @@ func prepare_safe_teleport_cache(needed: int) -> void:
 	if needed <= 0:
 		return
 
-	var target: int = maxi(needed * TELEPORT_CACHE_MARGIN, TELEPORT_CACHE_MIN)
+	# ALVO = exatamente o que a leva PODE ler, nem uma posição a mais.
+	#
+	# _take_position_fitting_enemy testa no máximo MAX_TRIES_PER_ENEMY posições
+	# a partir do FIM do array, e a rejeição não remove nada — só a aceita sai.
+	# Então a janela de leitura desce uma posição por teleporte bem-sucedido, e
+	# o índice mais baixo que alguém alcança na leva inteira é
+	#     n - MAX_TRIES_PER_ENEMY - (needed - 1)
+	# Abaixo disso nenhum inimigo olha: validar ali é trabalho jogado fora.
+	#
+	# A folga que sobra (MAX_TRIES_PER_ENEMY - 1 posições) NÃO é estética. O
+	# consumidor rejeita posições onde o inimigo específico não cabe — um Red
+	# Gator não entra onde um Gator entra — e é dela que ele tira as segundas
+	# opções. É por isso que o alvo cresce com `needed` em vez de ser fixo.
+	#
+	# Isto substituiu um par de constantes (uma margem linear x3 e um piso de
+	# 16) cuja combinação já era esta conta em todo caso real: o piso valia
+	# 1 + 15 e a margem só decidia em needed 6 e 7 — 9% dos ciclos medidos. A
+	# x3, sendo linear, pedia cada vez MAIS validação quanto mais cheia a
+	# horda: num ciclo medido de demanda 38 ela exigia 114 aprovados de uma
+	# faixa com 118 pontos, varrendo a faixa inteira no quadro mais apertado
+	# da sessão.
+	var target: int = needed + MAX_TRIES_PER_ENEMY - 1
 
 	# Varre grade (cacheada) e filtra clusters offscreen
 	var clusters: Array = get_navigable_grid()
@@ -675,7 +691,7 @@ func _take_position_fitting_enemy(enemy: Node) -> Vector2:
 	# parede 10 px (gator) ou 15 px (red gator) acima de onde o colisor vai
 	# ficar — resíduo da colocação antiga pelos pés, que o spawn já corrigiu.
 	# O que varia por inimigo é só a FOLGA, nunca o ponto.
-	var max_tries: int = mini(safe_teleport_positions.size(), 16)
+	var max_tries: int = mini(safe_teleport_positions.size(), MAX_TRIES_PER_ENEMY)
 	for i in range(max_tries):
 		var idx: int = safe_teleport_positions.size() - 1 - i
 		var pos: Vector2 = safe_teleport_positions[idx]
