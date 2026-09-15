@@ -75,12 +75,17 @@ func show_game_over() -> void:
 # COMBAT PERMISSION
 # -------------------------------------------------
 func is_combat_allowed() -> bool:
+	# LISTA DE EXCLUSÃO: combate é permitido em tudo que NÃO está aqui.
+	# Consequência a lembrar ao criar um estado novo (SHOP, BOSS_INTRO…):
+	# ele nasce com combate LIBERADO até alguém acrescentá-lo a esta lista.
+	# Foi o que aconteceu com EXPLORATION, declarado no enum e esquecido aqui.
 	return current_state not in [
 		GameplayState.PLAYER_DEAD,
 		GameplayState.PAUSED,
 		GameplayState.UPGRADE,
 		GameplayState.CUTSCENE,
-		GameplayState.DIALOGUE
+		GameplayState.DIALOGUE,
+		GameplayState.EXPLORATION
 	]
 
 # -------------------------------------------------

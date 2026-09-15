@@ -412,23 +412,6 @@ func apply_upgrade(attack_id: int) -> bool:
 	return true
 
 
-func enable_attack(attack_id: int) -> void:
-	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
-	apply_upgrade(attack_id)
-
-func disable_attack(attack_id: int) -> void:
-	var upgrade = find_upgrade(attack_id)
-	if not upgrade:
-		push_warning("AttackController: Upgrade not found for attack_id %d" % attack_id)
-		return
-	upgrade.current_level = 0
-	print("🛑 Attack '%s' locked" % upgrade.attack_name)
-
-func upgrade_attack(attack_id: int) -> bool:
-	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
-	return apply_upgrade(attack_id)
-
-
 # -------------------------------------------------
 # COOLDOWN REDUCTION — cálculo centralizado
 # -------------------------------------------------

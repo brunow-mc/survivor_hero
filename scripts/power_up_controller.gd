@@ -104,6 +104,13 @@ func apply_powerup(powerup_id: int) -> bool:
 	return apply_upgrade(powerup_id)
 
 
+## EXISTE PARA O TestPowerups (tecla R); sai junto com ele.
+##
+## O jogo não tem mecânica de perder powerup, e este método NÃO serve para
+## suspender o jogador temporariamente — ele APAGA a progressão
+## (current_level = 0). Suspender é papel do GameplayState: veja
+## is_combat_allowed() em game_state.gd, que os ataques, o dano e o XP já
+## consultam. Não use este método para safe house, diálogo ou cutscene.
 func remove_powerup(powerup_id: int) -> bool:
 	var powerup := _find_powerup(powerup_id)
 	
@@ -262,10 +269,8 @@ func _apply_stats_to_player() -> void:
 # =================================================
 # HELPERS
 # =================================================
-func get_powerup_level(powerup_id: int) -> int:
-	var powerup := _find_powerup(powerup_id)
-	return powerup.current_level if powerup else 0
-
+## EXISTE PARA O TestPowerups (tecla L); sai junto com ele.
+## Nenhum sistema de produção chama este método — é saída de console.
 func list_active_powerups() -> void:
 	print("\n📋 ACTIVE POWERUPS:")
 	var has_active = false
