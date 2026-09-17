@@ -54,6 +54,27 @@ var heal_icon: Texture2D = preload("uid://cvpdyr5mb78vr")
 var current_options: Array[Dictionary] = []
 var is_waiting_for_choice: bool = false
 
+## Estado em que o jogo estava quando o menu abriu — é para ELE que o jogo
+## volta ao fechar, nunca para um COMBAT fixo (a safe house abriria o menu
+## em EXPLORATION e sairia dele em combate).
+##
+## Guardado AQUI, e não em GameStateGlobal.previous_state, porque aquela
+## variável é um slot único que QUALQUER transição reescreve (a pausa hoje;
+## DIALOGUE e CUTSCENE amanhã). Quem abre uma transição lembra de onde veio,
+## e nenhuma outra mexe nessa memória.
+##
+## Hoje a pausa NÃO consegue se aninhar dentro deste menu: level_up_ui.gd
+## consome a ação "pause" no _input() enquanto está visível, antes de o
+## InputManager recebê-la no _unhandled_input(). Então previous_state também
+## funcionaria agora — mas só por causa de uma regra que mora em OUTRO
+## arquivo. Esta variável torna o menu correto por conta própria: se aquele
+## bloqueio for removido um dia, o retorno continua certo.
+##
+## Tipado como int (o enum mora num autoload) e SEM valor inicial: é sempre
+## gravado em _on_level_up, ao abrir o menu, antes de qualquer leitura — o
+## fechamento só acontece depois de uma abertura.
+var _state_before_upgrade: int
+
 # -------------------------------------------------
 # READY
 # -------------------------------------------------
@@ -83,6 +104,13 @@ func _on_level_up(new_level: int) -> void:
 	print("🎉 LEVEL UP! Nível %d — abrindo menu de upgrade" % new_level)
 
 	is_waiting_for_choice = true
+
+	# Só grava se ainda NÃO está em UPGRADE. Em menus encadeados (a sobra de
+	# XP concede outro nível), esta função roda de novo com o jogo já em
+	# UPGRADE — gravar ali sobrescreveria o estado real de origem com o
+	# próprio UPGRADE, e o fechamento prenderia o jogo no menu.
+	if GameStateGlobal.current_state != GameStateGlobal.GameplayState.UPGRADE:
+		_state_before_upgrade = GameStateGlobal.current_state
 
 	GameStateGlobal.set_state(GameStateGlobal.GameplayState.UPGRADE)
 	get_tree().paused = true
@@ -250,7 +278,8 @@ func apply_upgrade(choice_index: int) -> void:
 	if is_waiting_for_choice:
 		return
 
-	GameStateGlobal.set_state(GameStateGlobal.GameplayState.COMBAT)
+	# Volta para onde o jogo estava ao abrir o menu (ver _state_before_upgrade).
+	GameStateGlobal.set_state(_state_before_upgrade)
 	get_tree().paused = false
 
 # =================================================
