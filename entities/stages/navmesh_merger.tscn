@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cfrpw4xspwf84"]
+
+[ext_resource type="Script" uid="uid://dheoh4rbdoxkn" path="res://scripts/navmesh_merger.gd" id="1_fa52y"]
+
+[node name="NavmeshMerger" type="Node2D" unique_id=1165682698]
+script = ExtResource("1_fa52y")

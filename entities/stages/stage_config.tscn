@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ri3y7l8y7r2x"]
+
+[ext_resource type="Script" uid="uid://ymw1g2b7okso" path="res://scripts/stage_config.gd" id="1_5xcu7"]
+
+[node name="StageConfig" type="Node" unique_id=1629844905]
+script = ExtResource("1_5xcu7")
