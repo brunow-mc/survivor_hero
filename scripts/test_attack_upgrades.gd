@@ -14,13 +14,26 @@ extends Node
 # um estado que o jogo real não alcança, e nunca teve uso. Se algum dia
 # baixar nível virar mecânica de jogo, ela nasce no AttackController com
 # validação própria, e esta ferramenta só chama.
+#
+# LIGA/DESLIGA: a constante ENABLED abaixo. false = ferramenta inteiramente
+# inerte (nenhuma tecla, nenhum print). Mesma razão de ser uma CONST no script
+# e não um @export no nó — ver o cabeçalho de test_powerups.gd, onde está o
+# par desta constante.
 # =================================================
+
+## Ligar/desligar esta ferramenta de debug. Editar aqui, na fonte.
+const ENABLED: bool = true
 
 var attack_controller: AttackController = null
 
 func _ready() -> void:
+	# Desligada: corta o input na raiz (ver test_powerups.gd).
+	if not ENABLED:
+		set_process_input(false)
+		return
+
 	await get_tree().process_frame
-	
+
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		var player = players[0]

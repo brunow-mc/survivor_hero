@@ -9,13 +9,34 @@ extends Node
 # [L] = Lista powerups ativos
 # [S] = Mostra stats atuais
 # =================================================
+# LIGA/DESLIGA: a constante ENABLED abaixo. false = ferramenta inteiramente
+# inerte (nenhuma tecla, nenhum print). Serve para mostrar o jogo a quem não
+# está no projeto.
+#
+# É uma CONST no script, e não um @export no nó, de propósito: "os testes
+# estão ligados?" é um fato sobre a SESSÃO DE TRABALHO, não sobre um
+# personagem. Como @export, o valor viveria dentro de cada uma das 4 cenas de
+# jogador — 4 lugares para editar, 4 lugares para divergir em silêncio, e a
+# pergunta "estão desligados?" só se responderia abrindo as quatro cenas.
+# O par desta constante está em test_attack_upgrades.gd.
+# =================================================
+
+## Ligar/desligar esta ferramenta de debug. Editar aqui, na fonte.
+const ENABLED: bool = true
 
 var powerup_controller: PowerUpController = null
 
 func _ready() -> void:
+	# Desligada: corta o input na raiz. Sem callback de input, sem custo por
+	# evento e sem o texto de ajuda no console — quem não é do projeto não
+	# descobre as teclas. O nó continua na cena, apenas não faz nada.
+	if not ENABLED:
+		set_process_input(false)
+		return
+
 	# Aguarda player estar pronto
 	await get_tree().process_frame
-	
+
 	# Busca PowerUpController
 	var players = get_tree().get_nodes_in_group("Player")  # Case-sensitive!
 	if players.size() > 0:
