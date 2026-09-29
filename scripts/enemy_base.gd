@@ -94,11 +94,20 @@ enum EnemyState {
 # ANGULAR — cada vizinho bloqueia só o arco que seu corpo realmente ocupa)
 # e escolhe a fatia mais livre e mais alinhada ao player, em velocidade
 # cheia. Vãos maiores que um corpo ficam livres (o inimigo os atravessa).
-# Substitui o RVO enquanto ligado (ver base_move) e traz separação
-# embutida. Não usa colisor.
+# Traz separação embutida e não usa colisor.
+#
+# SUBSTITUIU o RVO (avoidance do NavigationServer2D), cujo código foi
+# REMOVIDO — não há mais como voltar atrás por Inspector. O RVO deflete o
+# vetor desejado em vez de re-rotear, então entrar contra um vizinho virava
+# um rastejo quase parado; nenhum parâmetro corrigia, porque é o que ele faz
+# de projeto. O NavigationAgent2D hoje serve SÓ para pathfinding.
 # =================================================
 @export_group("Context Steering")
-## Liga o context steering (e bypassa o RVO enquanto ligado).
+## Liga o context steering. Desligado, o inimigo anda direto no rumo da rota
+## (base_dir), sem desviar de vizinho nem de parede — serve de comparação,
+## não é um modo de jogo. Padrão do projeto é LIGADO, e como a Godot omite
+## propriedades iguais ao padrão do script, a AUSÊNCIA desta linha num .tscn
+## significa ON, não off.
 @export var steering_enabled: bool = true
 ## Nº de fatias amostradas ao redor (resolução angular; 8 = 45°).
 @export var steer_slice_count: int = 8
@@ -166,18 +175,6 @@ var distance_to_player: float = 0.0
 var next_frame: int = 0
 
 # =================================================
-# AVOIDANCE
-# Controla o fluxo assíncrono do sinal velocity_computed.
-# _avoidance_pending é true SOMENTE enquanto aguardamos a
-# resposta do NavigationServer2D para a velocidade segura.
-# Qualquer sistema prioritário (knockback, parada, morte)
-# zera essa flag, descartando respostas obsoletas.
-# =================================================
-var _avoidance_pending: bool = false
-var _pending_delta: float = 0.0
-var _pending_pos_before: Vector2 = Vector2.ZERO
-
-# =================================================
 # NAVIGATION ANCHOR
 # Pai do NavigationAgent2D (o BodyCenter). É a posição que o
 # agente navega — ver comentário em _setup_base().
@@ -230,14 +227,11 @@ func _setup_base() -> void:
 	# _nav_anchor e depois na origem (pés).
 	body_center = get_node_or_null("BodyCenter") as Node2D
 
-	# Avoidance — conecta o sinal que devolve a velocidade
-	# ajustada pelo NavigationServer2D (RVO)
 	if navigation_agent:
-		navigation_agent.velocity_computed.connect(_on_velocity_computed)
 		# Âncora de navegação: o NavigationAgent2D navega a posição do
 		# PAI dele. Com o agente reparentado sob o BodyCenter, o ponto
-		# navegante é o centro do colisor (não os pés/origem) — caminho,
-		# waypoints e RVO todos no mesmo referencial do corpo.
+		# navegante é o centro do colisor (não os pés/origem) — caminho e
+		# waypoints no mesmo referencial do corpo.
 		_nav_anchor = navigation_agent.get_parent() as Node2D
 	
 	# Path timer.
@@ -337,51 +331,17 @@ func _physics_process(delta: float) -> void:
 			base_walk_state(delta)
 		
 		EnemyState.DEAD:
-			# Garante que nenhum sinal pendente interfere após a morte
-			_avoidance_pending = false
 			dead_state()
 			return  # Não processa movimento de inimigos mortos
 
-	# Se o avoidance está aguardando resposta do NavigationServer2D,
-	# o movimento será concluído em _on_velocity_computed.
-	# Guardamos delta e pos_before para uso lá.
-	if _avoidance_pending:
-		_pending_delta = delta
-		_pending_pos_before = pos_before
-		return
-
-	_finish_movement(pos_before, delta)
-
-# =================================================
-# MOVIMENTO FINAL (chamado diretamente OU via velocity_computed)
-# =================================================
-func _finish_movement(pos_before: Vector2, delta: float) -> void:
+	# Movimento sempre concluído aqui, no mesmo frame. Havia um desvio
+	# assíncrono: o RVO declarava a velocidade desejada ao NavigationServer2D
+	# e o movimento terminava depois, no callback velocity_computed. Com o RVO
+	# removido não existe mais espera, então não há flag de pendência nem
+	# resposta obsoleta a descartar.
 	move_and_slide()
 	handle_knockback_transfer()
 	_guard_against_position_jump(pos_before, delta)
-
-# =================================================
-# CALLBACK DE AVOIDANCE
-# Chamado pelo NavigationServer2D com a velocidade segura calculada.
-# =================================================
-func _on_velocity_computed(safe_velocity: Vector2) -> void:
-	# Se a flag foi zerada enquanto aguardávamos (ex: knockback começou),
-	# descarta esta resposta — ela se tornou obsoleta.
-	if not _avoidance_pending:
-		return
-	
-	# Inimigo morreu enquanto aguardava — não move mais.
-	if not is_alive:
-		_avoidance_pending = false
-		return
-	
-	_avoidance_pending = false
-	velocity = safe_velocity
-	_finish_movement(_pending_pos_before, _pending_delta)
-	
-	#var desired := direction_to_player * move_speed
-	#if safe_velocity.distance_to(desired) > 1.0:
-	#	print("RVO ajustou: Δ=", (safe_velocity - desired).length(), "px/s")
 
 # =================================================
 # PROTEÇÃO CONTRA SALTOS ANÔMALOS DE POSIÇÃO
@@ -404,17 +364,14 @@ func base_move(delta: float) -> void:
 	update_direction()
 
 	if knockback != Vector2.ZERO:
-		# Knockback tem prioridade absoluta.
-		# Cancela avoidance pendente — não queremos desviar enquanto voando.
+		# Knockback tem prioridade absoluta — nem passa pelo steering.
 		velocity = knockback
 		knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)
-		_avoidance_pending = false
 		return
-	
+
 	if distance_to_player <= stop_distance:
 		can_walk = false
 		velocity = Vector2.ZERO
-		_avoidance_pending = false
 		return
 	
 	if is_alive:
@@ -434,7 +391,6 @@ func base_move(delta: float) -> void:
 		var desired_velocity: Vector2 = move_dir * move_speed
 
 		if steering_enabled:
-			# Steering no comando: velocidade direta, sem passar pelo RVO.
 			# move_dir == ZERO → estado "aguardar" (cercado sem acesso, ou
 			# navegação concluída): segura a posição, como a parada normal.
 			# A animação segue a regra atual (velocity ZERO → IDLE; ataque
@@ -444,17 +400,9 @@ func base_move(delta: float) -> void:
 				velocity = Vector2.ZERO
 			else:
 				velocity = desired_velocity
-			_avoidance_pending = false
-		elif navigation_agent and navigation_agent.avoidance_enabled:
-			# Declara a velocidade desejada ao servidor de navegação.
-			# O servidor calcula a velocidade segura (RVO) e devolve
-			# via sinal velocity_computed → _on_velocity_computed.
-			navigation_agent.set_velocity(desired_velocity)
-			_avoidance_pending = true
 		else:
-			# Avoidance desligado: usa velocidade desejada diretamente.
+			# Steering desligado: anda direto no rumo da rota.
 			velocity = desired_velocity
-			_avoidance_pending = false
 
 # =================================================
 # DIREÇÃO + ANTI-FLICKER
