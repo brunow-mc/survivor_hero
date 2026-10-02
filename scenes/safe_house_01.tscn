@@ -1,13 +1,16 @@
 [gd_scene format=4 uid="uid://dt1ifvjdehund"]
 
 [ext_resource type="PackedScene" uid="uid://ri3y7l8y7r2x" path="res://entities/stages/stage_config.tscn" id="1_1k61n"]
+[ext_resource type="PackedScene" uid="uid://dpiq665yyu1su" path="res://entities/stages/player_spawner.tscn" id="1_sqv1j"]
 [ext_resource type="TileSet" uid="uid://udugchnyjwru" path="res://tiles/tileset/road01.tres" id="2_w36ox"]
 [ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stages/y_sort_container.tscn" id="3_iqfag"]
-[ext_resource type="PackedScene" uid="uid://cefydgegqsrfo" path="res://entities/players/major_heat.tscn" id="4_500t6"]
 [ext_resource type="PackedScene" uid="uid://c5m683ttqoa7k" path="res://entities/camera.tscn" id="5_500t6"]
 [ext_resource type="PackedScene" uid="uid://d1mfsbxkoj7t5" path="res://ui/pause_menu.tscn" id="6_sqv1j"]
 
 [node name="SafeHouse01" type="Node2D" unique_id=1465142727]
+
+[node name="PlayerSpawner" parent="." unique_id=1837671149 instance=ExtResource("1_sqv1j")]
+position = Vector2(0, 12)
 
 [node name="StageConfig" parent="." unique_id=1629844905 instance=ExtResource("1_1k61n")]
 gameplay_state = 2
@@ -19,9 +22,6 @@ tile_map_data = PackedByteArray("AAAAAAAAAAACAAMAAAABAAAAAAACAAMAAAACAAAAAAACAAM
 tile_set = ExtResource("2_w36ox")
 
 [node name="YSortContainer" parent="." unique_id=390203824 instance=ExtResource("3_iqfag")]
-
-[node name="Player01" parent="YSortContainer" unique_id=1271785084 instance=ExtResource("4_500t6")]
-position = Vector2(0, 12)
 
 [node name="PauseMenu" parent="." unique_id=186137169 instance=ExtResource("6_sqv1j")]
 visible = false
