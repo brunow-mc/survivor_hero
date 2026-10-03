@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c3ajk3kgrct3p"]
+
+[ext_resource type="Script" uid="uid://d1d4r6b7yglk1" path="res://scripts/room_door.gd" id="1_m0dh6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_de74v"]
+resource_local_to_scene = true
+size = Vector2(16, 16)
+
+[node name="RoomDoor" type="Area2D" unique_id=1182610160]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_m0dh6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2079690919]
+shape = SubResource("RectangleShape2D_de74v")
+
+[node name="ArrivalPoint" type="Marker2D" parent="." unique_id=1913897894]
+position = Vector2(0, 24)
