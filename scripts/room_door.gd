@@ -20,9 +20,20 @@ class_name RoomDoor
 # POR QUE O JOGADOR NÃO VOLTA NA HORA: ele chega no ArrivalPoint, que fica
 # FORA da área da porta. O Area2D só dispara quando o corpo passa de fora
 # para dentro; chegando fora, voltar exige andar até a porta de novo — uma
-# entrada nova, legítima. (Mesma solução de A Link to the Past.) Se o
-# ArrivalPoint cair dentro da área, o jogador seria devolvido no frame
-# seguinte, em ping-pong — por isso _validate_setup() avisa.
+# entrada nova, legítima. (Mesma solução de A Link to the Past.)
+#
+# A TRAVESSIA NÃO É INSTANTÂNEA: reter → espera → mover → espera → devolver,
+# pelo HoldGlobal (conjunto TRANSITION). O jogador para na porta, reaparece
+# do outro lado, e só então volta a responder. Quando o fade existir, ele
+# preenche as duas esperas.
+#
+# A porta IGNORA o jogador enquanto o direcional dele estiver retido: quem não
+# pode andar não entra em porta. Isso impede encadear portas e também anula o
+# efeito de um ArrivalPoint mal posto — se o jogador chegar dentro da área da
+# porta de destino, o toque acontece durante a retenção e é ignorado; ao
+# liberar ele já está dentro (não há entrada nova) e precisa sair e voltar.
+# O aviso de _validate_setup() continua valendo: a porta não quebra, mas o
+# jogador aparece em cima dela.
 # =================================================
 
 ## Porta para onde esta leva. Só aceita outra RoomDoor.
@@ -36,6 +47,14 @@ class_name RoomDoor
 ## porta. Valor aproximado — o aviso é rede de segurança, não medida exata.
 const ARRIVAL_CLEARANCE: float = 6.0
 
+## Quanto o jogador fica parado na porta ANTES de ser movido (segundos).
+## Com o fade, vira a duração do escurecer.
+const HOLD_BEFORE_MOVE: float = 0.25
+
+## Quanto o jogador fica parado do outro lado DEPOIS de chegar (segundos).
+## Com o fade, vira a duração do clarear.
+const HOLD_AFTER_MOVE: float = 0.25
+
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
@@ -47,17 +66,23 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if not partner:
 		return  # mão única: esta porta só recebe
+	if HoldGlobal.is_held(HoldGlobal.Scope.PLAYER_INPUT):
+		return  # já há uma travessia (ou outra retenção) em andamento
+	_cross(body)
 
-	# Adiado para o fim do frame: estamos dentro de um callback da física, e
-	# mexer em corpos ali é o tipo de coisa que a Godot prefere fora do ciclo.
-	call_deferred("_teleport", body)
 
+func _cross(body: Node2D) -> void:
+	var hold_id := HoldGlobal.hold(HoldGlobal.TRANSITION, "RoomDoor '%s'" % name)
 
-func _teleport(body: Node2D) -> void:
-	if not is_instance_valid(body) or not is_instance_valid(partner):
-		return
-	body.global_position = partner.get_arrival_position()
-	print("🚪 RoomDoor: '%s' → '%s'" % [name, partner.name])
+	# As esperas também tiram o movimento de dentro do callback da física
+	# (onde o toque chegou), que é onde a Godot prefere não ver corpos mexendo.
+	await get_tree().create_timer(HOLD_BEFORE_MOVE, false).timeout
+	if is_instance_valid(body) and is_instance_valid(partner):
+		body.global_position = partner.get_arrival_position()
+		print("🚪 RoomDoor: '%s' → '%s'" % [name, partner.name])
+
+	await get_tree().create_timer(HOLD_AFTER_MOVE, false).timeout
+	HoldGlobal.release(hold_id)
 
 
 ## Onde o jogador aparece ao chegar POR esta porta. Lido pela porta parceira.
@@ -65,7 +90,7 @@ func get_arrival_position() -> Vector2:
 	var marker := get_node_or_null("ArrivalPoint") as Marker2D
 	if marker:
 		return marker.global_position
-	# Sem marcador o jogador cairia na própria área desta porta (ping-pong).
+	# Sem marcador o jogador cairia dentro da própria área desta porta.
 	# O aviso disso sai uma vez, em _validate_setup().
 	return global_position
 
@@ -79,7 +104,7 @@ func _validate_setup() -> void:
 
 	var marker := get_node_or_null("ArrivalPoint") as Marker2D
 	if not marker:
-		push_warning("RoomDoor '%s': sem filho 'ArrivalPoint'. Quem chegar por esta porta aparece no centro dela, DENTRO da área, e volta na hora (ping-pong)." % name)
+		push_warning("RoomDoor '%s': sem filho 'ArrivalPoint'. Quem chegar por esta porta aparece no centro dela, DENTRO da área." % name)
 		return
 
 	var shape_node := get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -92,4 +117,4 @@ func _validate_setup() -> void:
 	var local_point: Vector2 = shape_node.global_transform.affine_inverse() * marker.global_position
 	var area := Rect2(-size / 2.0, size).grow(ARRIVAL_CLEARANCE)
 	if area.has_point(local_point):
-		push_warning("RoomDoor '%s': o ArrivalPoint está dentro (ou a menos de %.0fpx) da área da própria porta. Quem chegar por ela será devolvido na hora (ping-pong). Afaste-o para dentro da sala." % [name, ARRIVAL_CLEARANCE])
+		push_warning("RoomDoor '%s': o ArrivalPoint está dentro (ou a até %.0fpx) da área da própria porta. Quem chegar por ela aparece em cima da porta e precisa sair e voltar para usá-la. Afaste-o para dentro da sala." % [name, ARRIVAL_CLEARANCE])

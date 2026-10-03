@@ -107,6 +107,10 @@ func restart_game() -> void:
 	# que nem existe mais. Silencia tudo antes de recarregar.
 	if AudioManagerGlobal:
 		AudioManagerGlobal.stop_all_sounds()
+	# Um pedido de retenção cujo dono morre com a cena nunca seria devolvido,
+	# e o jogador nasceria congelado na cena recarregada.
+	if HoldGlobal:
+		HoldGlobal.clear()
 	get_tree().reload_current_scene()
 
 # -------------------------------------------------

@@ -217,6 +217,14 @@ func attack_state() -> void:
 # MOVIMENTO
 # =================================================
 func move() -> void:
+	# Direcional retido (HoldGlobal): o jogador para e ignora o input. Zerar
+	# movement_direction mantém o lado para onde ele estava virado e leva a
+	# FSM visual ao idle.
+	if HoldGlobal.is_held(HoldGlobal.Scope.PLAYER_INPUT):
+		movement_direction = Vector2.ZERO
+		velocity = Vector2.ZERO
+		return
+
 	movement_direction.x = Input.get_axis("left", "right")
 	movement_direction.y = Input.get_axis("up", "down")
 
