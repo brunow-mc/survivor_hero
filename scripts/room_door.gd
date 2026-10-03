@@ -34,7 +34,7 @@ class_name RoomDoor
 ## jogador (a origem da cena dele), mas o colisor do jogador tem tamanho: um
 ## ponto 1px fora da área ainda deixaria o corpo sobreposto e dispararia a
 ## porta. Valor aproximado — o aviso é rede de segurança, não medida exata.
-const ARRIVAL_CLEARANCE: float = 8.0
+const ARRIVAL_CLEARANCE: float = 6.0
 
 
 func _ready() -> void:
