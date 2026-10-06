@@ -104,11 +104,11 @@ Convention — groups spaced in tens so new layers fit between them:
 | `CanvasLayer.layer` | Group |
 |---|---|
 | 0 | the world (implicit; ordered by `z_index`) |
-| 10 | HUD — `XPBar`, `LoadoutBar` *(still at 1 in the scenes — pending move)* |
+| 10 | HUD — `XPBar`, `LoadoutBar` |
 | 50 | `FadeGlobal` |
 | 90 | menus — `PauseMenu`, `GameOverMenu` |
 | 100 | `LevelUpUI` |
-| 110 | `DebugDrawOverlay` *(still at 100, tied with `LevelUpUI` — pending move; a tie is broken by tree order, which is fragile)* |
+| 110 | `DebugDrawOverlay` — above everything; it used to sit at 100, tied with `LevelUpUI`, and a tie is broken by tree order, which is fragile |
 
 The fade must sit above the HUD (or the XP bar shows through the black) and below the pause menu (or pausing mid-crossing hides the menu under the black). A new `CanvasLayer` picks its slot from this table; never reuse a taken number.
 

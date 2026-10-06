@@ -1,7 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bx7n3k9q2wdhs"]
+[gd_scene format=3 uid="uid://bx7n3laq2wdhs"]
 
-[ext_resource type="Script" path="res://scripts/debug_draw_overlay.gd" id="1_overlay_script"]
+[ext_resource type="Script" uid="uid://cuhhtdibx3nsk" path="res://scripts/debug_draw_overlay.gd" id="1_overlay_script"]
 
-[node name="DebugDrawOverlay" type="CanvasLayer"]
-layer = 100
+[node name="DebugDrawOverlay" type="CanvasLayer" unique_id=2104734571]
+layer = 110
 script = ExtResource("1_overlay_script")

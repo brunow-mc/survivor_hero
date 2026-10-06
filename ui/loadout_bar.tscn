@@ -12,6 +12,7 @@ border_width_bottom = 1
 border_color = Color(0, 0, 0, 1)
 
 [node name="LoadoutBar" type="CanvasLayer" unique_id=813362526]
+layer = 10
 script = ExtResource("1_6xtmo")
 
 [node name="Control" type="Control" parent="." unique_id=181319122]

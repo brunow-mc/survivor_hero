@@ -16,6 +16,7 @@ border_color = Color(0, 0, 0, 1)
 bg_color = Color(1, 0.725, 0, 1)
 
 [node name="XPBar" type="CanvasLayer" unique_id=313583345]
+layer = 10
 script = ExtResource("1_i6net")
 fill_speed = 20.0
 
