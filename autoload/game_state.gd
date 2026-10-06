@@ -111,6 +111,9 @@ func restart_game() -> void:
 	# e o jogador nasceria congelado na cena recarregada.
 	if HoldGlobal:
 		HoldGlobal.clear()
+	# Idem para um fade interrompido: a tela ficaria preta na cena recarregada.
+	if FadeGlobal:
+		FadeGlobal.clear()
 	get_tree().reload_current_scene()
 
 # -------------------------------------------------

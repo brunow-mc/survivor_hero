@@ -23,9 +23,9 @@ class_name RoomDoor
 # entrada nova, legítima. (Mesma solução de A Link to the Past.)
 #
 # A TRAVESSIA NÃO É INSTANTÂNEA: reter → espera → mover → espera → devolver,
-# pelo HoldGlobal (conjunto TRANSITION). O jogador para na porta, reaparece
-# do outro lado, e só então volta a responder. Quando o fade existir, ele
-# preenche as duas esperas.
+# pelo HoldGlobal (conjunto TRANSITION). As duas esperas SÃO o fade
+# (FadeGlobal): a tela escurece com o jogador parado, ele é movido no preto,
+# e a tela clareia já na sala nova; só então ele volta a responder.
 #
 # A porta IGNORA o jogador enquanto o direcional dele estiver retido: quem não
 # pode andar não entra em porta. Isso impede encadear portas e também anula o
@@ -47,12 +47,12 @@ class_name RoomDoor
 ## porta. Valor aproximado — o aviso é rede de segurança, não medida exata.
 const ARRIVAL_CLEARANCE: float = 6.0
 
-## Quanto o jogador fica parado na porta ANTES de ser movido (segundos).
-## Com o fade, vira a duração do escurecer.
+## Duração do ESCURECER (segundos): o jogador para na porta e a tela vai ao
+## preto. O movimento acontece com a tela totalmente preta.
 const HOLD_BEFORE_MOVE: float = 0.25
 
-## Quanto o jogador fica parado do outro lado DEPOIS de chegar (segundos).
-## Com o fade, vira a duração do clarear.
+## Duração do CLAREAR (segundos): a tela volta já na sala nova, com o jogador
+## ainda parado. Ele só volta a responder ao fim.
 const HOLD_AFTER_MOVE: float = 0.25
 
 
@@ -74,14 +74,14 @@ func _on_body_entered(body: Node2D) -> void:
 func _cross(body: Node2D) -> void:
 	var hold_id := HoldGlobal.hold(HoldGlobal.TRANSITION, "RoomDoor '%s'" % name)
 
-	# As esperas também tiram o movimento de dentro do callback da física
+	# O escurecer também tira o movimento de dentro do callback da física
 	# (onde o toque chegou), que é onde a Godot prefere não ver corpos mexendo.
-	await get_tree().create_timer(HOLD_BEFORE_MOVE, false).timeout
+	await FadeGlobal.fade_out(HOLD_BEFORE_MOVE)
 	if is_instance_valid(body) and is_instance_valid(partner):
 		body.global_position = partner.get_arrival_position()
 		print("🚪 RoomDoor: '%s' → '%s'" % [name, partner.name])
 
-	await get_tree().create_timer(HOLD_AFTER_MOVE, false).timeout
+	await FadeGlobal.fade_in(HOLD_AFTER_MOVE)
 	HoldGlobal.release(hold_id)
 
 

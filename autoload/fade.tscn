@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://d00qjgwh7aesy"]
+
+[ext_resource type="Script" uid="uid://bw7esfygo3jsp" path="res://autoload/fade.gd" id="1_aqsl2"]
+
+[node name="Fade" type="CanvasLayer" unique_id=1738153235]
+layer = 50
+script = ExtResource("1_aqsl2")
+
+[node name="Overlay" type="ColorRect" parent="." unique_id=1619063077]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

@@ -34,6 +34,7 @@ PowerUpStatsGlobal="*res://autoload/power_up_stats.gd"
 TargetTrackerGlobal="*res://autoload/target_tracker_global.gd"
 PlayerRosterGlobal="*res://autoload/player_roster.gd"
 HoldGlobal="*res://autoload/hold.gd"
+FadeGlobal="*res://autoload/fade.tscn"
 
 [display]
 

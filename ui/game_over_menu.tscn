@@ -5,6 +5,7 @@
 [ext_resource type="Theme" uid="uid://doe86ai6jpdu" path="res://ui/theme/menu01.tres" id="3_vyykp"]
 
 [node name="GameOverMenu" type="CanvasLayer" unique_id=1040086621]
+layer = 90
 script = ExtResource("1_tcoe8")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=494862197]
