@@ -1,11 +1,11 @@
 [gd_scene format=4 uid="uid://okwsu3sadb1e"]
 
-[ext_resource type="PackedScene" uid="uid://dpiq665yyu1su" path="res://entities/stages/player_spawner.tscn" id="1_apweq"]
+[ext_resource type="PackedScene" uid="uid://dpiq665yyu1su" path="res://entities/stage_parts/player_spawner.tscn" id="1_apweq"]
 [ext_resource type="TileSet" uid="uid://bveeq2lijuvo4" path="res://tiles/tileset/buildings01.tres" id="1_kt1c8"]
 [ext_resource type="TileSet" uid="uid://c2nqnk2fvlhff" path="res://tiles/tileset/signs01.tres" id="2_dpt3t"]
 [ext_resource type="TileSet" uid="uid://udugchnyjwru" path="res://tiles/tileset/road01.tres" id="2_emoyi"]
-[ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stages/y_sort_container.tscn" id="2_nunuq"]
-[ext_resource type="PackedScene" uid="uid://cwp5ull2dayfu" path="res://entities/stages/barrier.tscn" id="2_puonp"]
+[ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stage_parts/y_sort_container.tscn" id="2_nunuq"]
+[ext_resource type="PackedScene" uid="uid://cwp5ull2dayfu" path="res://entities/stage_parts/barrier.tscn" id="2_puonp"]
 [ext_resource type="AudioStream" uid="uid://dxfkvgluhmj15" path="res://audio/songs/Battle_in_the_Streets.mp3" id="5_jmh76"]
 [ext_resource type="PackedScene" uid="uid://c5m683ttqoa7k" path="res://entities/camera.tscn" id="5_t4y0q"]
 [ext_resource type="PackedScene" uid="uid://d1mfsbxkoj7t5" path="res://ui/pause_menu.tscn" id="6_spj00"]
@@ -16,8 +16,8 @@
 [ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="11_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://cpjj1dgsuaw28" path="res://entities/enemies/gator.tscn" id="12_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="13_emoyi"]
-[ext_resource type="PackedScene" uid="uid://cfrpw4xspwf84" path="res://entities/stages/navmesh_merger.tscn" id="17_apweq"]
-[ext_resource type="PackedScene" uid="uid://ri3y7l8y7r2x" path="res://entities/stages/stage_config.tscn" id="18_apweq"]
+[ext_resource type="PackedScene" uid="uid://cfrpw4xspwf84" path="res://entities/stage_parts/navmesh_merger.tscn" id="17_apweq"]
+[ext_resource type="PackedScene" uid="uid://ri3y7l8y7r2x" path="res://entities/stage_parts/stage_config.tscn" id="18_apweq"]
 
 [sub_resource type="Resource" id="Resource_nunuq"]
 resource_name = "Gator"
