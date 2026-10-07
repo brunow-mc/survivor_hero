@@ -37,7 +37,7 @@ spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_dkolx"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0mbx"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
 
@@ -105,6 +105,6 @@ position = Vector2(2744, 24)
 destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_dkolx")
+shape = SubResource("RectangleShape2D_r0mbx")
 
 [editable path="ToSafeHouse"]

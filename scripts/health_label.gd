@@ -13,6 +13,18 @@ func _ready() -> void:
 
 	GameStateGlobal.player_health_changed.connect(_on_health_changed)
 
+	# Some em EXPLORATION (safe house): ali a vida não importa. Aplicado já
+	# aqui, e não só no sinal, porque o jogador nasce na safe house com o modo
+	# já declarado (StageConfig, em _enter_tree) — não há transição para avisar.
+	GameStateGlobal.state_changed.connect(_on_state_changed)
+	_on_state_changed(GameStateGlobal.current_state)
+
+
+## Pelo estado específico, NUNCA por is_combat_allowed(): ele também é falso em
+## PAUSED e UPGRADE, e esconder a vida ao pausar estaria errado.
+func _on_state_changed(state: int) -> void:
+	visible = state != GameStateGlobal.GameplayState.EXPLORATION
+
 
 func _on_health_changed(current: float, _max_health: float) -> void:
 	# Arredonda para display (trunca decimal)

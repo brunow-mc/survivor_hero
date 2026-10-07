@@ -53,6 +53,21 @@ func _ready() -> void:
 	GameStateGlobal.player_health_changed.connect(_on_health_changed)
 	_initialize_bars()
 
+	# Some em EXPLORATION (safe house): ali a vida não importa. Aplicado já
+	# aqui, e não só no sinal, porque o jogador nasce na safe house com o modo
+	# já declarado (StageConfig, em _enter_tree) — não há transição para avisar.
+	# Invisível não é desligado: o _process segue animando por trás (barato).
+	GameStateGlobal.state_changed.connect(_on_state_changed)
+	_on_state_changed(GameStateGlobal.current_state)
+
+# ======================================
+# VISIBILIDADE POR MODO
+# ======================================
+# Pelo estado específico, NUNCA por is_combat_allowed(): ele também é falso em
+# PAUSED e UPGRADE, e esconder a vida ao pausar estaria errado.
+func _on_state_changed(state: int) -> void:
+	visible = state != GameStateGlobal.GameplayState.EXPLORATION
+
 # ======================================
 # INICIALIZAÇÃO
 # ======================================
