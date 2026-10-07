@@ -30,7 +30,7 @@ extends Node
 #     forma de pedir; a duração é de cada situação.
 #
 # SEGURANÇA
-#   - clear() é chamado em toda troca de cena (restart_game hoje). Sem isso,
+#   - clear() é chamado em toda troca de cena (GameStateGlobal._end_current_scene). Sem isso,
 #     um pedido cujo dono fosse destruído antes de devolver congelaria o
 #     jogador para sempre na cena seguinte.
 #   - Senhas nunca se repetem, nem depois de clear(): um hold_for() antigo

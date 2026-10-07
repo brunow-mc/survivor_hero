@@ -31,8 +31,14 @@ func _ready() -> void:
 
 
 ## Escurece até preto total. Use com await para esperar terminar.
-func fade_out(duration: float) -> void:
-	await _fade_to(1.0, duration)
+##
+## while_paused: por padrão o fade ESPERA enquanto a árvore estiver pausada
+## (com o menu de pausa aberto no meio de uma porta, o escurecer congela junto).
+## true só para quem escurece A PARTIR de uma árvore pausada (restart e Main
+## Menu, chamados pelo menu de pausa ou pelo game over); sem isso o fade nunca
+## andaria. O GameStateGlobal._go() detecta isso sozinho e passa o valor.
+func fade_out(duration: float, while_paused: bool = false) -> void:
+	await _fade_to(1.0, duration, while_paused)
 
 
 ## Clareia até transparente. Use com await para esperar terminar.
@@ -52,7 +58,7 @@ func clear() -> void:
 	overlay.visible = false
 
 
-func _fade_to(alpha: float, duration: float) -> void:
+func _fade_to(alpha: float, duration: float, while_paused: bool = false) -> void:
 	if _tween:
 		_tween.kill()
 	overlay.visible = true
@@ -62,5 +68,7 @@ func _fade_to(alpha: float, duration: float) -> void:
 		return
 
 	_tween = create_tween()
+	if while_paused:
+		_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_tween.tween_property(overlay, "modulate:a", alpha, duration)
 	await _tween.finished

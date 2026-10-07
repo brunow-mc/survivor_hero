@@ -16,9 +16,10 @@ enum GameplayState {
 var current_state: GameplayState = GameplayState.COMBAT
 var previous_state: GameplayState = GameplayState.COMBAT
 
-## true do toque na porta de fase até a tela clarear na cena nova. Bloqueia a
-## pausa (ver pause_game) e uma segunda troca simultânea.
-var _changing_stage: bool = false
+## true durante toda troca de cena (go_to_scene / restart_game), do gatilho até
+## a tela clarear na cena nova. Bloqueia a pausa (ver pause_game) e uma
+## segunda troca simultânea.
+var _changing_scene: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -51,7 +52,7 @@ func pause_game() -> void:
 	# mundo, e o StageConfig da cena nova sobrescreveria PAUSED com o modo dela
 	# deixando a árvore pausada — jogo congelado no preto, sem menu. Bloqueado
 	# aqui, e não no InputManager, para valer para qualquer caminho de pausa.
-	if _changing_stage:
+	if _changing_scene:
 		return
 	previous_state = current_state
 	current_state = GameplayState.PAUSED
@@ -102,82 +103,120 @@ func is_combat_allowed() -> bool:
 # -------------------------------------------------
 # RESTART GAME
 # -------------------------------------------------
+## Duração do ESCURECER do restart (segundos).
+const RESTART_FADE_OUT_TIME: float = 0.3
+
+## Duração do CLAREAR do restart, já na cena recarregada (segundos).
+const RESTART_FADE_IN_TIME: float = 0.3
+
+## Recarrega a fase atual, com fade. Mesmo caminho do go_to_scene(), com
+## destino = a própria cena: quem aperta o botão (menu de pausa ou game over)
+## é da cena e morre na recarga, então o dono da sequência é este autoload.
 func restart_game() -> void:
-	_end_current_scene()
-	# Seta current_state diretamente (não via set_state) para
-	# contornar o guard de PLAYER_DEAD e permitir o reinício.
-	current_state = GameplayState.COMBAT
-	previous_state = GameplayState.COMBAT
-	state_changed.emit(current_state)
-	# Um fade interrompido (restart no meio de uma travessia) deixaria a cena
-	# recarregada preta para sempre. Fica FORA de _end_current_scene() de
-	# propósito: na troca de fase o preto tem de atravessar a troca.
-	if FadeGlobal:
-		FadeGlobal.clear()
-	get_tree().reload_current_scene()
+	_go(
+		func() -> Error: return get_tree().reload_current_scene(),
+		RESTART_FADE_OUT_TIME,
+		RESTART_FADE_IN_TIME,
+		"restart"
+	)
 
 # -------------------------------------------------
-# CHANGE STAGE (troca de fase — porta de fase)
+# GO TO SCENE (toda troca de cena do jogo)
 # -------------------------------------------------
-## Troca para outra cena de fase. Toda troca de cena é um RECOMEÇO: XP volta
-## ao nível 1, spawn para, sons param, retenções somem. Vida cheia e ataques
-## zerados vêm de graça — o PlayerSpawner da cena nova cria um jogador novo.
+## Troca para outra cena. TODA troca de cena do jogo passa por aqui (porta de
+## fase, botão Main Menu; o restart pelo mesmo _go) — uma troca crua com
+## change_scene_to_file() pula a limpeza, o fade e o bloqueio de pausa.
+## Nome geral de propósito: não serve só a fases. (Evita change_scene(), que
+## era a chamada da engine na Godot 3 e confundiria quem lê tutorial antigo.)
 ##
-## NÃO força COMBAT: quem declara o modo é o StageConfig da cena destino. Só
-## limpa PLAYER_DEAD, porque set_state() se recusa a sair dele e o StageConfig
-## novo seria recusado.
+## Toda troca de cena é um RECOMEÇO: XP volta ao nível 1, spawn para, sons
+## param, retenções somem. Vida cheia e ataques zerados vêm de graça — o
+## PlayerSpawner da cena nova cria um jogador novo.
 ##
-## A SEQUÊNCIA INTEIRA mora aqui, e não na porta — a porta morre junto com a
-## cena antiga no meio do caminho, e um autoload sobrevive à troca:
-##   bloqueia pausa → retém o jogador → escurece → limpeza → troca de cena →
-##   espera a cena nova → clareia → libera o jogador → libera a pausa.
-## Com tudo num lugar só, o bloqueio de pausa liga e desliga no mesmo ponto,
-## e o futuro fade do restart pode reaproveitar o mesmo caminho.
+## NÃO força o modo de jogo: quem declara é o StageConfig da cena destino. Uma
+## cena que não é fase (o menu) fica no COMBAT padrão do autoload.
 ##
-## Durações vêm de quem chama (a porta), como em todo fade.
+## Durações vêm de quem chama, como em todo fade.
 ##
-## scene_path: o texto vindo do @export_file da porta (uid://). A cena é
-## carregada só agora — nada a carrega antecipadamente.
-func change_stage(scene_path: String, fade_out_seconds: float = 0.0, fade_in_seconds: float = 0.0) -> void:
-	if _changing_stage:
+## scene_path: uid:// (o @export_file da porta grava uid). A cena é carregada
+## só agora — nada a carrega antecipadamente.
+func go_to_scene(scene_path: String, fade_out_seconds: float = 0.0, fade_in_seconds: float = 0.0) -> void:
+	_go(
+		func() -> Error: return get_tree().change_scene_to_file(scene_path),
+		fade_out_seconds,
+		fade_in_seconds,
+		scene_path
+	)
+
+## A sequência inteira, compartilhada por go_to_scene() e restart_game():
+##   bloqueia pausa → sai de estado de menu → retém → escurece → (no escuro)
+##   limpeza → retém de novo → troca → espera a cena nova → clareia → libera
+##   o jogador → libera a pausa.
+## Mora num autoload porque quem dispara (porta, menu) morre junto com a cena
+## antiga no meio do caminho.
+func _go(do_swap: Callable, fade_out_seconds: float, fade_in_seconds: float, label: String) -> void:
+	if _changing_scene:
 		return  # uma troca por vez
-	_changing_stage = true
+	_changing_scene = true
 
-	# Retém já na cena antiga, enquanto escurece.
-	HoldGlobal.hold(HoldGlobal.TRANSITION, "change_stage (saída)")
-	await FadeGlobal.fade_out(fade_out_seconds)
+	# Chamada com a ÁRVORE PAUSADA (menu de pausa, game over)? Então o fade
+	# precisa escurecer mesmo pausado, senão o tween pausaria junto e nunca
+	# andaria — a cena fica congelada sob o preto. Detectado aqui, e não
+	# passado por quem chama, para nenhum chamador novo ter de lembrar.
+	var from_paused: bool = get_tree().paused
 
-	# A limpeza zera TODAS as retenções (inclusive a de cima). Por isso a
-	# retenção da chegada é pedida de novo logo depois.
-	_end_current_scene()
-	var hold_id: int = HoldGlobal.hold(HoldGlobal.TRANSITION, "change_stage (chegada)")
-
-	if current_state == GameplayState.PLAYER_DEAD:
+	# Saindo de um estado de menu (PAUSED, PLAYER_DEAD): volta ao padrão antes
+	# de escurecer. Isso esconde o menu de pausa e o de game over (os dois somem
+	# ao ver um estado que não é o deles) e libera o StageConfig da cena nova,
+	# que set_state() recusaria a partir de PLAYER_DEAD. Direto, e não via
+	# set_state(), para contornar esse guard. A árvore segue pausada até a
+	# limpeza.
+	if current_state == GameplayState.PAUSED or current_state == GameplayState.PLAYER_DEAD:
 		current_state = GameplayState.COMBAT
 		previous_state = GameplayState.COMBAT
 		state_changed.emit(current_state)
 
+	# Retém já na cena antiga, enquanto escurece.
+	HoldGlobal.hold(HoldGlobal.TRANSITION, "%s (saída)" % label)
+	await FadeGlobal.fade_out(fade_out_seconds, from_paused)
+
+	await _swap_scene_in_dark(do_swap, fade_in_seconds, label)
+
+# -------------------------------------------------
+# A METADE NO ESCURO (de _go)
+# -------------------------------------------------
+## Chamada com a tela JÁ preta e _changing_scene JÁ ligado:
+##   limpeza → retém de novo → troca → espera a cena nova → clareia → libera.
+## do_swap: a troca em si (change_scene_to_file ou reload_current_scene).
+func _swap_scene_in_dark(do_swap: Callable, fade_in_seconds: float, label: String) -> void:
+	# A limpeza zera TODAS as retenções (inclusive a da saída). Por isso a
+	# retenção da chegada é pedida de novo logo depois — senão o jogador
+	# ficaria livre durante a troca no escuro.
+	_end_current_scene()
+	var hold_id: int = HoldGlobal.hold(HoldGlobal.TRANSITION, "%s (chegada)" % label)
+
 	var old_scene: Node = get_tree().current_scene
-	var err: Error = get_tree().change_scene_to_file(scene_path)
+	var err: Error = do_swap.call()
 	if err != OK:
-		push_error("GameState.change_stage(): não foi possível trocar para '%s' (erro %d). A cena atual continua; tela, jogador e pausa liberados." % [scene_path, err])
+		push_error("GameState: troca de cena falhou (%s, erro %d). A cena atual continua; tela, jogador e pausa liberados." % [label, err])
 		HoldGlobal.release(hold_id)
 		FadeGlobal.clear()
-		_changing_stage = false
+		_changing_scene = false
 		return
 
 	# A troca é adiada pela Godot. Espera até a cena nova estar de fato no
 	# lugar — por comparação, e não por contagem de frames, que dependeria de
-	# detalhe de versão da engine.
+	# detalhe de versão da engine. Vale também para reload: a cena recarregada
+	# é uma instância NOVA, diferente da antiga.
 	while get_tree().current_scene == null or get_tree().current_scene == old_scene:
 		await get_tree().process_frame
 
 	await FadeGlobal.fade_in(fade_in_seconds)
 	HoldGlobal.release(hold_id)
-	_changing_stage = false
+	_changing_scene = false
 
 # -------------------------------------------------
-# LIMPEZA COMPARTILHADA (restart_game e change_stage)
+# LIMPEZA COMPARTILHADA (toda troca de cena, via _go)
 # -------------------------------------------------
 ## Tudo que pertence à cena que está saindo e sobreviveria a ela. Corrigido
 ## aqui, vale para os dois caminhos de troca de cena.

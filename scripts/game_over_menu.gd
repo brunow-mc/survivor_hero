@@ -2,6 +2,12 @@ extends CanvasLayer
 
 @export var game_over_delay: float = 2.5
 
+const MAIN_MENU_SCENE: String = "uid://dfacry0fayx68"  # uid = ui/main_menu.tscn
+
+## Durações do fade ao ir para o menu principal (segundos).
+const MAIN_MENU_FADE_OUT_TIME: float = 0.3
+const MAIN_MENU_FADE_IN_TIME: float = 0.3
+
 @onready var restart_btn: Button = $CenterContainer/VBoxContainer/Restart_Btn
 @onready var main_menu_btn: Button = $CenterContainer/VBoxContainer/MainMenu_Btn
 @onready var quit_btn: Button = $CenterContainer/VBoxContainer/Quit_Btn
@@ -37,8 +43,12 @@ func _on_restart_btn_pressed() -> void:
 
 
 func _on_main_menu_btn_pressed() -> void:
-	get_tree().paused = false
-	get_tree().change_scene_to_file("uid://dfacry0fayx68")
+	# Pelo go_to_scene(), nunca por change_scene_to_file() cru: a troca crua
+	# pulava a limpeza (spawn seguia ligado, sons atravessavam, o estado
+	# continuava PLAYER_DEAD) e o bloqueio de pausa. Não despausa à mão: o
+	# go_to_scene() detecta a árvore pausada, escurece com ela congelada e
+	# despausa na ordem certa.
+	GameStateGlobal.go_to_scene(MAIN_MENU_SCENE, MAIN_MENU_FADE_OUT_TIME, MAIN_MENU_FADE_IN_TIME)
 
 
 func _on_quit_btn_pressed() -> void:

@@ -8,7 +8,7 @@ class_name StageDoor
 # dentro da mesma cena.
 #
 # Trocar de cena é sempre RECOMEÇO (vida cheia, nível 1, só o ataque
-# primário) — a limpeza é a de GameStateGlobal.change_stage(). Continuidade só
+# primário) — a limpeza é a de GameStateGlobal.go_to_scene(). Continuidade só
 # existe dentro de uma cena; por isso as duas portas são cenas separadas: uma
 # porta de sala configurada por engano como porta de fase apagaria o progresso
 # do jogador no meio da fase.
@@ -22,7 +22,7 @@ class_name StageDoor
 # house ↔ fase apontando uma para a outra seria uma dependência circular que a
 # Godot não consegue carregar.
 #
-# SEQUÊNCIA: toda dentro de GameStateGlobal.change_stage() — bloquear pausa,
+# SEQUÊNCIA: toda dentro de GameStateGlobal.go_to_scene() — bloquear pausa,
 # reter, escurecer, trocar, clarear, liberar. Esta porta só detecta o jogador
 # e passa o destino e as durações: ela morre junto com a cena antiga no meio
 # do caminho, e um autoload sobrevive à troca.
@@ -56,7 +56,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _go() -> void:
 	print("🚪 StageDoor: '%s' → %s" % [name, destination])
-	GameStateGlobal.change_stage(destination, FADE_OUT_TIME, FADE_IN_TIME)
+	GameStateGlobal.go_to_scene(destination, FADE_OUT_TIME, FADE_IN_TIME)
 
 
 func _validate_setup() -> void:
