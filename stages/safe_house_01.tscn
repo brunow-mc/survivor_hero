@@ -9,23 +9,23 @@
 [ext_resource type="PackedScene" uid="uid://c3ajk3kgrct3p" path="res://entities/stage_parts/room_door.tscn" id="7_o5cc1"]
 [ext_resource type="PackedScene" uid="uid://40cqjhbd7p7l" path="res://entities/stage_parts/stage_door.tscn" id="8_qs7pu"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_cujxu"]
-resource_local_to_scene = true
-size = Vector2(32, 16)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qs7pu"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ga655"]
 resource_local_to_scene = true
-size = Vector2(16, 32)
+size = Vector2(32, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bi33k"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k6cwi"]
+resource_local_to_scene = true
+size = Vector2(16, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r73tl"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
@@ -53,14 +53,14 @@ position = Vector2(0, -104)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_cujxu")
+shape = SubResource("RectangleShape2D_qs7pu")
 
 [node name="Door01B" parent="." unique_id=1128104401 node_paths=PackedStringArray("partner") instance=ExtResource("7_o5cc1")]
 position = Vector2(0, -412)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_qs7pu")
+shape = SubResource("RectangleShape2D_ga655")
 
 [node name="ArrivalPoint" parent="Door01B" index="1" unique_id=1913897894]
 position = Vector2(0, -16)
@@ -70,7 +70,7 @@ position = Vector2(116, -528)
 partner = NodePath("../Door02B")
 
 [node name="CollisionShape2D" parent="Door02A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_ga655")
+shape = SubResource("RectangleShape2D_bi33k")
 
 [node name="ArrivalPoint" parent="Door02A" index="1" unique_id=1913897894]
 position = Vector2(-20, 4)
@@ -80,7 +80,7 @@ position = Vector2(524, -528)
 partner = NodePath("../Door02A")
 
 [node name="CollisionShape2D" parent="Door02B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_bi33k")
+shape = SubResource("RectangleShape2D_k6cwi")
 
 [node name="ArrivalPoint" parent="Door02B" index="1" unique_id=1913897894]
 position = Vector2(20, 4)
@@ -90,7 +90,7 @@ position = Vector2(756, -528)
 destination = "uid://okwsu3sadb1e"
 
 [node name="CollisionShape2D" parent="ToStage01" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_k6cwi")
+shape = SubResource("RectangleShape2D_r73tl")
 
 [editable path="Door01A"]
 [editable path="Door01B"]
