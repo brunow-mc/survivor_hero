@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="13_emoyi"]
 [ext_resource type="PackedScene" uid="uid://cfrpw4xspwf84" path="res://entities/stage_parts/navmesh_merger.tscn" id="17_apweq"]
 [ext_resource type="PackedScene" uid="uid://ri3y7l8y7r2x" path="res://entities/stage_parts/stage_config.tscn" id="18_apweq"]
+[ext_resource type="PackedScene" uid="uid://40cqjhbd7p7l" path="res://entities/stage_parts/stage_door.tscn" id="19_trvx0"]
 
 [sub_resource type="Resource" id="Resource_nunuq"]
 resource_name = "Gator"
@@ -35,6 +36,10 @@ spawn_cost = 3.0
 spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dkolx"]
+resource_local_to_scene = true
+size = Vector2(16, 48)
 
 [node name="Stage01" type="Node2D" unique_id=110577404]
 
@@ -94,3 +99,12 @@ stream = ExtResource("5_jmh76")
 volume_db = 5.0
 autoplay = true
 bus = &"Music"
+
+[node name="ToSafeHouse" parent="." unique_id=1883627445 instance=ExtResource("19_trvx0")]
+position = Vector2(2744, 24)
+destination = "uid://dt1ifvjdehund"
+
+[node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
+shape = SubResource("RectangleShape2D_dkolx")
+
+[editable path="ToSafeHouse"]
