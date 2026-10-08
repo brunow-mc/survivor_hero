@@ -37,7 +37,7 @@ spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0mbx"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trvx0"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
 
@@ -94,17 +94,17 @@ max_teleports_per_frame = 50
 min_distance_between_enemies = 32.0
 enemy_spawn_ground_layers = [NodePath("../TileMapRoad"), NodePath("../TileMapBuildings")]
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
-stream = ExtResource("5_jmh76")
-volume_db = 5.0
-autoplay = true
-bus = &"Music"
-
 [node name="ToSafeHouse" parent="." unique_id=1883627445 instance=ExtResource("19_trvx0")]
 position = Vector2(2744, 24)
 destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_r0mbx")
+shape = SubResource("RectangleShape2D_trvx0")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
+stream = ExtResource("5_jmh76")
+volume_db = 5.0
+autoplay = true
+bus = &"Music"
 
 [editable path="ToSafeHouse"]

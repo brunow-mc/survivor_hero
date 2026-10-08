@@ -33,10 +33,10 @@ class_name StageDoor
 @export_file("*.tscn") var destination: String = ""
 
 ## Duração do ESCURECER, ainda na cena atual (segundos).
-const FADE_OUT_TIME: float = 0.3
+const FADE_OUT_TIME: float = 0.7
 
 ## Duração do CLAREAR, já na cena nova (segundos).
-const FADE_IN_TIME: float = 0.3
+const FADE_IN_TIME: float = 0.7
 
 
 func _ready() -> void:
