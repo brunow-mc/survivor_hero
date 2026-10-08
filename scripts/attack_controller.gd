@@ -17,6 +17,10 @@ var attack_position_left: Node2D
 var attack_timers: Dictionary = {}
 var upgrade_last_levels: Dictionary = {}  ## Rastrear último level de cada upgrade
 
+## true enquanto o início dos ataques espera o HoldGlobal liberar ATTACKS
+## (chegada numa cena nova: só liga quando o fade-in termina).
+var _waiting_to_start: bool = false
+
 # -------------------------------------------------
 # CALIBRATION CONSTANTS
 # -------------------------------------------------
@@ -224,10 +228,44 @@ func setup(
 	for attack_data in attacks:
 		_create_attack_timer(attack_data)
 
+	# Chegando numa cena nova, a retenção de chegada (GameStateGlobal._go) já
+	# está ativa: os ataques esperam a tela clarear. Sem retenção (F5/F6 direto
+	# na fase), começam na hora, como sempre.
+	if HoldGlobal.is_held(HoldGlobal.Scope.ATTACKS):
+		_waiting_to_start = true
+		print("⏳ AttackController: ataques aguardam o fim da retenção para começar")
+	else:
+		_start_attacks()
+
+# -------------------------------------------------
+# INÍCIO DOS ATAQUES
+# -------------------------------------------------
+## Liga o timer de todo ataque ativo e dispara os start_immediately. Roda uma
+## vez: no setup(), ou quando a retenção de ATTACKS for liberada.
+func _start_attacks() -> void:
+	for attack_data in attacks:
+		if not attack_data:
+			continue
+		var upgrade = find_upgrade(attack_data.attack_id)
+		if not upgrade or upgrade.current_level <= 0:
+			continue
+		var timer = attack_timers.get(attack_data.attack_id)
+		if timer:
+			timer.start()
+		if attack_data.start_immediately:
+			_spawn_attack.call_deferred(attack_data)
+			print("⚡ Attack '%s' fired immediately (start_immediately)" % attack_data.attack_name)
+
 # -------------------------------------------------
 # PHYSICS PROCESS - v1.3.11
 # -------------------------------------------------
 func _physics_process(_delta: float) -> void:
+	# Consulta barata (um E de bits) num lugar que já roda todo frame — evita
+	# um sinal novo no HoldGlobal.
+	if _waiting_to_start and not HoldGlobal.is_held(HoldGlobal.Scope.ATTACKS):
+		_waiting_to_start = false
+		print("▶️ AttackController: retenção liberada, ataques começando")
+		_start_attacks()
 	_check_upgrade_changes()
 
 # -------------------------------------------------
@@ -248,12 +286,15 @@ func _check_upgrade_changes() -> void:
 			var timer = attack_timers.get(attack_id)
 			if timer:
 				if current_level > 0 and last_level == 0:
-					timer.start()
-					print("✅ Attack '%s' timer started (Lv0 → Lv%d)" % [upgrade.attack_name, current_level])
 					var att_data = find_attack_data(attack_id)
-					if att_data and att_data.start_immediately:
-						_spawn_attack.call_deferred(att_data)
-						print("⚡ Attack '%s' fired immediately (start_immediately)" % upgrade.attack_name)
+					# Desbloqueado durante a espera: quem liga é o _start_attacks()
+					# na liberação (ele pega todo ataque com nível > 0).
+					if not _waiting_to_start:
+						timer.start()
+						print("✅ Attack '%s' timer started (Lv0 → Lv%d)" % [upgrade.attack_name, current_level])
+						if att_data and att_data.start_immediately:
+							_spawn_attack.call_deferred(att_data)
+							print("⚡ Attack '%s' fired immediately (start_immediately)" % upgrade.attack_name)
 					attack_unlocked.emit(attack_id, att_data.icon if att_data else null)
 				elif current_level == 0 and last_level > 0:
 					timer.stop()
@@ -368,14 +409,8 @@ func _create_attack_timer(attack_data: AttackData) -> void:
 	)
 	
 	add_child(timer)
-	
-	var upgrade = find_upgrade(attack_data.attack_id)
-	if upgrade and upgrade.current_level > 0:
-		timer.start()
-		if attack_data.start_immediately:
-			_spawn_attack.call_deferred(attack_data)
-			print("⚡ Attack '%s' fired immediately on game start (start_immediately)" % attack_data.attack_name)
-	
+	# Só cria. Quem liga (e dispara o start_immediately) é o _start_attacks(),
+	# que pode esperar a retenção de chegada.
 	attack_timers[attack_data.attack_id] = timer
 
 # -------------------------------------------------

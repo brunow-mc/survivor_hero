@@ -49,13 +49,25 @@ extends Node
 enum Scope {
 	## Direcional do jogador. Consumidor: PlayerBase.move().
 	PLAYER_INPUT = 1,
+	## Início dos ataques: enquanto retido, os timers não ligam e o disparo
+	## start_immediately não sai. Consumidor: AttackController. Só ADIA o
+	## começo — ataques já rodando não param.
+	ATTACKS = 2,
 }
 
 ## O que uma TRAVESSIA (porta) retém. Quem atravessa pede este conjunto, e
 ## não uma lista própria: quando um alcance novo for implementado (inimigos,
-## relógio do spawn, ataques), ele entra AQUI e toda porta passa a retê-lo
-## sem tocar no script dela.
+## relógio do spawn), ele entra AQUI e toda porta passa a retê-lo sem tocar
+## no script dela.
+##
+## ATTACKS NUNCA entra aqui: decidido em teste, os ataques seguem durante a
+## passagem pelas portas.
 const TRANSITION: int = Scope.PLAYER_INPUT
+
+## O que a CHEGADA numa cena nova retém (GameStateGlobal._go, do momento da
+## troca até o fim do fade-in): a travessia + o início dos ataques. A partida
+## só "começa" quando a tela termina de clarear — nada de começar tumultuado.
+const SCENE_ARRIVAL: int = TRANSITION | Scope.ATTACKS
 
 var _holds: Dictionary = {}   # senha (int) -> { "scopes": int, "reason": String }
 var _held_mask: int = 0       # união dos alcances de todos os pedidos ativos

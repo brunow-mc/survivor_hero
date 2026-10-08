@@ -107,7 +107,7 @@ func is_combat_allowed() -> bool:
 const RESTART_FADE_OUT_TIME: float = 0.3
 
 ## Duração do CLAREAR do restart, já na cena recarregada (segundos).
-const RESTART_FADE_IN_TIME: float = 0.3
+const RESTART_FADE_IN_TIME: float = 0.7
 
 ## Recarrega a fase atual, com fade. Mesmo caminho do go_to_scene(), com
 ## destino = a própria cena: quem aperta o botão (menu de pausa ou game over)
@@ -192,8 +192,12 @@ func _swap_scene_in_dark(do_swap: Callable, fade_in_seconds: float, label: Strin
 	# A limpeza zera TODAS as retenções (inclusive a da saída). Por isso a
 	# retenção da chegada é pedida de novo logo depois — senão o jogador
 	# ficaria livre durante a troca no escuro.
+	#
+	# SCENE_ARRIVAL, e não só TRANSITION: retém também o INÍCIO dos ataques.
+	# O AttackController da cena nova nasce com a retenção já ativa e só liga
+	# os timers quando ela for devolvida, no fim do fade-in.
 	_end_current_scene()
-	var hold_id: int = HoldGlobal.hold(HoldGlobal.TRANSITION, "%s (chegada)" % label)
+	var hold_id: int = HoldGlobal.hold(HoldGlobal.SCENE_ARRIVAL, "%s (chegada)" % label)
 
 	var old_scene: Node = get_tree().current_scene
 	var err: Error = do_swap.call()
