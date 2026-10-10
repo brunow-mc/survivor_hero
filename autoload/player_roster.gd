@@ -27,9 +27,21 @@ extends Node
 ## PlayerSpawner dela, e não este valor.
 const DEFAULT_PLAYER: PackedScene = preload("uid://cefydgegqsrfo")  # uid = entities/players/major_heat.tscn
 
-## Personagem escolhido. Escrito pela estátua da safe house (ainda não
-## construída) e lido pelo PlayerSpawner de cada fase.
+## Emitido quando a escolha muda. As chambers ouvem para trocar de imagem (a
+## do escolhido fica vazia; a do anterior volta a mostrar o personagem).
+signal selected_player_changed(scene: PackedScene)
+
+## Personagem escolhido. Escrito pelas chambers da safe house e lido pelo
+## PlayerSpawner de cada fase.
 var selected_player: PackedScene = DEFAULT_PLAYER
+
+
+## Esta cena é a do personagem escolhido? Compara pelo CAMINHO do recurso,
+## não pela referência: deixa de depender de as duas virem do mesmo cache.
+func is_selected(scene: PackedScene) -> bool:
+	if not scene:
+		return false
+	return scene.resource_path == get_selected_player().resource_path
 
 
 func select_player(scene: PackedScene) -> void:
@@ -42,6 +54,7 @@ func select_player(scene: PackedScene) -> void:
 
 	selected_player = scene
 	print("🧍 PlayerRoster: personagem escolhido — %s" % _name_of(scene))
+	selected_player_changed.emit(scene)
 
 
 func get_selected_player() -> PackedScene:

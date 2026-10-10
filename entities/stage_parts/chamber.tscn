@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://dvuqtn3caxjf"]
+
+[ext_resource type="Script" uid="uid://ec0nuo7wv2wm" path="res://scripts/chamber.gd" id="1_5qvhx"]
+[ext_resource type="Texture2D" uid="uid://bxa7hflbo7fyv" path="res://sprites/chambers/empty_chamber.png" id="1_qx5t7"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qx5t7"]
+radius = 5.0
+height = 26.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qx5t7"]
+resource_local_to_scene = true
+size = Vector2(24, 10)
+
+[node name="Chamber" type="Node2D" unique_id=1409572011]
+z_index = 2
+y_sort_enabled = true
+script = ExtResource("1_5qvhx")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=830081599]
+texture = ExtResource("1_qx5t7")
+centered = false
+offset = Vector2(-32, -60)
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=320613060]
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Body" unique_id=36437556]
+position = Vector2(0, -5)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_qx5t7")
+
+[node name="TouchArea" type="Area2D" parent="." unique_id=1094416860]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TouchArea" unique_id=662680471]
+position = Vector2(0, 5)
+shape = SubResource("RectangleShape2D_qx5t7")
+
+[node name="ExitPoint" type="Marker2D" parent="." unique_id=221531321]
+position = Vector2(0, 28)

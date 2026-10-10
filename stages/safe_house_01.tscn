@@ -5,27 +5,41 @@
 [ext_resource type="PackedScene" uid="uid://c5m683ttqoa7k" path="res://entities/camera.tscn" id="3_ga655"]
 [ext_resource type="TileSet" uid="uid://udugchnyjwru" path="res://tiles/tileset/road01.tres" id="4_bi33k"]
 [ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stage_parts/y_sort_container.tscn" id="5_k6cwi"]
+[ext_resource type="PackedScene" uid="uid://dvuqtn3caxjf" path="res://entities/stage_parts/chamber.tscn" id="6_ga655"]
 [ext_resource type="PackedScene" uid="uid://d1mfsbxkoj7t5" path="res://ui/pause_menu.tscn" id="6_r73tl"]
+[ext_resource type="PackedScene" uid="uid://cefydgegqsrfo" path="res://entities/players/major_heat.tscn" id="7_7lwbc"]
 [ext_resource type="PackedScene" uid="uid://c3ajk3kgrct3p" path="res://entities/stage_parts/room_door.tscn" id="7_o5cc1"]
+[ext_resource type="Texture2D" uid="uid://bdr0m58ekkro4" path="res://sprites/chambers/chamber_01_MH.png" id="8_b5upb"]
 [ext_resource type="PackedScene" uid="uid://40cqjhbd7p7l" path="res://entities/stage_parts/stage_door.tscn" id="8_qs7pu"]
+[ext_resource type="Texture2D" uid="uid://8vxo2jg4mpa1" path="res://sprites/chambers/chamber_01_MH_locked.png" id="9_0320u"]
+[ext_resource type="Texture2D" uid="uid://bxa7hflbo7fyv" path="res://sprites/chambers/empty_chamber.png" id="10_0rlhf"]
+[ext_resource type="PackedScene" uid="uid://b08qdb7vcax1v" path="res://entities/players/sonic_gal.tscn" id="11_jop0v"]
+[ext_resource type="Texture2D" uid="uid://dn6q2780kfp4v" path="res://sprites/chambers/chamber_02_SG.png" id="12_er00t"]
+[ext_resource type="Texture2D" uid="uid://boj4m48lcjc1a" path="res://sprites/chambers/chamber_02_SG_locked.png" id="13_hg3nb"]
+[ext_resource type="PackedScene" uid="uid://gv8i6dlrb812" path="res://entities/players/battery_man.tscn" id="14_0rlhf"]
+[ext_resource type="Texture2D" uid="uid://tg26ytme82dr" path="res://sprites/chambers/chamber_03_BM.png" id="15_jop0v"]
+[ext_resource type="Texture2D" uid="uid://b3aajr7q8agh0" path="res://sprites/chambers/chamber_03_BM_locked.png" id="16_er00t"]
+[ext_resource type="PackedScene" uid="uid://ptkxmx1d68xf" path="res://entities/players/bo_girl.tscn" id="17_hg3nb"]
+[ext_resource type="Texture2D" uid="uid://dus7cpj71rqxk" path="res://sprites/chambers/chamber_04_BG.png" id="18_mk65g"]
+[ext_resource type="Texture2D" uid="uid://bd5mmcy8skrsk" path="res://sprites/chambers/chamber_04_BG_locked.png" id="19_txa0e"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_qs7pu"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mk65g"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ga655"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_txa0e"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bi33k"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v1fg6"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_k6cwi"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gqphr"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_r73tl"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mx0pl"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
@@ -45,6 +59,34 @@ tile_set = ExtResource("4_bi33k")
 
 [node name="YSortContainer" parent="." unique_id=390203824 instance=ExtResource("5_k6cwi")]
 
+[node name="Chamber01MH" parent="YSortContainer" unique_id=1409572011 instance=ExtResource("6_ga655")]
+position = Vector2(-64, -584)
+player_scene = ExtResource("7_7lwbc")
+texture_unlocked = ExtResource("8_b5upb")
+texture_locked = ExtResource("9_0320u")
+texture_empty = ExtResource("10_0rlhf")
+
+[node name="Chamber02SG" parent="YSortContainer" unique_id=1750234118 instance=ExtResource("6_ga655")]
+position = Vector2(-21, -584)
+player_scene = ExtResource("11_jop0v")
+texture_unlocked = ExtResource("12_er00t")
+texture_locked = ExtResource("13_hg3nb")
+texture_empty = ExtResource("10_0rlhf")
+
+[node name="Chamber03BM" parent="YSortContainer" unique_id=1548974973 instance=ExtResource("6_ga655")]
+position = Vector2(22, -584)
+player_scene = ExtResource("14_0rlhf")
+texture_unlocked = ExtResource("15_jop0v")
+texture_locked = ExtResource("16_er00t")
+texture_empty = ExtResource("10_0rlhf")
+
+[node name="Chamber04BG" parent="YSortContainer" unique_id=768933422 instance=ExtResource("6_ga655")]
+position = Vector2(65, -584)
+player_scene = ExtResource("17_hg3nb")
+texture_unlocked = ExtResource("18_mk65g")
+texture_locked = ExtResource("19_txa0e")
+texture_empty = ExtResource("10_0rlhf")
+
 [node name="PauseMenu" parent="." unique_id=186137169 instance=ExtResource("6_r73tl")]
 visible = false
 
@@ -53,14 +95,14 @@ position = Vector2(0, -104)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_qs7pu")
+shape = SubResource("RectangleShape2D_mk65g")
 
 [node name="Door01B" parent="." unique_id=1128104401 node_paths=PackedStringArray("partner") instance=ExtResource("7_o5cc1")]
 position = Vector2(0, -412)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_ga655")
+shape = SubResource("RectangleShape2D_txa0e")
 
 [node name="ArrivalPoint" parent="Door01B" index="1" unique_id=1913897894]
 position = Vector2(0, -16)
@@ -70,7 +112,7 @@ position = Vector2(116, -528)
 partner = NodePath("../Door02B")
 
 [node name="CollisionShape2D" parent="Door02A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_bi33k")
+shape = SubResource("RectangleShape2D_v1fg6")
 
 [node name="ArrivalPoint" parent="Door02A" index="1" unique_id=1913897894]
 position = Vector2(-20, 4)
@@ -80,7 +122,7 @@ position = Vector2(524, -528)
 partner = NodePath("../Door02A")
 
 [node name="CollisionShape2D" parent="Door02B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_k6cwi")
+shape = SubResource("RectangleShape2D_gqphr")
 
 [node name="ArrivalPoint" parent="Door02B" index="1" unique_id=1913897894]
 position = Vector2(20, 4)
@@ -90,7 +132,7 @@ position = Vector2(756, -528)
 destination = "uid://okwsu3sadb1e"
 
 [node name="CollisionShape2D" parent="ToStage01" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_r73tl")
+shape = SubResource("RectangleShape2D_mx0pl")
 
 [editable path="Door01A"]
 [editable path="Door01B"]
