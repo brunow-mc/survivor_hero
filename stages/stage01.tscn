@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://dpiq665yyu1su" path="res://entities/stage_parts/player_spawner.tscn" id="1_apweq"]
 [ext_resource type="TileSet" uid="uid://bveeq2lijuvo4" path="res://tiles/tileset/buildings01.tres" id="1_kt1c8"]
-[ext_resource type="PackedScene" uid="uid://gv8i6dlrb812" path="res://entities/players/battery_man.tscn" id="2_dkolx"]
 [ext_resource type="TileSet" uid="uid://c2nqnk2fvlhff" path="res://tiles/tileset/signs01.tres" id="2_dpt3t"]
 [ext_resource type="TileSet" uid="uid://udugchnyjwru" path="res://tiles/tileset/road01.tres" id="2_emoyi"]
 [ext_resource type="PackedScene" uid="uid://bxtl3obhkkk53" path="res://entities/stage_parts/y_sort_container.tscn" id="2_nunuq"]
@@ -46,7 +45,6 @@ size = Vector2(16, 48)
 
 [node name="PlayerSpawner" parent="." unique_id=1837671149 instance=ExtResource("1_apweq")]
 position = Vector2(0, 12)
-forced_player = ExtResource("2_dkolx")
 
 [node name="StageConfig" parent="." unique_id=1629844905 instance=ExtResource("18_apweq")]
 
