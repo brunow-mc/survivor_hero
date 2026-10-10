@@ -9,7 +9,7 @@ height = 26.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qx5t7"]
 resource_local_to_scene = true
-size = Vector2(24, 10)
+size = Vector2(20, 4)
 
 [node name="Chamber" type="Node2D" unique_id=1409572011]
 z_index = 2
@@ -35,8 +35,8 @@ collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="TouchArea" unique_id=662680471]
-position = Vector2(0, 5)
+position = Vector2(0, 2)
 shape = SubResource("RectangleShape2D_qx5t7")
 
 [node name="ExitPoint" type="Marker2D" parent="." unique_id=221531321]
-position = Vector2(0, 28)
+position = Vector2(0, 11)
