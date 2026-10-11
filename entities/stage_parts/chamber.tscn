@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ec0nuo7wv2wm" path="res://scripts/chamber.gd" id="1_5qvhx"]
 [ext_resource type="Texture2D" uid="uid://bxa7hflbo7fyv" path="res://sprites/chambers/empty_chamber.png" id="1_qx5t7"]
+[ext_resource type="AudioStream" uid="uid://mlgjgk6c6rmd" path="res://audio/effects/chamber/chamber_change.mp3" id="2_8wtdk"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qx5t7"]
 radius = 5.0
@@ -15,6 +16,8 @@ size = Vector2(20, 4)
 z_index = 2
 y_sort_enabled = true
 script = ExtResource("1_5qvhx")
+swap_sound = ExtResource("2_8wtdk")
+swap_sound_volume_db = 15.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=830081599]
 texture = ExtResource("1_qx5t7")

@@ -79,6 +79,15 @@ const EXIT_CLEARANCE: float = 6.0
 		texture_empty = value
 		_refresh_visual()
 
+@export_group("Audio")
+## Som da troca, tocado no toque, junto com o escurecer. Pelo pool do
+## AudioManager: o jogador antigo é liberado no meio da troca, e um player
+## dele cortaria o som. VALOR NA CENA BASE (é o mesmo para todas); uma
+## chamber com outro som troca só na própria instância. Vazio = silêncio.
+@export var swap_sound: AudioStream
+@export var swap_sound_volume_db: float = 0.0
+@export var swap_sound_pitch_scale: float = 1.0
+
 
 func _ready() -> void:
 	_refresh_visual()
@@ -168,6 +177,10 @@ func _swap(old_player: Node2D) -> void:
 	# SCENE_ARRIVAL, e não só TRANSITION: o personagem novo também hesita —
 	# os ataques dele só começam quando a tela clarear.
 	var ticket: int = HoldGlobal.hold(HoldGlobal.SCENE_ARRIVAL, "chamber %s" % name)
+
+	if swap_sound:
+		AudioManagerGlobal.play_sound_2d(swap_sound, global_position, swap_sound_volume_db, swap_sound_pitch_scale)
+
 	await FadeGlobal.fade_out(FADE_OUT_TIME)
 
 	# No escuro. Escolher primeiro: o sinal faz TODAS as chambers trocarem de

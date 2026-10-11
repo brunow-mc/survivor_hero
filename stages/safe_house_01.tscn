@@ -75,7 +75,7 @@ texture_locked = ExtResource("13_hg3nb")
 texture_empty = ExtResource("10_0rlhf")
 
 [node name="Chamber03BM" parent="YSortContainer" unique_id=1548974973 instance=ExtResource("6_ga655")]
-position = Vector2(24, -565)
+position = Vector2(24, -564)
 player_scene = ExtResource("14_0rlhf")
 texture_unlocked = ExtResource("15_jop0v")
 texture_locked = ExtResource("16_er00t")
