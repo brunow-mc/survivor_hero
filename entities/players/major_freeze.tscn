@@ -1,0 +1,192 @@
+[gd_scene format=3 uid="uid://cv3j3kxfq1mcx"]
+
+[ext_resource type="Script" uid="uid://cwp8bek0mysga" path="res://scripts/player_character.gd" id="1_ynnwc"]
+[ext_resource type="AudioStream" uid="uid://dfb8vpgr2ja47" path="res://audio/effects/voice/ouch_sound_01.mp3" id="2_dhwqg"]
+[ext_resource type="AudioStream" uid="uid://1hq4ywg6of1t" path="res://audio/effects/voice/death_sound_01.mp3" id="3_wlyxp"]
+[ext_resource type="PackedScene" uid="uid://c4pdwygccax66" path="res://entities/shadows/shadow_01.tscn" id="4_7eci1"]
+[ext_resource type="Texture2D" uid="uid://dtrj0ui5vc4s" path="res://sprites/heroes/major_freeze/MF_walk_attack/MF_walk_attack_04.png" id="5_7eci1"]
+[ext_resource type="Texture2D" uid="uid://d02xj4mohlfqy" path="res://sprites/heroes/major_freeze/MF_idle/MF_idle_03.png" id="5_dhwqg"]
+[ext_resource type="Texture2D" uid="uid://c2q3p1c6k0hf5" path="res://sprites/heroes/major_freeze/MF_walk/MF_walk_04.png" id="5_wlyxp"]
+[ext_resource type="Texture2D" uid="uid://dt8y6x08hmioi" path="res://sprites/heroes/major_freeze/MF_attack/MF_attack_04.png" id="5_ynnwc"]
+[ext_resource type="Texture2D" uid="uid://wxh3772cbwft" path="res://sprites/heroes/major_freeze/MF_attack/MF_attack_01.png" id="6_dhwqg"]
+[ext_resource type="Texture2D" uid="uid://8cavli3seb2d" path="res://sprites/heroes/major_freeze/MF_attack/MF_attack_02.png" id="7_wlyxp"]
+[ext_resource type="Texture2D" uid="uid://bj65sidcm4a76" path="res://sprites/heroes/major_freeze/MF_attack/MF_attack_03.png" id="8_7eci1"]
+[ext_resource type="Texture2D" uid="uid://r0mtd0d2a2q0" path="res://sprites/heroes/major_freeze/MF_idle/MF_idle_01.png" id="10_wlyxp"]
+[ext_resource type="Texture2D" uid="uid://c2s4vtmx3truq" path="res://sprites/heroes/major_freeze/MF_idle/MF_idle_02.png" id="11_7eci1"]
+[ext_resource type="Texture2D" uid="uid://dv4iclhevf6gt" path="res://sprites/heroes/major_freeze/MF_idle/MF_idle_04.png" id="12_8642o"]
+[ext_resource type="Texture2D" uid="uid://bfllciiwv4r8s" path="res://sprites/heroes/major_freeze/MF_walk/MF_walk_01.png" id="14_7eci1"]
+[ext_resource type="Texture2D" uid="uid://bwmch3gvypes0" path="res://sprites/heroes/major_freeze/MF_walk/MF_walk_02.png" id="15_8642o"]
+[ext_resource type="Texture2D" uid="uid://du2nlgydhpcyu" path="res://sprites/heroes/major_freeze/MF_walk/MF_walk_03.png" id="16_funfx"]
+[ext_resource type="Texture2D" uid="uid://dvqe8yo6auqq5" path="res://sprites/heroes/major_freeze/MF_walk_attack/MF_walk_attack_01.png" id="18_8642o"]
+[ext_resource type="Texture2D" uid="uid://u0ikt7xo4ing" path="res://sprites/heroes/major_freeze/MF_walk_attack/MF_walk_attack_02.png" id="19_funfx"]
+[ext_resource type="Texture2D" uid="uid://bsq713iawsa6" path="res://sprites/heroes/major_freeze/MF_walk_attack/MF_walk_attack_03.png" id="20_atxcd"]
+[ext_resource type="PackedScene" uid="uid://bo5tc8icd75ql" path="res://entities/controllers/attack_controller.tscn" id="21_n7ifl"]
+[ext_resource type="PackedScene" uid="uid://bva3jhodc5h5u" path="res://entities/controllers/power_up_controller.tscn" id="22_jn8v0"]
+[ext_resource type="PackedScene" uid="uid://dlqhld5x854vn" path="res://ui/health_bar.tscn" id="23_yaa8d"]
+[ext_resource type="PackedScene" uid="uid://kcb5x3rnrxnf" path="res://ui/health_label.tscn" id="24_nqgms"]
+[ext_resource type="Script" uid="uid://bjse65mxy6dld" path="res://scripts/test_powerups.gd" id="25_g3hn3"]
+[ext_resource type="Script" uid="uid://d4m4yptp77s6n" path="res://scripts/test_attack_upgrades.gd" id="26_twek6"]
+
+[sub_resource type="Animation" id="Animation_22j44"]
+length = 0.001
+step = 0.15
+
+[sub_resource type="Animation" id="Animation_aacg7"]
+resource_name = "attack"
+length = 0.6
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("6_dhwqg"), ExtResource("7_wlyxp"), ExtResource("8_7eci1"), ExtResource("5_ynnwc")]
+}
+
+[sub_resource type="Animation" id="Animation_bi81l"]
+resource_name = "idle"
+length = 0.6
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("10_wlyxp"), ExtResource("11_7eci1"), ExtResource("5_dhwqg"), ExtResource("12_8642o")]
+}
+
+[sub_resource type="Animation" id="Animation_dghas"]
+resource_name = "walk"
+length = 0.6
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_7eci1"), ExtResource("15_8642o"), ExtResource("16_funfx"), ExtResource("5_wlyxp")]
+}
+
+[sub_resource type="Animation" id="Animation_tb7ne"]
+resource_name = "walk_attack"
+length = 0.6
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.3, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("18_8642o"), ExtResource("19_funfx"), ExtResource("20_atxcd"), ExtResource("5_7eci1")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_10c06"]
+_data = {
+&"RESET": SubResource("Animation_22j44"),
+&"attack": SubResource("Animation_aacg7"),
+&"idle": SubResource("Animation_bi81l"),
+&"walk": SubResource("Animation_dghas"),
+&"walk_attack": SubResource("Animation_tb7ne")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b0kkn"]
+radius = 3.0
+height = 10.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ldj1t"]
+radius = 5.0
+height = 18.0
+
+[node name="Player01" type="CharacterBody2D" unique_id=1271785084 groups=["Player"]]
+z_index = 2
+y_sort_enabled = true
+collision_layer = 2
+collision_mask = 17
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_ynnwc")
+hit_sound = ExtResource("2_dhwqg")
+death_sound = ExtResource("3_wlyxp")
+hit_sound_volume_db = -4.0
+death_sound_volume_db = 1.75
+
+[node name="Shadow01" parent="." unique_id=1769618904 instance=ExtResource("4_7eci1")]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=242807135]
+texture = ExtResource("5_7eci1")
+offset = Vector2(0, -13)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=550780771]
+libraries/ = SubResource("AnimationLibrary_10c06")
+
+[node name="AttackController" parent="." unique_id=536803343 instance=ExtResource("21_n7ifl")]
+primary_attack_id = 6
+
+[node name="PowerUpController" parent="." unique_id=82605970 instance=ExtResource("22_jn8v0")]
+
+[node name="BodyCenter" type="Node2D" parent="." unique_id=1355616675]
+position = Vector2(0, -12)
+
+[node name="AttackPositionRight" type="Node2D" parent="." unique_id=2015214172]
+position = Vector2(17, -12)
+
+[node name="AttackPositionLeft" type="Node2D" parent="." unique_id=1503537839]
+position = Vector2(-17, -12)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=993337978]
+visible = false
+z_index = 1
+position = Vector2(0, -3)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_b0kkn")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1957306745 groups=["PlayerHurtbox"]]
+visible = false
+z_index = 1
+position = Vector2(0, -13)
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=565431735]
+shape = SubResource("CapsuleShape2D_ldj1t")
+debug_color = Color(0, 0.6862745, 0, 0.41960785)
+
+[node name="HealthBar" parent="." unique_id=2097574813 instance=ExtResource("23_yaa8d")]
+z_index = 5
+offset_left = -12.5
+offset_top = -31.0
+offset_right = 12.5
+offset_bottom = -28.0
+
+[node name="HealthLabel" parent="." unique_id=617375228 instance=ExtResource("24_nqgms")]
+offset_left = -14.0
+offset_top = -40.0
+offset_right = 3.0
+offset_bottom = -29.0
+
+[node name="TestPowerups" type="Node" parent="." unique_id=1931299609]
+script = ExtResource("25_g3hn3")
+
+[node name="TestAttackUpgrades" type="Node" parent="." unique_id=602593704]
+script = ExtResource("26_twek6")
