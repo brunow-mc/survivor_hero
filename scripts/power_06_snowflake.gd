@@ -30,6 +30,11 @@ var player_ref: Node2D = null
 var collision: CollisionShape2D = null
 var is_fading_out: bool = false
 
+## Lado para onde o jogador estava VIRADO no instante do disparo (1 direita,
+## -1 esquerda). Entregue pelo AttackController via set_power_direction(),
+## como nos outros ataques direcionais. Usado só sem inimigo na tela.
+var _facing: int = 1
+
 
 # =================================================
 # DANO CONTÍNUO
@@ -108,21 +113,35 @@ func _choose_spawn_position() -> void:
 		_apply_fallback_position()
 
 
+## Sem inimigo na tela: cai À FRENTE do jogador, do lado para onde ele está
+## virado (_facing), a partir do CENTRO DO CORPO (não dos pés).
+##
+## Antes o lado vinha de velocity.x: parado, velocity é (0, 0) — falso num
+## if — e o padrão era a direita; andando só na vertical, x = 0 também dava
+## direita. Virado para a esquerda e parado, o floco caía à direita.
 func _apply_fallback_position() -> void:
 	if not is_instance_valid(player_ref):
 		return
-	
+
 	var distance = randf_range(fallback_distance_min, fallback_distance_max)
 	var vertical = randf_range(-fallback_vertical_range, fallback_vertical_range)
-	
-	var direction = 1
-	if is_instance_valid(player_ref) and player_ref.has_method("get") and player_ref.get("velocity"):
-		direction = 1 if player_ref.velocity.x >= 0 else -1
-	
-	global_position = player_ref.global_position + Vector2(
-		direction * distance,
-		vertical
-	)
+
+	var origin: Vector2 = player_ref.global_position
+	if player_ref.has_method("get_body_center_position"):
+		origin = player_ref.get_body_center_position()
+
+	global_position = origin + Vector2(_facing * distance, vertical)
+
+
+# =================================================
+# INTERFACE COM ATTACK CONTROLLER
+# =================================================
+## Chamado pelo AttackController no disparo, com int(player.facing_direction).
+## Ter este método também faz o controller pôr o floco no
+## AttackPositionRight/Left antes — sem efeito visível: ele nasce invisível e
+## _choose_spawn_position() reescreve a posição antes de aparecer.
+func set_power_direction(player_direction: int) -> void:
+	_facing = -1 if player_direction < 0 else 1
 
 
 # =================================================

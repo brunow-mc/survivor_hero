@@ -493,6 +493,7 @@ Inter-enemy avoidance is **context steering** (Reynolds/Fray family), not RVO. T
 ### `power_06_snowflake`
 - Uses `TargetTrackerGlobal`: FIFO exclusion list, max 5 recently-targeted enemies. Resets automatically when the batch interval elapses.
 - Set `sprite.modulate.a = 0.0` before positioning the node to prevent a one-frame flicker at the origin.
+- **No enemy on screen → it falls IN FRONT of the player, on the side they FACE**, from the player's BodyCenter (`fallback_distance_*`, `fallback_vertical_range`). The side comes from `set_power_direction()`, fed by `AttackController` with `int(player.facing_direction)` at fire time — the same door as the other directional powers. It used to read `velocity.x`: standing still `velocity` is `(0, 0)`, falsy in an `if`, so the default (right) won, and moving only vertically gave `x = 0` → right too; facing left while standing, the flake fell on the right. **Never derive "which side" from movement — use `facing_direction`.**
 
 ### Debug overlay (Grid Sampling) — only faithful at camera zoom = 1
 - The spawn debug (`debug_draw_overlay`, gated by `SpawnManagerConfig.debug_draw_enabled`) draws on a `CanvasLayer` and projects world→screen by hand in `debug_drawer.gd`: `point - camera_position + viewport_size/2`, with **no zoom factor**. `CanvasLayer` also ignores the `Camera2D` transform.
