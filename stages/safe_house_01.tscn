@@ -64,35 +64,35 @@ tile_set = ExtResource("4_bi33k")
 [node name="YSortContainer" parent="." unique_id=390203824 instance=ExtResource("5_k6cwi")]
 
 [node name="Chamber01MH" parent="YSortContainer" unique_id=1409572011 instance=ExtResource("6_ga655")]
-position = Vector2(-72, -564)
+position = Vector2(-80, -564)
 player_scene = ExtResource("7_7lwbc")
 texture_unlocked = ExtResource("8_b5upb")
 texture_locked = ExtResource("9_0320u")
 texture_empty = ExtResource("10_0rlhf")
 
 [node name="Chamber02SG" parent="YSortContainer" unique_id=1750234118 instance=ExtResource("6_ga655")]
-position = Vector2(-24, -564)
+position = Vector2(-32, -564)
 player_scene = ExtResource("11_jop0v")
 texture_unlocked = ExtResource("12_er00t")
 texture_locked = ExtResource("13_hg3nb")
 texture_empty = ExtResource("10_0rlhf")
 
 [node name="Chamber03BM" parent="YSortContainer" unique_id=1548974973 instance=ExtResource("6_ga655")]
-position = Vector2(24, -564)
+position = Vector2(16, -564)
 player_scene = ExtResource("14_0rlhf")
 texture_unlocked = ExtResource("15_jop0v")
 texture_locked = ExtResource("16_er00t")
 texture_empty = ExtResource("10_0rlhf")
 
 [node name="Chamber04BG" parent="YSortContainer" unique_id=768933422 instance=ExtResource("6_ga655")]
-position = Vector2(72, -564)
+position = Vector2(64, -564)
 player_scene = ExtResource("17_hg3nb")
 texture_unlocked = ExtResource("18_mk65g")
 texture_locked = ExtResource("19_txa0e")
 texture_empty = ExtResource("10_0rlhf")
 
 [node name="Chamber06MF" parent="YSortContainer" unique_id=985552456 instance=ExtResource("6_ga655")]
-position = Vector2(120, -564)
+position = Vector2(112, -564)
 player_scene = ExtResource("20_gqphr")
 texture_unlocked = ExtResource("21_mx0pl")
 texture_locked = ExtResource("22_moplt")
