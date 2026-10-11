@@ -24,23 +24,23 @@
 [ext_resource type="Texture2D" uid="uid://bd5mmcy8skrsk" path="res://sprites/chambers/chamber_04_BG_locked.png" id="19_txa0e"]
 [ext_resource type="AudioStream" uid="uid://vl0tk5duu7ke" path="res://audio/songs/Safe_House_Protocol.mp3" id="23_mk65g"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hg3nb"]
-resource_local_to_scene = true
-size = Vector2(32, 16)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mk65g"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_txa0e"]
 resource_local_to_scene = true
-size = Vector2(16, 32)
+size = Vector2(32, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v1fg6"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gqphr"]
+resource_local_to_scene = true
+size = Vector2(16, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mx0pl"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
@@ -96,14 +96,14 @@ position = Vector2(0, -104)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_hg3nb")
+shape = SubResource("RectangleShape2D_mk65g")
 
 [node name="Door01B" parent="." unique_id=1128104401 node_paths=PackedStringArray("partner") instance=ExtResource("7_o5cc1")]
 position = Vector2(0, -412)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_mk65g")
+shape = SubResource("RectangleShape2D_txa0e")
 
 [node name="ArrivalPoint" parent="Door01B" index="1" unique_id=1913897894]
 position = Vector2(0, -16)
@@ -113,7 +113,7 @@ position = Vector2(149, -512)
 partner = NodePath("../Door02B")
 
 [node name="CollisionShape2D" parent="Door02A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_txa0e")
+shape = SubResource("RectangleShape2D_v1fg6")
 
 [node name="ArrivalPoint" parent="Door02A" index="1" unique_id=1913897894]
 position = Vector2(-20, 4)
@@ -123,7 +123,7 @@ position = Vector2(524, -512)
 partner = NodePath("../Door02A")
 
 [node name="CollisionShape2D" parent="Door02B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_v1fg6")
+shape = SubResource("RectangleShape2D_gqphr")
 
 [node name="ArrivalPoint" parent="Door02B" index="1" unique_id=1913897894]
 position = Vector2(20, 4)
@@ -133,7 +133,7 @@ position = Vector2(756, -512)
 destination = "uid://okwsu3sadb1e"
 
 [node name="CollisionShape2D" parent="ToStage01" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_gqphr")
+shape = SubResource("RectangleShape2D_mx0pl")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1207907719]
 stream = ExtResource("23_mk65g")
