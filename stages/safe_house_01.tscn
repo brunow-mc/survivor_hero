@@ -147,7 +147,7 @@ shape = SubResource("RectangleShape2D_xiy38")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1207907719]
 stream = ExtResource("23_mk65g")
-volume_db = 3.0
+volume_db = 2.0
 autoplay = true
 bus = &"Music"
 
