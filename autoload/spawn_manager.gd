@@ -352,7 +352,13 @@ func stop_spawning() -> void:
 func _physics_process(delta: float) -> void:
 	if not is_spawning_enabled:
 		return
-	
+
+	# Retido (travessia, chegada de cena): congela o laço INTEIRO — relógio,
+	# dificuldade, orçamento, atraso inicial, teleporte e spawn. Na chegada,
+	# o initial_spawn_delay passa a contar só depois de a tela clarear.
+	if HoldGlobal.is_held(HoldGlobal.Scope.SPAWN_CLOCK):
+		return
+
 	# Atualiza tempo de jogo
 	game_time += delta
 	time_since_start += delta

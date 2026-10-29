@@ -334,6 +334,13 @@ func _physics_process(delta: float) -> void:
 			dead_state()
 			return  # Não processa movimento de inimigos mortos
 
+	# Retido (travessia de porta, chegada de cena): congela no lugar. Vem
+	# DEPOIS do DEAD de propósito — os ataques do jogador seguem nas portas,
+	# então morrer durante a retenção tem de funcionar. Knockback recebido
+	# aqui fica guardado e é aplicado na liberação.
+	if HoldGlobal.is_held(HoldGlobal.Scope.ENEMIES):
+		return
+
 	# Movimento sempre concluído aqui, no mesmo frame. Havia um desvio
 	# assíncrono: o RVO declarava a velocidade desejada ao NavigationServer2D
 	# e o movimento terminava depois, no callback velocity_computed. Com o RVO

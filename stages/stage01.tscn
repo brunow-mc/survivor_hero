@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cfrpw4xspwf84" path="res://entities/stage_parts/navmesh_merger.tscn" id="17_apweq"]
 [ext_resource type="PackedScene" uid="uid://ri3y7l8y7r2x" path="res://entities/stage_parts/stage_config.tscn" id="18_apweq"]
 [ext_resource type="PackedScene" uid="uid://40cqjhbd7p7l" path="res://entities/stage_parts/stage_door.tscn" id="19_trvx0"]
+[ext_resource type="PackedScene" uid="uid://c3ajk3kgrct3p" path="res://entities/stage_parts/room_door.tscn" id="20_dkolx"]
 
 [sub_resource type="Resource" id="Resource_nunuq"]
 resource_name = "Gator"
@@ -37,9 +38,17 @@ spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_trvx0"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0mbx"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hg3a"]
+resource_local_to_scene = true
+size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t0un3"]
+resource_local_to_scene = true
+size = Vector2(16, 16)
 
 [node name="Stage01" type="Node2D" unique_id=110577404]
 
@@ -99,7 +108,7 @@ position = Vector2(2744, 24)
 destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_trvx0")
+shape = SubResource("RectangleShape2D_r0mbx")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
 stream = ExtResource("5_jmh76")
@@ -107,4 +116,20 @@ volume_db = 5.0
 autoplay = true
 bus = &"Music"
 
+[node name="Door01A" parent="." unique_id=1182610160 node_paths=PackedStringArray("partner") instance=ExtResource("20_dkolx")]
+position = Vector2(64, -84)
+partner = NodePath("../Door01B")
+
+[node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
+shape = SubResource("RectangleShape2D_0hg3a")
+
+[node name="Door01B" parent="." unique_id=1563748155 node_paths=PackedStringArray("partner") instance=ExtResource("20_dkolx")]
+position = Vector2(768, -84)
+partner = NodePath("../Door01A")
+
+[node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
+shape = SubResource("RectangleShape2D_t0un3")
+
 [editable path="ToSafeHouse"]
+[editable path="Door01A"]
+[editable path="Door01B"]

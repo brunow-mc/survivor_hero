@@ -53,16 +53,25 @@ enum Scope {
 	## start_immediately não sai. Consumidor: AttackController. Só ADIA o
 	## começo — ataques já rodando não param.
 	ATTACKS = 2,
+	## Inimigos: movimento E dano de contato, juntos — um jogador retido
+	## tocando um inimigo que anda ou fere apanharia sem poder fugir.
+	## Consumidores: EnemyBase._physics_process() e PlayerBase.take_damage().
+	## Morrer continua funcionando (os ataques do jogador seguem nas portas).
+	ENEMIES = 4,
+	## Relógio do spawn: o laço INTEIRO do SpawnManager (tempo de jogo,
+	## dificuldade, orçamento, atraso inicial, teleporte, spawn). Parar só o
+	## spawn deixaria orçamento e dificuldade crescerem e acabaria numa
+	## rajada injusta. Consumidor: SpawnManager._physics_process().
+	SPAWN_CLOCK = 8,
 }
 
 ## O que uma TRAVESSIA (porta) retém. Quem atravessa pede este conjunto, e
-## não uma lista própria: quando um alcance novo for implementado (inimigos,
-## relógio do spawn), ele entra AQUI e toda porta passa a retê-lo sem tocar
-## no script dela.
+## não uma lista própria: um alcance novo entra AQUI e toda porta passa a
+## retê-lo sem tocar no script dela.
 ##
 ## ATTACKS NUNCA entra aqui: decidido em teste, os ataques seguem durante a
 ## passagem pelas portas.
-const TRANSITION: int = Scope.PLAYER_INPUT
+const TRANSITION: int = Scope.PLAYER_INPUT | Scope.ENEMIES | Scope.SPAWN_CLOCK
 
 ## O que a CHEGADA numa cena nova retém (GameStateGlobal._go, do momento da
 ## troca até o fim do fade-in): a travessia + o início dos ataques. A partida

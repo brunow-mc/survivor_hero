@@ -243,6 +243,12 @@ func take_damage(amount: float) -> void:
 	if not GameStateGlobal.is_combat_allowed():
 		return
 
+	# Inimigos retidos não ferem (alcance ENEMIES = movimento + dano juntos).
+	# Aqui, e não no inimigo, cobre os dois caminhos de dano de contato: o
+	# toque inicial (enemy_chaser) e o timer contínuo (enemy_base).
+	if HoldGlobal.is_held(HoldGlobal.Scope.ENEMIES):
+		return
+
 	# v1.1.19: Aplicar armor (redução de dano)
 	var damage_reduction = PowerUpStatsGlobal.get_armor_damage_reduction()
 	var final_damage = amount * (1.0 - damage_reduction)
