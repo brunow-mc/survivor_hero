@@ -42,6 +42,14 @@ class_name StageConfig
 ## DIALOGUE e CUTSCENE ficam PERMITIDOS: nada os possui, nada precisa ser
 ## fechado, e são modos de abertura plausíveis para uma fase.
 ## (Tipado como Array[int] porque enum é int — Array[<enum>] não é garantido.)
+@export_group("Start")
+## Pausa de início de fase: segundos de hesitação COM A TELA JÁ CLARA. Conta
+## depois do fade-in de chegada e SOMA a ele (fade 0.7 + 1.0 aqui = 1.0 s
+## visível); no F5/F6, sem fade, conta na hora. Durante a pausa ficam
+## retidos o jogador, o início dos ataques, os inimigos e o relógio do spawn
+## (HoldGlobal.SCENE_ARRIVAL). 0 = sem pausa (padrão). Calibre na INSTÂNCIA.
+@export var start_hold_seconds: float = 0.0
+
 const FORBIDDEN_STATES: Array[int] = [
 	GameState.GameplayState.UPGRADE,
 	GameState.GameplayState.PAUSED,
@@ -55,6 +63,15 @@ func _enter_tree() -> void:
 	# jogador, o AttackController e o SpawnManager começam a funcionar —
 	# independente de onde este nó esteja na árvore da fase. Mesma razão do
 	# NavmeshMerger. Com _ready(), a correção dependeria da ordem dos nós.
+	_declare_mode()
+	# Mesma razão para a pausa de início: no F5 o jogador nasce no _ready()
+	# do PlayerSpawner, e o AttackController dele começaria os ataques antes
+	# de um pedido feito no _ready() deste nó.
+	if start_hold_seconds > 0.0:
+		_run_start_hold()
+
+
+func _declare_mode() -> void:
 	if gameplay_state in FORBIDDEN_STATES:
 		push_warning(
 			"StageConfig [%s]: '%s' não pode ser o modo de uma fase — é um mecanismo com dono, não um lugar. Modo NÃO aplicado; a fase segue no estado que já estava. Ver FORBIDDEN_STATES em stage_config.gd."
@@ -71,6 +88,26 @@ func _enter_tree() -> void:
 		_stage_name(),
 		GameState.GameplayState.keys()[gameplay_state]
 	])
+
+
+## Pede a retenção JÁ (antes de qualquer _ready da fase) e só começa a
+## contar quando a tela termina de clarear. A retenção se sobrepõe à da
+## chegada: não há frame solto entre o fim do fade e o começo da pausa.
+func _run_start_hold() -> void:
+	var ticket: int = HoldGlobal.hold(HoldGlobal.SCENE_ARRIVAL, "início de fase (%s)" % _stage_name())
+
+	# Chegando por troca de cena: espera o fade-in terminar. F5/F6: não há
+	# fade, conta na hora.
+	if GameStateGlobal.is_changing_scene():
+		await GameStateGlobal.scene_arrival_finished
+
+	print("⏸️ StageConfig [%s]: pausa de início, %.2f s" % [_stage_name(), start_hold_seconds])
+	# Timer pausável: com o menu de pausa aberto, a contagem espera junto.
+	await get_tree().create_timer(start_hold_seconds, false).timeout
+
+	# Senha antiga (restart no meio, que roda HoldGlobal.clear()) é ignorada.
+	HoldGlobal.release(ticket)
+	print("▶️ StageConfig [%s]: fase começou" % _stage_name())
 
 
 func _stage_name() -> String:

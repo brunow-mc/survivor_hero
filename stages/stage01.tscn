@@ -38,15 +38,15 @@ spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0mbx"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dkolx"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hg3a"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0mbx"]
 resource_local_to_scene = true
 size = Vector2(16, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_t0un3"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hg3a"]
 resource_local_to_scene = true
 size = Vector2(16, 16)
 
@@ -56,6 +56,7 @@ size = Vector2(16, 16)
 position = Vector2(0, 12)
 
 [node name="StageConfig" parent="." unique_id=1629844905 instance=ExtResource("18_apweq")]
+start_hold_seconds = 0.5
 
 [node name="Camera" parent="." unique_id=815368857 instance=ExtResource("5_t4y0q")]
 
@@ -108,7 +109,7 @@ position = Vector2(2744, 24)
 destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_r0mbx")
+shape = SubResource("RectangleShape2D_dkolx")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
 stream = ExtResource("5_jmh76")
@@ -121,14 +122,14 @@ position = Vector2(64, -84)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_0hg3a")
+shape = SubResource("RectangleShape2D_r0mbx")
 
 [node name="Door01B" parent="." unique_id=1563748155 node_paths=PackedStringArray("partner") instance=ExtResource("20_dkolx")]
 position = Vector2(768, -84)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_t0un3")
+shape = SubResource("RectangleShape2D_0hg3a")
 
 [editable path="ToSafeHouse"]
 [editable path="Door01A"]

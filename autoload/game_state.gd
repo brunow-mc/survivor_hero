@@ -3,6 +3,11 @@ class_name GameState
 
 signal state_changed(new_state: int)
 
+## Emitido quando uma troca de cena termina de clarear (fim do fade-in de
+## chegada). Quem precisa começar "depois de a tela clarear" espera por ele
+## — hoje, a pausa de início de fase do StageConfig.
+signal scene_arrival_finished
+
 enum GameplayState {
 	COMBAT,
 	UPGRADE,
@@ -23,6 +28,14 @@ var _changing_scene: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+## Há uma troca de cena em andamento (do gatilho até o fim do fade-in)?
+## Uma cena nova que pergunta isso no próprio _enter_tree() fica sabendo se
+## chegou por troca (vai haver fade-in, e scene_arrival_finished) ou por
+## F5/F6 direto (não vai).
+func is_changing_scene() -> bool:
+	return _changing_scene
 
 # -------------------------------------------------
 # STATE CONTROL
@@ -216,6 +229,9 @@ func _swap_scene_in_dark(do_swap: Callable, fade_in_seconds: float, label: Strin
 		await get_tree().process_frame
 
 	await FadeGlobal.fade_in(fade_in_seconds)
+	# Antes de liberar: quem espera este sinal (StageConfig) já tem a própria
+	# retenção pedida, então não sobra nenhum frame solto entre as duas.
+	scene_arrival_finished.emit()
 	HoldGlobal.release(hold_id)
 	_changing_scene = false
 
