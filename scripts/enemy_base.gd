@@ -217,6 +217,23 @@ func _ready() -> void:
 	add_to_group("Enemy")
 	life = max_health
 	_setup_base()
+	_attach_occlusion_silhouette()
+
+
+## Material da silhueta: o MESMO do jogador (calibração num lugar só).
+const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://73276vssjppg")  # uid = shaders/occlusion_silhouette_material.tres
+
+## Cria a silhueta de oclusão do inimigo (só aparece sobre tiles da frente —
+## ver occlusion_silhouette_animated.gd). Por código: nenhuma cena de inimigo
+## é editada, e inimigos futuros ganham o efeito. A subclasse define `anim`
+## antes de chamar super._ready() (enemy_chaser já faz isso).
+func _attach_occlusion_silhouette() -> void:
+	if not anim:
+		return
+	var silhouette := OcclusionSilhouetteAnimated.new()
+	silhouette.name = "OcclusionSilhouette"
+	silhouette.setup(anim, OCCLUSION_SILHOUETTE_MATERIAL)
+	add_child(silhouette)
 
 func _setup_base() -> void:
 	# Física (CharacterBody2D)
