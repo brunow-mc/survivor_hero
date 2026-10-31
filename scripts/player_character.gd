@@ -23,6 +23,7 @@ func _ready() -> void:
 	super()
 
 	sprite_node = sprite
+	_attach_occlusion_silhouette()
 
 	_play_anim("idle")
 

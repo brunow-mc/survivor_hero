@@ -43,7 +43,7 @@ animations = [{
 }]
 
 [node name="Power04Bo" type="Area2D" unique_id=2044941789]
-z_index = 4
+z_index = 60
 collision_layer = 8
 collision_mask = 260
 script = ExtResource("1_3tuho")

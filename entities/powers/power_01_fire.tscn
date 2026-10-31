@@ -70,7 +70,7 @@ animations = [{
 }]
 
 [node name="Power01Fire" type="Area2D" unique_id=889816477]
-z_index = 4
+z_index = 60
 y_sort_enabled = true
 collision_layer = 8
 collision_mask = 256

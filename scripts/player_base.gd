@@ -60,6 +60,10 @@ var facing_direction: float = 1.0
 # =================================================
 var sprite_node: CanvasItem
 
+## Material da silhueta (contorno quando algo cobre o corpo). Calibrável no
+## Inspector abrindo o próprio .tres: vale para todos os personagens.
+const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://73276vssjppg")  # uid = shaders/occlusion_silhouette_material.tres
+
 # =================================================
 # MARCADORES DE POSIÇÃO (nós da cena do player)
 # Todos com get_node_or_null: se faltarem, os consumidores degradam
@@ -88,6 +92,19 @@ func _ready() -> void:
 	_setup_audio()
 	_setup_hit_timer()
 	_validate_scene_setup()
+
+## Cria a silhueta de oclusão: uma cópia da sprite_node desenhada por cima
+## do mundo, que só aparece onde algo cobre o corpo (ver
+## occlusion_silhouette.gd). Chamada pela classe concreta DEPOIS de definir
+## sprite_node. Criada por código: nenhuma cena de personagem é editada.
+func _attach_occlusion_silhouette() -> void:
+	if not sprite_node is Sprite2D:
+		push_warning("PlayerBase: sprite_node não é Sprite2D — silhueta de oclusão não criada.")
+		return
+	var silhouette := OcclusionSilhouette.new()
+	silhouette.name = "OcclusionSilhouette"
+	silhouette.setup(sprite_node as Sprite2D, OCCLUSION_SILHOUETTE_MATERIAL)
+	add_child(silhouette)
 
 # Guard de inicialização: sem o grupo, os Hitbox dos inimigos não reconhecem
 # o player e o dano por contato simplesmente nunca acontece — falha grave e

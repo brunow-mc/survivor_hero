@@ -121,6 +121,29 @@ Convention — groups spaced in tens so new layers fit between them:
 
 The fade must sit above the HUD (or the XP bar shows through the black) and below the pause menu (or pausing mid-crossing hides the menu under the black). A new `CanvasLayer` picks its slot from this table; never reuse a taken number.
 
+**Inside the world sheet, `z_index` order** (effective values; relative z sums with the parent — `YSortContainer` is z 2):
+
+| Effective z | What |
+|---|---|
+| 0 | back tiles (`building02`…), floor |
+| 4 | entities in the `YSortContainer` (2 + 2), front tiles (`*_alpha`, per-tile z 4 in the TileSet) |
+| **50 (absolute)** | **occlusion silhouette** (see *Occlusion silhouette*) |
+| **60+** | **every power** — `z_index = 60` on each power scene's root, relative (62 loose in the container, 64 when attached to the player) |
+
+**Rule: every power scene uses `z_index = 60`** on its root, set in the Inspector like the rest of the power calibration. It does two jobs: powers always draw above players, enemies and scenery (the design intent), and they draw **after** the silhouette took its screen snapshot, so they never trigger it. A new power left at a low z makes the silhouette flicker whenever it crosses a body — visible at once, not silent. (Powers already looked above buildings at z 4 because, loose in the container, 4 relative became 6.)
+
+### Occlusion silhouette — the body shows through whatever covers it
+
+**`shaders/occlusion_silhouette.gdshader` + `shaders/occlusion_silhouette_material.tres` + `scripts/occlusion_silhouette.gd` (`class_name OcclusionSilhouette`).** When something opaque covers part of a character, that part is drawn as a **1-px inner outline** (border pixels of the sprite) with a lightly filled interior — pixel-art clean, since 1 texel = 1 screen pixel. Front tiles (`*_alpha`) are now **opaque**: the old semi-transparency blended with whatever was behind each tile, so one building showed different greys depending on the background — unfixable by calibration.
+
+- **How it detects cover — by colour, not by layers.** A copy of the character's sprite is drawn on top of the world (z 50 absolute) with a shader that, per body pixel, compares the colour the body **should** have there (`COLOR` = texel × modulate) with the colour **actually on screen** (`hint_screen_texture`). Equal → body visible → discard. Different → something is in front → silhouette. Chosen over a mask (a `SubViewport` seeing only "front" layers) because the mask needs per-**layer** visibility, so every building would have had to be split into two `TileMapLayer`s — multiplying level-design work. This needs nothing: any opaque thing in any layer works.
+- **Consequences, by design:** anything drawn over the body triggers it, not only buildings — an enemy passing in front of the player shows the player's outline over it (**wanted**: the player never gets lost in the horde). Powers are excluded by draw order (z 60, see above). Enemy death/impact effects still trigger it; raise their z the same way if it ever bothers. A building pixel of exactly the body's colour hides one outline pixel — imperceptible.
+- **The screen snapshot is taken once per frame**, when the first item using the screen texture draws; everything drawn later is not in it. That is the whole mechanism behind "powers at 60 don't trigger it".
+- **The copy (`OcclusionSilhouette`, a `Sprite2D`) is created by code**, never placed by hand: `PlayerBase._attach_occlusion_silhouette()`, called by `player_character.gd` right after `sprite_node` is set — no player scene is edited, future characters get it free, and the chamber swap recreates it with the new player. Every frame it copies texture, flip, offset, region, frame, global transform **and `modulate`** (without the modulate, the red damage flash would light the outline over the whole body). **`process_priority = 100`** so it copies **after** the `AnimationPlayer` changes the frame — copying before would leave the copy one frame stale and flash the whole body on every frame change.
+- **Calibration lives in the material**, one file for every character: open `occlusion_silhouette_material.tres` → *Shader Parameters*: `outline_color` (white today), `fill_alpha` (interior opacity relative to the outline, 0.25), `tolerance` (colour distance treated as "the body itself" — raise it if false outlines appear in the open). The interior is the outline colour, not the character's own colours, by choice; showing the character dimmed instead is a small shader change if ever wanted.
+- **Cost:** one screen copy per frame (trivial at 480×270); where nothing covers the body every fragment is discarded.
+- **Player only today.** Enemies use `AnimatedSprite2D` with spritesheets and need their own copy type.
+
 ### Entity anatomy — feet origin + BodyCenter (MANDATORY convention)
 
 Player and every enemy scene follow this layout (in preparation for Y-sort):

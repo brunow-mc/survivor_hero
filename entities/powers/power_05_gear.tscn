@@ -22,7 +22,7 @@ animations = [{
 }]
 
 [node name="Power05Gear" type="Area2D" unique_id=812091143]
-z_index = 4
+z_index = 60
 collision_layer = 8
 collision_mask = 256
 monitorable = false

@@ -61,7 +61,7 @@ animations = [{
 }]
 
 [node name="Power06Snowflake" type="Area2D" unique_id=377896249]
-z_index = 4
+z_index = 60
 collision_layer = 8
 collision_mask = 260
 script = ExtResource("1_cxlsx")
