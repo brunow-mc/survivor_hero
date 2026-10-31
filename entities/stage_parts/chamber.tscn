@@ -17,7 +17,7 @@ z_index = 2
 y_sort_enabled = true
 script = ExtResource("1_5qvhx")
 swap_sound = ExtResource("2_8wtdk")
-swap_sound_volume_db = 15.0
+swap_sound_volume_db = 20.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=830081599]
 texture = ExtResource("1_qx5t7")

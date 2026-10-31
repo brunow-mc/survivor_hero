@@ -149,4 +149,4 @@ pause={
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="mobile"
-environment/defaults/default_clear_color=Color(0.28, 0.28, 0.28, 1)
+environment/defaults/default_clear_color=Color(0.61339027, 0.61339027, 0.6133901, 1)
