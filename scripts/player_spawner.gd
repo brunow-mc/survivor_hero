@@ -30,7 +30,7 @@ class_name PlayerSpawner
 ## exceção — fase inicial, tutorial, intro, ou fase roteirizada em cima de um
 ## personagem específico.
 ##
-## Mesma disciplina de dois estados do enemy_spawn_ground_layers: vazio não é
+## Mesma disciplina do enemy_spawn_excluded_layers: vazio não é
 ## esquecimento, é a declaração do padrão.
 @export var forced_player: PackedScene = null
 

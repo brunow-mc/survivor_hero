@@ -93,7 +93,7 @@ visible = false
 
 [node name="NavmeshMerger" parent="." unique_id=1165682698 instance=ExtResource("17_apweq")]
 
-[node name="SpawnManagerConfig" parent="." unique_id=100682162 node_paths=PackedStringArray("enemy_spawn_ground_layers") instance=ExtResource("10_spawn_config")]
+[node name="SpawnManagerConfig" parent="." unique_id=100682162 instance=ExtResource("10_spawn_config")]
 max_enemies = 115
 initial_budget = 2.0
 spawn_margin_min_horizontal = 30.0
@@ -102,7 +102,6 @@ max_difficulty_multiplier = 100.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
 max_teleports_per_frame = 50
 min_distance_between_enemies = 32.0
-enemy_spawn_ground_layers = [NodePath("../TileMapRoad"), NodePath("../TileMapBuildings")]
 
 [node name="ToSafeHouse" parent="." unique_id=1883627445 instance=ExtResource("19_trvx0")]
 position = Vector2(2744, 24)
@@ -110,12 +109,6 @@ destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
 shape = SubResource("RectangleShape2D_dkolx")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
-stream = ExtResource("5_jmh76")
-volume_db = 5.0
-autoplay = true
-bus = &"Music"
 
 [node name="Door01A" parent="." unique_id=1182610160 node_paths=PackedStringArray("partner") instance=ExtResource("20_dkolx")]
 position = Vector2(64, -84)
@@ -130,6 +123,12 @@ partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
 shape = SubResource("RectangleShape2D_0hg3a")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=143524439]
+stream = ExtResource("5_jmh76")
+volume_db = 5.0
+autoplay = true
+bus = &"Music"
 
 [editable path="ToSafeHouse"]
 [editable path="Door01A"]

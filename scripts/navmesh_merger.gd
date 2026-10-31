@@ -183,8 +183,8 @@ func _is_full_square(np: NavigationPolygon, half: Vector2) -> bool:
 ## Todas as camadas cuja TileSet declara navegação. É a MESMA semântica
 ## de união que o navmesh nativo aplica hoje — por isso é varredura, e
 ## não uma lista no Inspector. Não confundir com
-## SpawnManagerConfig.enemy_spawn_ground_layers, que decide onde os
-## inimigos NASCEM, não por onde ANDAM.
+## SpawnManagerConfig.enemy_spawn_excluded_layers, que decide onde os
+## inimigos NÃO NASCEM (nem chegam por teleporte), não por onde ANDAM.
 func _layers_with_navigation(node: Node) -> Array[TileMapLayer]:
 	var out: Array[TileMapLayer] = []
 	if node == null:

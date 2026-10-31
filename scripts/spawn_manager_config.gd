@@ -128,21 +128,21 @@ extends Node
 # o no BodyCenter da propria cena do inimigo (_get_body_offset). Havia um
 # @export body_center_offset neste ponto, copia manual daquele no.
 
-## Camadas onde inimigos PODEM NASCER.
+## Camadas EXCLUÍDAS do spawn: inimigos NÃO nascem nelas, e o teleporte de
+## inimigos distantes também NÃO os leva para lá. Todas as outras camadas com
+## polígono de navegação são elegíveis — inclusive as criadas depois.
 ##
-## VAZIO = toda camada da cena que tenha polígono de navegação é elegível.
-## Esse é um padrão declarado, não um esquecimento — é o caso normal.
+## VAZIO = nenhuma exclusão, todo chão navegável serve. É o caso normal.
 ##
-## PREENCHIDO = só as camadas listadas geram spawn. Serve para EXCLUIR uma
-## área do spawn sem excluí-la da navegação (inimigos continuam podendo
-## ANDAR nela: quem move inimigo é o navmesh, que não passa por aqui).
+## Só afeta onde inimigos NASCEM e CHEGAM POR TELEPORTE, nunca por onde
+## ANDAM: quem move inimigo é o navmesh (NavmeshMerger), que não passa por
+## aqui. Uma camada excluída continua andável.
 ##
-## ATENÇÃO: listar uma camada NÃO declara que ela é toda navegável — declara
-## apenas "consulte esta camada". Quem decide é cada tile, pelo seu polígono
-## de navegação. Por isso uma camada mista como TileMapBuildings (tiles de
-## colisão + tiles de navegação) entra sem problema: só os tiles com
-## polígono são aceitos.
-@export var enemy_spawn_ground_layers: Array[TileMapLayer] = []
+## POR QUE EXCLUSÃO E NÃO INCLUSÃO: era uma lista de inclusão ("só estas
+## camadas geram spawn"), e uma camada nova esquecida ficava fora do spawn EM
+## SILÊNCIO — o jogo rodava com menos áreas e ninguém via. Com exclusão, o
+## esquecimento aparece na tela (inimigos nascendo onde não deviam).
+@export var enemy_spawn_excluded_layers: Array[TileMapLayer] = []
 
 ## Raio de captura do snap ao chão navegável (px)
 ## Pontos da grade a até esta distância são "grudados" no ponto navegável
@@ -237,36 +237,44 @@ func initialize_spawn_manager() -> void:
 	SpawnManagerGlobal.min_distance_between_enemies = min_distance_between_enemies
 	SpawnManagerGlobal.nav_snap_radius = nav_snap_radius
 
-	# Resolve o chão de spawn: DOIS estados, nenhum deles é "esquecimento".
-	#   export preenchido -> só essas camadas
-	#   export vazio      -> varre a cena (tudo com navegação é elegível)
-	# Não existe caminho por grupo: um único lugar decide, e ele é visível
-	# no Inspector.
-	var nav_layers: Array[TileMapLayer] = []
+	# Resolve o chão de spawn: varre a cena (toda camada com navegação é
+	# elegível) e tira as excluídas. Um único lugar decide, visível no
+	# Inspector.
+	var excluded: Array[TileMapLayer] = []
 	var quebradas: int = 0
 
-	for layer in enemy_spawn_ground_layers:
+	for layer in enemy_spawn_excluded_layers:
 		if is_instance_valid(layer):
-			nav_layers.append(layer)
+			excluded.append(layer)
 		else:
 			# Slot vazio. Duas origens, mesmo resultado: alguém adicionou uma
 			# linha no array sem atribuir nada, ou a camada foi APAGADA.
 			# (Renomear ou mover NÃO cai aqui: o editor reescreve o NodePath
 			# sozinho. Editar o .tscn fora da Godot, sim.)
 			# Nunca é escolha, sempre é erro de cena — e sem este aviso o
-			# jogo rodaria calado com menos áreas de spawn.
+			# jogo rodaria calado sem a exclusão pretendida.
 			quebradas += 1
 
 	if quebradas > 0:
-		push_warning("SpawnManagerConfig: %d de %d entradas de 'Enemy Spawn Ground Layers' estão vazias (slot sem camada atribuída, ou a camada foi apagada da cena). O spawn vai rodar com %d camada(s) — atribua ou remova as linhas vazias no Inspector." % [
-			quebradas, enemy_spawn_ground_layers.size(), nav_layers.size()
+		push_warning("SpawnManagerConfig: %d de %d entradas de 'Enemy Spawn Excluded Layers' estão vazias (slot sem camada atribuída, ou a camada foi apagada da cena). Essas linhas não excluem nada — atribua ou remova as linhas vazias no Inspector." % [
+			quebradas, enemy_spawn_excluded_layers.size()
 		])
 
-	if nav_layers.is_empty():
-		# Padrão declarado, não falha: sem lista, todo chão navegável serve.
-		# Camadas sem polígono de navegação são descartadas de graça depois.
-		_collect_tilemap_layers(get_tree().current_scene, nav_layers)
+	# Toda camada da cena; as sem polígono de navegação são descartadas de
+	# graça depois, pelo SpawnManager.
+	var all_layers: Array[TileMapLayer] = []
+	_collect_tilemap_layers(get_tree().current_scene, all_layers)
 
+	var nav_layers: Array[TileMapLayer] = []
+	for layer in all_layers:
+		if not excluded.has(layer):
+			nav_layers.append(layer)
+
+	if nav_layers.is_empty():
+		push_warning("SpawnManagerConfig: todas as camadas da cena estão em 'Enemy Spawn Excluded Layers'. Nenhum inimigo vai nascer nem ser teleportado.")
+
+	# Nome no autoload continua 'ground layers': lá é o RESULTADO (o chão que
+	# sobrou), não a lista do Inspector.
 	SpawnManagerGlobal.enemy_spawn_ground_layers = nav_layers
 	SpawnManagerGlobal.invalidate_nav_layer_cache()
 	
@@ -286,8 +294,13 @@ func initialize_spawn_manager() -> void:
 	print("   Teleport: ", "ATIVADO" if teleport_enabled else "DESATIVADO")
 	print("   Grid Sampling: ", grid_sample_spacing, "px | Debug visual: ", "SIM" if debug_draw_enabled else "NÃO", " | Log: ", "SIM" if debug_enabled else "NÃO")
 	print("   Margens: Min(", spawn_margin_min_horizontal, ",", spawn_margin_min_vertical, ") Max(", spawn_margin_max_horizontal, ",", spawn_margin_max_vertical, ")")
+	# Texto montado antes: um ternário com Array de um lado e String do outro
+	# é rejeitado pelo GDScript (INCOMPATIBLE_TERNARY).
+	var excluded_text: String = "nenhuma"
+	if not excluded.is_empty():
+		excluded_text = str(excluded.map(func(l): return l.name))
 	print("   Chão de spawn: ", nav_layers.map(func(l): return l.name),
-		" (lista explícita)" if not enemy_spawn_ground_layers.is_empty() else " (cena inteira)")
+		" | Excluídas: ", excluded_text)
 
 ## Usado quando o export está vazio: coleta toda TileMapLayer da cena.
 ## Camadas sem navegação são descartadas de graça pelo SpawnManager.
