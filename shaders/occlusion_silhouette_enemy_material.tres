@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c6h0a6kk5tklr"]
+
+[ext_resource type="Shader" uid="uid://bgr0l32vjl82y" path="res://shaders/occlusion_silhouette.gdshader" id="1_mpy7i"]
+
+[resource]
+shader = ExtResource("1_mpy7i")
+shader_parameter/outline_color = Color(0.627451, 0, 0, 1)
+shader_parameter/fill_alpha = 0.25
+shader_parameter/tolerance = 0.02

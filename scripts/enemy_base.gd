@@ -220,8 +220,9 @@ func _ready() -> void:
 	_attach_occlusion_silhouette()
 
 
-## Material da silhueta: o MESMO do jogador (calibração num lugar só).
-const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://73276vssjppg")  # uid = shaders/occlusion_silhouette_material.tres
+## Material da silhueta dos inimigos: PRÓPRIO (vermelho = perigo), separado
+## do do jogador; mesmo shader, calibração independente no .tres.
+const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://c6h0a6kk5tklr")  # uid = shaders/occlusion_silhouette_enemy_material.tres
 
 ## Cria a silhueta de oclusão do inimigo (só aparece sobre tiles da frente —
 ## ver occlusion_silhouette_animated.gd). Por código: nenhuma cena de inimigo

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://unvtaukujfo1"]
 
 [ext_resource type="Script" uid="uid://d4msbfduwji7e" path="res://scripts/power_03_electricity.gd" id="1_yd12f"]
-[ext_resource type="Shader" uid="uid://w1oe15goa56u" path="res://entities/powers/power_03_electricity.gdshader" id="2_1lees"]
+[ext_resource type="Shader" uid="uid://w1oe15goa56u" path="res://shaders/power_03_electricity.gdshader" id="2_1lees"]
 [ext_resource type="Texture2D" uid="uid://b0o7e7tur2c44" path="res://sprites/powers/power_03_electricity.png" id="3_pdhe2"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_olyes"]
