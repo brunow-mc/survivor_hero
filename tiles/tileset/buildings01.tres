@@ -1,11 +1,11 @@
 [gd_resource type="TileSet" format=3 uid="uid://bveeq2lijuvo4"]
 
-[ext_resource type="Texture2D" uid="uid://pwgwpd82g2mx" path="res://tiles/sprites_for_tiles/buildings/building01.png" id="2_quo56"]
-[ext_resource type="Texture2D" uid="uid://cfyts1vijg63h" path="res://tiles/sprites_for_tiles/buildings/building02.png" id="3_quo56"]
+[ext_resource type="Texture2D" uid="uid://pwgwpd82g2mx" path="res://tiles/sprites_for_tiles/buildings/building_01.png" id="1_j2rly"]
+[ext_resource type="Texture2D" uid="uid://cfyts1vijg63h" path="res://tiles/sprites_for_tiles/buildings/building_02.png" id="2_0g708"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5nwnc"]
-resource_name = "building01"
-texture = ExtResource("2_quo56")
+resource_name = "building_01"
+texture = ExtResource("1_j2rly")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
@@ -284,8 +284,8 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8
 agent_radius = 0.0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_dtlin"]
-resource_name = "building01_alpha"
-texture = ExtResource("2_quo56")
+resource_name = "building_01_alpha"
+texture = ExtResource("1_j2rly")
 0:0/0 = 0
 0:0/0/modulate = Color(1, 1, 1, 0.8235294)
 0:0/0/z_index = 4
@@ -704,8 +704,8 @@ texture = ExtResource("2_quo56")
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_7ktdp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_f7224"]
-resource_name = "building02"
-texture = ExtResource("3_quo56")
+resource_name = "building_02"
+texture = ExtResource("2_0g708")
 0:0/0 = 0
 0:0/0/z_index = 2
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
@@ -1123,8 +1123,8 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8
 agent_radius = 0.0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lllg5"]
-resource_name = "building02_alpha"
-texture = ExtResource("3_quo56")
+resource_name = "building_02_alpha"
+texture = ExtResource("2_0g708")
 0:0/0 = 0
 0:0/0/z_index = 4
 0:0/0/y_sort_origin = -5

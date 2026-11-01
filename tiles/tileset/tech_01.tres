@@ -1,6 +1,6 @@
 [gd_resource type="TileSet" format=3 uid="uid://kga72cks4c8d"]
 
-[ext_resource type="Texture2D" uid="uid://b35y36a0sh7u2" path="res://tiles/sprites_for_tiles/tech/tech01.png" id="1_4s8kn"]
+[ext_resource type="Texture2D" uid="uid://b35y36a0sh7u2" path="res://tiles/sprites_for_tiles/tech/tech_01.png" id="1_4s8kn"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_41nun"]
 texture = ExtResource("1_4s8kn")
@@ -354,7 +354,7 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8
 agent_radius = 0.0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4s8kn"]
-resource_name = "tech01_alpha"
+resource_name = "tech_01_alpha"
 texture = ExtResource("1_4s8kn")
 0:0/0 = 0
 0:0/0/z_index = 4
