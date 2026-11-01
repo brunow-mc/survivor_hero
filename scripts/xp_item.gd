@@ -36,6 +36,26 @@ func _ready() -> void:
 	add_to_group("XPItems")
 	area_entered.connect(_on_area_entered)
 	player = get_tree().get_first_node_in_group("Player")
+	_attach_occlusion_silhouette()
+
+
+# ======================================
+# SILHUETA DE OCLUSÃO
+# ======================================
+## Material próprio dos itens (amarelo), mesmo shader das outras silhuetas.
+const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://dqwaccnuqkcdf")  # uid = shaders/occlusion_silhouette_item_material.tres
+
+## Cópia da Sprite2D do item que só aparece atrás de TILES DA FRENTE (nunca
+## por cima de inimigos ou do jogador). Por código: nenhuma cena de item é
+## editada. A sombra (Shadow) não é copiada — só o item.
+func _attach_occlusion_silhouette() -> void:
+	var item_sprite := get_node_or_null("Sprite2D") as Sprite2D
+	if not item_sprite:
+		return
+	var silhouette := OcclusionSilhouette.new()
+	silhouette.name = "OcclusionSilhouette"
+	silhouette.setup(item_sprite, OCCLUSION_SILHOUETTE_MATERIAL, true)
+	add_child(silhouette)
 
 # ======================================
 # FÍSICA

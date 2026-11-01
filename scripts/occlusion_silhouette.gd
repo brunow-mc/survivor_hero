@@ -26,10 +26,15 @@ const SILHOUETTE_Z: int = 50
 
 var source: Sprite2D = null
 
+## true = só aparece atrás de TILES DA FRENTE (FrontTiles), nunca por cima de
+## outras entidades — itens. false = qualquer coisa na frente — jogador.
+var only_over_front_tiles: bool = false
 
-func setup(source_sprite: Sprite2D, silhouette_material: Material) -> void:
+
+func setup(source_sprite: Sprite2D, silhouette_material: Material, front_tiles_only: bool = false) -> void:
 	source = source_sprite
 	material = silhouette_material
+	only_over_front_tiles = front_tiles_only
 
 
 func _ready() -> void:
@@ -64,3 +69,18 @@ func _copy_from_source() -> void:
 
 	modulate = source.modulate
 	self_modulate = source.self_modulate
+
+	if visible and only_over_front_tiles:
+		visible = FrontTiles.rect_touches(get_tree(), _global_sprite_rect())
+
+
+## Retângulo global do quadro atual (considera region e hframes/vframes).
+## Une com o espelho, para cobrir flip_h com offset.
+func _global_sprite_rect() -> Rect2:
+	if not texture:
+		return Rect2()
+	var size: Vector2 = region_rect.size if region_enabled else texture.get_size()
+	size /= Vector2(maxi(hframes, 1), maxi(vframes, 1))
+	var local := Rect2(offset - size / 2.0 if centered else offset, size)
+	local = local.merge(Rect2(Vector2(-local.end.x, local.position.y), size))
+	return global_transform * local

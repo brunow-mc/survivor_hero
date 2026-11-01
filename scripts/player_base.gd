@@ -62,7 +62,7 @@ var sprite_node: CanvasItem
 
 ## Material da silhueta (contorno quando algo cobre o corpo). Calibrável no
 ## Inspector abrindo o próprio .tres: vale para todos os personagens.
-const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://73276vssjppg")  # uid = shaders/occlusion_silhouette_material.tres
+const OCCLUSION_SILHOUETTE_MATERIAL: Material = preload("uid://73276vssjppg")  # uid = shaders/occlusion_silhouette_player_material.tres
 
 # =================================================
 # MARCADORES DE POSIÇÃO (nós da cena do player)

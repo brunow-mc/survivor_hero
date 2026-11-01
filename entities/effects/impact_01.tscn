@@ -40,11 +40,10 @@ animations = [{
 }]
 
 [node name="Impact01" type="Node2D" unique_id=52078059]
-z_index = 1
+z_index = 51
 script = ExtResource("1_f772q")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1002957873]
-z_index = 6
 sprite_frames = SubResource("SpriteFrames_16unc")
 animation = &"impact"
 
