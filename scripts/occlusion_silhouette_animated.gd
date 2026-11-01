@@ -33,6 +33,8 @@ func _ready() -> void:
 	z_as_relative = false
 	z_index = SILHOUETTE_Z
 	process_priority = 100
+	# Teste por pixel: só tiles da frente acendem (não outras entidades).
+	FrontTiles.bind_mask(get_tree(), material)
 	_copy_from_source()
 
 
