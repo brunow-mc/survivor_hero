@@ -1,0 +1,21 @@
+[gd_resource type="TileSet" format=3 uid="uid://bst4t8knmf6a3"]
+
+[ext_resource type="Texture2D" uid="uid://vkxba1fy45n8" path="res://tiles/sprites_for_tiles/shadows/occlusion_shadows_01.png" id="1_k0ur3"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jj7l5"]
+texture = ExtResource("1_k0ur3")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+
+[resource]
+sources/0 = SubResource("TileSetAtlasSource_jj7l5")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vkxba1fy45n8"
-path="res://.godot/imported/occlusion_01.png-adbb59119bfa45793770dded97ad7724.ctex"
+uid="uid://cy325pbuj2xsy"
+path="res://.godot/imported/block_map.png-843946d6e8e73ea6510819a1a7c048cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tiles/sprites_for_tiles/shadows/occlusion_01.png"
-dest_files=["res://.godot/imported/occlusion_01.png-adbb59119bfa45793770dded97ad7724.ctex"]
+source_file="res://tiles/sprites_for_tiles/block/block_map.png"
+dest_files=["res://.godot/imported/block_map.png-843946d6e8e73ea6510819a1a7c048cf.ctex"]
 
 [params]
 

@@ -17,6 +17,7 @@ hit_data = ExtResource("1_5sm5y")
 interval = 1.9
 life_time = 1.7
 attack_delay = 0.325
+start_immediately = true
 speed = 150.0
 projectile_angle_spread = 22.5
 max_hits = -1

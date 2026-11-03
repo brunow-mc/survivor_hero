@@ -1,6 +1,6 @@
 [gd_resource type="TileSet" format=3 uid="uid://udugchnyjwru"]
 
-[ext_resource type="Texture2D" uid="uid://dfj2lx46f3iev" path="res://tiles/sprites_for_tiles/road/road_01.png" id="1_shhln"]
+[ext_resource type="Texture2D" uid="uid://dfj2lx46f3iev" path="res://tiles/sprites_for_tiles/road/road_01.png" id="1_75pgm"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_enh6g"]
 vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
@@ -130,7 +130,7 @@ agent_radius = 0.0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t4y0q"]
 resource_name = "Road_01"
-texture = ExtResource("1_shhln")
+texture = ExtResource("1_75pgm")
 0:0/0 = 0
 0:0/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_enh6g")
 1:0/0 = 0
@@ -242,7 +242,7 @@ texture = ExtResource("1_shhln")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_quo56"]
 resource_name = "Road_01_block"
-texture = ExtResource("1_shhln")
+texture = ExtResource("1_75pgm")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
