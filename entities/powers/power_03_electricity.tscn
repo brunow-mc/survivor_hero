@@ -46,7 +46,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_04n5o")
 }],
-"loop": true,
+"loop": 1,
 "name": &"default",
 "speed": 15.0
 }]
@@ -56,12 +56,6 @@ z_index = 60
 collision_layer = 8
 collision_mask = 260
 script = ExtResource("1_yd12f")
-
-[node name="Polygon2D" type="Polygon2D" parent="." unique_id=715359230]
-visible = false
-scale = Vector2(0.3327835, 0.3327835)
-color = Color(0.2627451, 0.5882353, 0.8862745, 0)
-polygon = PackedVector2Array(0, -192, 49, -185, 96, -166, 136, -135, 166, -96, 185, -50, 192, 0, 185, 51, 167, 96, 136, 135, 97, 166, 52, 185, 0, 192, -50, 186, -97, 167, -136, 136, -166, 98, -186, 50, -192, 0, -185, -51, -166, -96, -136, -135, -98, -165, -51, -185)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1512287834]
 shape = SubResource("CircleShape2D_olyes")

@@ -27,8 +27,13 @@ func _on_state_changed(state: int) -> void:
 
 
 func _on_health_changed(current: float, _max_health: float) -> void:
-	# Arredonda para display (trunca decimal)
-	text = str(int(current))
+	# Trunca o decimal (98.7 mostra "98"), mas NUNCA mostra "0" com o jogador
+	# vivo: 0.37 de vida mostra "1". Mesmo critério da HealthBar, que com
+	# vida > 0 sempre pinta ao menos 1px — a morte só acontece com vida <= 0.
+	var shown: int = int(current)
+	if current > 0.0:
+		shown = maxi(1, shown)
+	text = str(shown)
 
 	# Primeira atualização (setup inicial)
 	if last_health == -1.0:
