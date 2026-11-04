@@ -1,0 +1,60 @@
+# Pendências
+
+Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar.
+
+## Reorganização da documentação (em andamento)
+
+- Próximo passo: piloto com o *Spawn system* — mover o texto para `.claude/rules/` sem alterar, depois corrigir em commit separado.
+- Destinos:
+  - `CLAUDE.md` (meta: cerca de 200 linhas): o que vale em qualquer tarefa.
+  - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
+  - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
+  - `docs/`: pendências e histórico real.
+- Cuidados:
+  - Mover sem resumir; nada se perde sem decisão do usuário.
+  - Uma regra vive em um só lugar.
+  - Regra que vale sempre fica no `CLAUDE.md`.
+  - Um sistema por vez; arquivo novo e remoção do `CLAUDE.md` no mesmo commit.
+  - Conferir o texto com o código durante a migração.
+- Corrigir a referência a `gator.gd` no `CLAUDE.md` (em *Key conventions*, uso de `uid://`) e o que mais aparecer durante a migração.
+
+## Ferramentas e projeto
+
+- `README.md`: talvez escrever uma descrição de verdade do projeto (futuro, opcional)
+- Skills, agents e MCP: escolher quando for usar (MCP preferencialmente só para leitura; skill citando a Godot 4.7.2)
+- Trocar `run/main_scene` para o menu principal quando existir; botão "Jogar" via `go_to_scene()`
+- `remove_powerup()`/`list_active_powerups()`: sair junto com o `TestPowerups`
+
+## Visual
+
+- Silhueta: uma cor por tipo de inimigo; índice e mapa dos tiles da frente na primeira consulta (antecipar se engasgar); miolo mostrando o personagem; itens futuros com outro script
+- Efeitos visuais futuros: usar a faixa de z 51–59
+- Tiles alternativos no TileSet: investigar para simplificar `building02` / `building02_alpha` (opcional)
+- Converter os demais `*_alpha` para opacos à medida que forem usados
+- Árbitro de `modulate`
+
+## Calibragem
+
+- Silhuetas (`outline_color`, `fill_alpha`, `tolerance`), `start_hold_seconds`, `initial_spawn_delay`, `fallback_*` do snowflake, `FADE_*` da chamber, `swap_sound_*`, `HOLD_BEFORE_MOVE`/`HOLD_AFTER_MOVE`, `MAIN_MENU_FADE_*`
+- `ARRIVAL_CLEARANCE` (6.0)
+
+## Fases, portas e personagens
+
+- Room doors da stage01: ajustar ao level design
+- Horda segue o jogador entre salas: manter ou purgar
+- Porta trancada
+- Desbloqueio de fases
+- Ponto de chegada na safe house conforme a porta de origem
+- Desbloqueio de personagens via save
+- Chamber: reinicializar a `LoadoutBar` na troca; retorno ao tocar chamber bloqueada; migração para `PlayerData`
+
+## Sistemas de jogo
+
+- Alcance de ataques com o tempo parado (boss, hitstop)
+- Dano de projéteis já lançados fora de COMBAT: adiado
+- XP coletado após a morte: adiado
+- Powerups futuros que agem no tempo devem consultar a retenção
+- `SpawnManagerConfig` independente da ordem na árvore
+- EXPLORATION: torneira/freio/purga
+- Prioridade no steering
+- Forma do `is_combat_allowed()`
