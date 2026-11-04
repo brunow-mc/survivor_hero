@@ -4,7 +4,8 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Reorganização da documentação (em andamento)
 
-- Próximo passo: piloto com o *Spawn system* — mover o texto para `.claude/rules/` sem alterar, depois corrigir em commit separado.
+- Piloto do *Spawn system*: texto movido para `.claude/rules/spawn.md` sem alterar. Falta testar em conversa nova e, em commit separado, comparar com o código e corrigir.
+- Mover `spawn_manager_config.tscn` de `entities/spawn/` para `entities/stage_parts/` pelo FileSystem da Godot (decidido pelo usuário) e atualizar o `paths` de `spawn.md` e a lista de peças em *Folder layout*.
 - Destinos:
   - `CLAUDE.md` (meta: cerca de 200 linhas): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
