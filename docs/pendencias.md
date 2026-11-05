@@ -6,16 +6,11 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
 - *Occlusion silhouette*: concluída (migrada, conferida com o código, corrigida e testada).
-- *World objects*, em partes (Chambers, Barrier, cenas `@tool` e `RESET`, Portas, detalhes de troca de cena). Cada parte faz só o teste do sintoma.
-  - Chambers: concluída (migrada, conferida com o código, corrigida e testada).
-  - Barrier: concluída (migrada, conferida com o código, corrigida e testada).
-  - Cenas `@tool` e `RESET`: concluída (migrada, conferida com o código, corrigida e testada).
-  - Portas: concluída (migrada, conferida com o código, corrigida e testada).
-  - Detalhes de troca de cena: texto movido para `.claude/rules/scene-changes.md` sem alterar. Falta conferir com o código e testar.
+- *World objects*: concluída (Chambers, Barrier, cenas `@tool` e `RESET`, Portas e detalhes de troca de cena). Cada parte foi migrada, conferida com o código, corrigida e testada.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
-- Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
+- Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 131 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 110 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -66,3 +61,4 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - EXPLORATION: torneira/freio/purga
 - Prioridade no steering
 - Forma do `is_combat_allowed()`
+- Menu de pausa: apertar Resume durante a espera do `Reload_Timer` não cancela o restart
