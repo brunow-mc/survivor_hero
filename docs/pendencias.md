@@ -4,7 +4,8 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Reorganização da documentação (em andamento)
 
-- Piloto do *Spawn system*: migrado, testado e conferido com o código. Falta o teste só com sintoma, em conversa nova.
+- Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código). Próximo assunto a escolher.
+- `CLAUDE.md`, seções *Project* e *Running the game*: ainda citam Godot 4.6; o projeto está na 4.7.2.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
 - Destinos:
