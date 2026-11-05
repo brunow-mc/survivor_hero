@@ -1279,7 +1279,7 @@ func get_snapped_navigable_point(check_pos: Vector2) -> Vector2:
 
 	Antes isto perguntava a NavigationServer2D.map_get_closest_point(), que faz
 	busca LINEAR em todas as regiões do mapa. O TileMapLayer cria UMA REGIÃO
-	POR TILE (3762 no stage01, ~7500 triângulos), então cada consulta custava
+	POR TILE (3762 no stage_01, ~7500 triângulos), então cada consulta custava
 	~140 us e uma varredura de 288 pontos travava o frame por ~40 ms. Ler do
 	tile é busca de hash. A equivalência foi verificada empiricamente rodando
 	os dois métodos lado a lado: ZERO divergências de veredito em 27 varreduras.

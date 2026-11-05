@@ -7,8 +7,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
 - *Occlusion silhouette*: concluída (migrada, conferida com o código, corrigida e testada).
 - *World objects*, em partes (Chambers, Barrier, cenas `@tool` e `RESET`, Portas, detalhes de troca de cena). Cada parte faz só o teste do sintoma.
-  - Chambers: migrada, conferida com o código e corrigida. Falta o teste do sintoma.
-  - Antes de migrar Barrier: trocar todos os nomes `stage01` por `stage_01`.
+  - Chambers: concluída (migrada, conferida com o código, corrigida e testada).
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
 - Destinos:
@@ -44,7 +43,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Fases, portas e personagens
 
-- Room doors da stage01: ajustar ao level design
+- Room doors da stage_01: ajustar ao level design
 - Horda segue o jogador entre salas: manter ou purgar
 - Porta trancada
 - Desbloqueio de fases

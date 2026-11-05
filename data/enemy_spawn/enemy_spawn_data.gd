@@ -39,9 +39,6 @@ extends Resource
 ## calibragem legítima — permite 1-3px de sobreposição que a física
 ## resolve no primeiro quadro, e ganha corredores estreitos.
 ##
-## Raios reais em uso: Gator 10 | Red Gator 15.
-## Calibragem em stage01: Gator 7 | Red Gator 16.
-##
 ## O offset do centro do corpo NÃO fica aqui: o SpawnManager lê o nó
 ## BodyCenter da própria cena do inimigo. Havia um body_center_offset
 ## neste grupo, cópia manual daquele nó, e as duas já divergiram.

@@ -9,7 +9,7 @@ class_name StageConfig
 # POR QUE ISSO EXISTE: o GameStateGlobal é autoload, então o estado
 # SOBREVIVE à troca de cena. Sem este nó, uma fase herda o modo da fase
 # anterior — sair de uma safe house em EXPLORATION deixaria a próxima fase
-# de combate com ataque, dano e XP bloqueados. E a stage01 era COMBAT por
+# de combate com ataque, dano e XP bloqueados. E a stage_01 era COMBAT por
 # OMISSÃO (valor inicial da variável no autoload), não por decisão.
 #
 # Cada fase declara o seu. O valor inicial do autoload passa a ser só rede

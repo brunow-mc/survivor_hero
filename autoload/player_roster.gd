@@ -20,7 +20,7 @@ extends Node
 # =================================================
 
 ## Personagem usado quando ninguém escolheu nada — o caso de apertar F5 direto
-## na stage01, sem passar pela safe house.
+## na stage_01, sem passar pela safe house.
 ##
 ## É um padrão de PROJETO, não de fase. Uma fase que precise impor um
 ## personagem (tutorial, intro, fase roteirizada) usa o forced_player do

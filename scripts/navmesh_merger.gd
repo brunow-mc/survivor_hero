@@ -5,12 +5,12 @@ class_name NavmeshMerger
 # MALHA DE NAVEGACAO UNIFICADA — v1.0.0
 #
 # O TileMapLayer cria UMA REGIAO DE NAVEGACAO POR TILE (3762 no
-# stage01, ~1 poligono cada). Toda consulta de rota localiza os
+# stage_01, ~1 poligono cada). Toda consulta de rota localiza os
 # poligonos de inicio e fim por VARREDURA LINEAR sobre todos eles, e
 # essa localizacao respondia por 80% do custo da navegacao.
 #
 # Este no substitui isso por UMA regiao com os poligonos unidos.
-# Medido no stage01: 3762 -> 206 poligonos, consulta de 303 -> 19 us,
+# Medido no stage_01: 3762 -> 206 poligonos, consulta de 303 -> 19 us,
 # e em jogo a navegacao caiu de 39 para 4.3 us por inimigo.
 #
 # LE O POLIGONO REAL DE CADA TILE, NUNCA A CELULA. Hoje todo tile
