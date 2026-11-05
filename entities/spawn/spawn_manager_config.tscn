@@ -4,4 +4,3 @@
 
 [node name="SpawnManagerConfig" type="Node" unique_id=239628109]
 script = ExtResource("1_config_script")
-min_distance_between_enemies = 80.0

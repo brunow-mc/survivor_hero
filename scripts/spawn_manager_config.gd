@@ -15,7 +15,7 @@ extends Node
 ## Número máximo de inimigos vivos simultaneamente
 @export var max_enemies: int = 100
 
-## Budget inicial por segundo (aumenta com dificuldade)
+## Taxa base de budget por segundo. É fixa: a taxa efetiva é ela × difficulty_multiplier.
 @export var base_budget_per_second: float = 1.0
 
 ## Budget mínimo necessário para INICIAR spawning
@@ -55,8 +55,8 @@ extends Node
 # DIFICULDADE
 # =================================================
 @export_group("Difficulty Scaling")
-## Multiplicador de dificuldade por minuto
-## 1.0 = sem aumento, 1.5 = +50% por minuto
+## Quanto difficulty_multiplier sobe por minuto (soma linear, parte de 1.0).
+## 0 = sem aumento, 0.3 = +0.3 por minuto.
 @export var difficulty_increase_per_minute: float = 0.3
 
 ## Dificuldade máxima (plateau)
@@ -83,8 +83,6 @@ extends Node
 ## exemplo num stage com mais de um container.
 @export var enemy_container: Node2D
 
-# =================================================
-# TELEPORT SYSTEM
 # =================================================
 # TELEPORT SYSTEM
 # =================================================
@@ -115,7 +113,7 @@ extends Node
 # =================================================
 @export_group("Spawn Validation")
 ## Distância mínima entre inimigos no spawn (px)
-@export var min_distance_between_enemies: float = 48.0
+@export var min_distance_between_enemies: float = 32.0
 
 # A folga de parede NAO se calibra aqui. Ela vem do spawn_clearance_radius
 # de cada EnemySpawnData (grupo Spawn Fit, logo acima nesta mesma cena), e o
@@ -302,7 +300,7 @@ func initialize_spawn_manager() -> void:
 	print("   Chão de spawn: ", nav_layers.map(func(l): return l.name),
 		" | Excluídas: ", excluded_text)
 
-## Usado quando o export está vazio: coleta toda TileMapLayer da cena.
+## Coleta toda TileMapLayer da cena; as excluídas saem depois, no chamador.
 ## Camadas sem navegação são descartadas de graça pelo SpawnManager.
 func _collect_tilemap_layers(node: Node, out: Array[TileMapLayer]) -> void:
 	if not node:

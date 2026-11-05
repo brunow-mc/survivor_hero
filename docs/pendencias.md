@@ -4,10 +4,13 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Reorganização da documentação (em andamento)
 
-- Piloto do *Spawn system*: texto movido para `.claude/rules/spawn.md` sem alterar. Falta testar em conversa nova e, em commit separado, comparar com o código e corrigir.
+- Piloto do *Spawn system*: migrado, testado e conferido com o código. Falta o teste só com sintoma, em conversa nova.
 - Mover `spawn_manager_config.tscn` de `entities/spawn/` para `entities/stage_parts/` pelo FileSystem da Godot (decidido pelo usuário) e atualizar o `paths` de `spawn.md` e a lista de peças em *Folder layout*.
+- Teleporte pela distância do corpo: em `check_and_teleport_distant_enemies()` (`autoload/spawn_manager.gd`), trocar `enemy.global_position - player.global_position` por BodyCenter do inimigo menos BodyCenter do jogador, reaproveitando `_get_enemy_body_positions()` e ajustando o log de debug. Muda 2 a 3 px, só no eixo vertical. Depois, atualizar a frase sobre pés em `spawn.md`.
+- `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
+- Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
 - Destinos:
-  - `CLAUDE.md` (meta: cerca de 200 linhas): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 137 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -17,7 +20,6 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
   - Regra que vale sempre fica no `CLAUDE.md`.
   - Um sistema por vez; arquivo novo e remoção do `CLAUDE.md` no mesmo commit.
   - Conferir o texto com o código durante a migração.
-- Corrigir a referência a `gator.gd` no `CLAUDE.md` (em *Key conventions*, uso de `uid://`) e o que mais aparecer durante a migração.
 
 ## Ferramentas e projeto
 

@@ -23,7 +23,7 @@ signal debug_data_updated(data: Dictionary)
 ## Número máximo de inimigos vivos simultaneamente
 @export var max_enemies: int = 100
 
-## Budget inicial por segundo (aumenta com dificuldade)
+## Taxa base de budget por segundo. É fixa: a taxa efetiva é ela × difficulty_multiplier.
 @export var base_budget_per_second: float = 1.0
 
 ## Budget mínimo necessário para INICIAR spawning
@@ -63,8 +63,8 @@ var initial_budget: float = 0.0
 # DIFICULDADE
 # =================================================
 @export_group("Difficulty Scaling")
-## Multiplicador de dificuldade por minuto
-## 1.0 = sem aumento, 1.5 = +50% por minuto
+## Quanto difficulty_multiplier sobe por minuto (soma linear, parte de 1.0).
+## 0 = sem aumento, 0.3 = +0.3 por minuto.
 @export var difficulty_increase_per_minute: float = 0.3
 
 ## Dificuldade máxima (plateau)
@@ -104,7 +104,7 @@ var initial_budget: float = 0.0
 @export_group("Spawn Validation")
 ## Distância mínima entre inimigos no spawn (px)
 ## Evita que inimigos spawnem muito próximos uns dos outros
-@export var min_distance_between_enemies: float = 48.0
+@export var min_distance_between_enemies: float = 32.0
 
 ## Folga de parede (px) usada quando NAO SE SABE qual inimigo e este.
 ##
@@ -198,8 +198,8 @@ const GRID_CACHE_MOVE_THRESHOLD: float = 16.0
 
 ## Camadas onde inimigos podem NASCER. Não têm relação com a navegação:
 ## quem move inimigo é o navmesh, que não passa por aqui.
-## Resolvidas pelo SpawnManagerConfig (export preenchido -> essas camadas;
-## export vazio -> varredura da cena).
+## Resolvidas pelo SpawnManagerConfig: varre a cena inteira e tira as camadas de
+## enemy_spawn_excluded_layers. Aqui fica o RESULTADO, não a lista do Inspector.
 ## Listar a camada NÃO diz que ela é toda navegável — quem decide é cada
 ## tile (ver _get_nav_layer_data).
 var enemy_spawn_ground_layers: Array[TileMapLayer] = []
@@ -692,7 +692,7 @@ func _take_position_fitting_enemy(enemy: Node) -> Vector2:
 		clearance = def.spawn_clearance_radius
 
 	# As posições do cache JÁ SÃO centros de corpo: o teleporte coloca o
-	# BodyCenter sobre o ponto (ver o `pos - offset` em teleport_distant_enemies,
+	# BodyCenter sobre o ponto (ver o `pos - offset` em check_and_teleport_distant_enemies,
 	# mesma regra de spawn_enemy). Somar o offset do corpo aqui testaria a
 	# parede 10 px (gator) ou 15 px (red gator) acima de onde o colisor vai
 	# ficar — resíduo da colocação antiga pelos pés, que o spawn já corrigiu.
@@ -1432,7 +1432,7 @@ func _get_nav_layer_data() -> Array:
 		})
 
 	if _nav_layer_data.is_empty():
-		push_warning("SpawnManager: nenhuma camada com tiles navegáveis encontrada — NÃO HAVERÁ SPAWN. Verifique se a cena tem TileMapLayer com polígono de navegação no TileSet, ou corrija 'Enemy Spawn Ground Layers' no SpawnManagerConfig.")
+		push_warning("SpawnManager: nenhuma camada com tiles navegáveis encontrada — NÃO HAVERÁ SPAWN. Verifique se a cena tem TileMapLayer com polígono de navegação no TileSet, ou corrija 'Enemy Spawn Excluded Layers' no SpawnManagerConfig.")
 
 	return _nav_layer_data
 

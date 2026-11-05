@@ -113,7 +113,6 @@ spawn_margin_min_vertical = 30.0
 max_difficulty_multiplier = 100.0
 enemy_definitions = Array[ExtResource("11_fdwqw")]([SubResource("Resource_nunuq"), SubResource("Resource_puonp")])
 max_teleports_per_frame = 50
-min_distance_between_enemies = 32.0
 
 [node name="ToSafeHouse" parent="." unique_id=1883627445 instance=ExtResource("19_trvx0")]
 position = Vector2(2744, 24)
