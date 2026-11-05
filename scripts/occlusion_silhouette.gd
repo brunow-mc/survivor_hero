@@ -8,8 +8,8 @@ class_name OcclusionSilhouette
 # shader occlusion_silhouette.gdshader: mostra contorno + miolo leve só onde
 # algo cobre o corpo (ver o shader).
 #
-# Criada POR CÓDIGO (PlayerBase), nunca posta à mão: nenhuma cena de
-# personagem precisa ser editada, e personagens futuros ganham o efeito.
+# Criada POR CÓDIGO pelo dono da sprite, nunca posta à mão: nenhuma cena
+# precisa ser editada.
 #
 # A cada frame copia tudo o que define a imagem desenhada pela sprite
 # original. O modulate também: o shader compara cores, e sem copiá-lo o

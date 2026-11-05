@@ -7,9 +7,8 @@ class_name FrontTiles
 # que só devem aparecer atrás de cenário — inimigos e itens —, e não por cima
 # de outras entidades.
 #
-# "Tile da frente" = tile com z_index >= MIN_Z no TileSet (os *_alpha usam
-# z 4; os de trás, 0; os de decoração no Y-sort, 2). Nenhuma marcação extra
-# no TileSet.
+# "Tile da frente" = tile com z_index >= MIN_Z no TileSet. Nenhuma marcação
+# extra no TileSet; o nome do tile não decide nada.
 #
 # DUAS PRECISÕES, as duas montadas UMA VEZ por cena (tiles são estáticos):
 #   - rect_touches(): o retângulo da sprite toca alguma célula da frente?

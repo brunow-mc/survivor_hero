@@ -5,7 +5,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 ## Reorganização da documentação (em andamento)
 
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
-- *Occlusion silhouette*: texto movido para `.claude/rules/occlusion-silhouette.md` sem alterar. Falta conferir com o código e testar em conversas novas.
+- *Occlusion silhouette*: migrada para `.claude/rules/occlusion-silhouette.md`, conferida com o código e corrigida. Falta testar em conversas novas.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
 - Destinos:
@@ -31,8 +31,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 - Silhueta: uma cor por tipo de inimigo; índice e mapa dos tiles da frente na primeira consulta (antecipar se engasgar); miolo mostrando o personagem; itens futuros com outro script
 - Efeitos visuais futuros: usar a faixa de z 51–59
-- Tiles alternativos no TileSet: investigar para simplificar `building02` / `building02_alpha` (opcional)
-- Converter os demais `*_alpha` para opacos à medida que forem usados
+- Tiles alternativos no TileSet: investigar para simplificar `building_02` / `building_02_front` (opcional)
 - Árbitro de `modulate`
 
 ## Calibragem
@@ -57,6 +56,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - XP coletado após a morte: adiado
 - Powerups futuros que agem no tempo devem consultar a retenção
 - `SpawnManagerConfig` independente da ordem na árvore
+- Spawn: polígono de navegação vazio conta como chão em `_get_nav_layer_data()`. Sem efeito hoje; só importaria num tile com colisão parcial e centro livre
 - EXPLORATION: torneira/freio/purga
 - Prioridade no steering
 - Forma do `is_combat_allowed()`

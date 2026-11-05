@@ -8,7 +8,7 @@ shader_type canvas_item;
 //   - a que o corpo DEVERIA ter ali (COLOR = pixel da sprite × modulate)
 //   - a que REALMENTE está na tela naquele ponto
 // Iguais → o corpo está visível → não desenha nada.
-// Diferentes → algo está na frente (tile da frente, outra entidade, efeito)
+// Diferentes → algo está na frente (tile da frente, outra entidade)
 // → desenha a silhueta: contorno interno de 1 px + miolo levemente
 // preenchido.
 //
