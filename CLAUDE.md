@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running the game
 
-Open `project.godot` in Godot 4.7.2 and press F5 (or the play button). The main scene is `stages/stage01.tscn`.
+Open `project.godot` in Godot 4.7.2 and press F5 (or the play button). The main scene is `stages/stage_01.tscn`.
 
 There are no automated tests. Manual playtesting is the only validation method.
 
