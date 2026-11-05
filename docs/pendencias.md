@@ -9,7 +9,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *World objects*, em partes (Chambers, Barrier, cenas `@tool` e `RESET`, Portas, detalhes de troca de cena). Cada parte faz só o teste do sintoma.
   - Chambers: concluída (migrada, conferida com o código, corrigida e testada).
   - Barrier: concluída (migrada, conferida com o código, corrigida e testada).
-  - Cenas `@tool` e `RESET`: texto movido para `.claude/rules/godot-tool-scenes.md` sem alterar. Falta conferir com o código e testar.
+  - Cenas `@tool` e `RESET`: migrada, conferida com o código e corrigida. Falta o teste do sintoma.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código logo depois, com correção em seguida.
 - Destinos:
