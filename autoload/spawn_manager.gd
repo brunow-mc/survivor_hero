@@ -449,16 +449,20 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 	# todo esse trabalho era descartado logo abaixo.
 	var enemies: Array[Node] = _get_enemies()
 	var enemies_to_teleport: Array = []
+	var player_body: Vector2 = player.get_body_center_position() if player.has_method("get_body_center_position") else player.global_position
 
 	for enemy in enemies:
 		if not enemy or not is_instance_valid(enemy):
 			continue
 
-		# Distância por EIXO. O teste é RETANGULAR (não radial) para
-		# acompanhar a forma da tela e da faixa de spawn: um raio único
-		# ficaria curto num eixo e folgado no outro. Bônus: sem raiz
-		# quadrada — comparação direta de componentes.
-		var offset: Vector2 = enemy.global_position - player.global_position
+		# Distância por EIXO, medida de CORPO a CORPO (BodyCenter dos dois): é o
+		# ponto que o teleporte posiciona e a referência das demais medidas do
+		# spawn. O teste é RETANGULAR (não radial) para acompanhar a forma da
+		# tela e da faixa de spawn: um raio único ficaria curto num eixo e
+		# folgado no outro. Bônus: sem raiz quadrada — comparação direta de
+		# componentes.
+		var enemy_body: Vector2 = enemy.get_body_center_position() if enemy.has_method("get_body_center_position") else enemy.global_position
+		var offset: Vector2 = enemy_body - player_body
 
 		# Se ultrapassou o limite em QUALQUER eixo, marca para teleport
 		if absf(offset.x) > max_distance_from_player_horizontal \
@@ -523,7 +527,7 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 			print("├─ Inimigo: ", enemy.name)
 			print("├─ Posição ANTES: (", int(pos_before.x), ", ", int(pos_before.y), ")")
 			print("├─ Posição DEPOIS: (", int(pos.x), ", ", int(pos.y), ")")
-			print("├─ Distância do player: ", int(pos_before.distance_to(player.global_position)), "px")
+			print("├─ Distância do player: ", int((pos_before + _get_body_offset(enemy)).distance_to(player_body)), "px")
 			print("└─ Cache restante: ", safe_teleport_positions.size(), "\n")
 	
 	# Debug resumo
