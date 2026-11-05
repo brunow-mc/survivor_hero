@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://cxeqfoj7lg4ui" path="res://ui/loadout_bar.tscn" id="7_frfcc"]
 [ext_resource type="PackedScene" uid="uid://be5j45u2rjqv" path="res://ui/game_over_menu.tscn" id="7_ydume"]
 [ext_resource type="PackedScene" uid="uid://c0dmv7da3ciwo" path="res://ui/xp_bar.tscn" id="9_dpt3t"]
-[ext_resource type="PackedScene" uid="uid://bq81qryqfwvjq" path="res://entities/spawn/spawn_manager_config.tscn" id="10_spawn_config"]
+[ext_resource type="PackedScene" uid="uid://bq81qryqfwvjq" path="res://entities/stage_parts/spawn_manager_config.tscn" id="10_spawn_config"]
 [ext_resource type="Script" uid="uid://bw1gjvwruq6ci" path="res://data/enemy_spawn/enemy_spawn_data.gd" id="11_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://cpjj1dgsuaw28" path="res://entities/enemies/gator.tscn" id="12_fdwqw"]
 [ext_resource type="PackedScene" uid="uid://d4bemluv6u7qg" path="res://entities/enemies/red_gator.tscn" id="13_emoyi"]

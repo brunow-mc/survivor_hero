@@ -3,7 +3,7 @@ paths:
   - "autoload/spawn_manager.gd"
   - "scripts/spawn_manager_config.gd"
   - "data/enemy_spawn/**"
-  - "entities/spawn/**"
+  - "entities/stage_parts/spawn_manager_config.tscn"
 ---
 
 ### Spawn system (`SpawnManagerGlobal`)
