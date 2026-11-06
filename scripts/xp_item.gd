@@ -27,7 +27,7 @@ enum ItemState {
 }
 
 var state: ItemState = ItemState.IDLE
-var player: CharacterBody2D = null
+var player: PlayerBase = null
 
 # ======================================
 # READY
@@ -78,7 +78,7 @@ func _check_for_player_proximity() -> void:
 	if not is_instance_valid(player):
 		return
 
-	var distance := global_position.distance_to(player.global_position)
+	var distance := global_position.distance_to(player.get_body_center_position())
 	var effective_range := magnet_range + PowerUpStatsGlobal.magnet_range_bonus
 
 	if distance <= effective_range:
@@ -91,13 +91,13 @@ func _move_towards_player(delta: float) -> void:
 	if not is_instance_valid(player):
 		return
 
-	var distance := global_position.distance_to(player.global_position)
+	var distance := global_position.distance_to(player.get_body_center_position())
 
 	if distance <= auto_collect_range:
 		collect()
 		return
 
-	var direction := (player.global_position - global_position).normalized()
+	var direction := (player.get_body_center_position() - global_position).normalized()
 	global_position += direction * move_speed * delta
 
 # ======================================

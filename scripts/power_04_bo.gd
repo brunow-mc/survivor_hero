@@ -56,7 +56,7 @@ var state: BoState = BoState.GOING_FORWARD
 var move_direction: Vector2 = Vector2.ZERO
 var traveled_distance: float = 0.0
 var return_traveled_distance: float = 0.0
-var player_ref: Node2D = null
+var player_ref: PlayerBase = null
 var tween: Tween = null
 
 
@@ -79,7 +79,6 @@ var enemies_in_contact: Dictionary = {}
 # =================================================
 var current_scale: float = 1.0
 var max_forward_distance: float = 0.0
-var initial_player_distance: float = 0.0
 var target_scale: float = 1.0  # v1.3.13: Snapshot do scale no spawn
 
 
@@ -96,10 +95,6 @@ func _ready() -> void:
 	
 	# Calcular distância total para sistema de escala
 	_calculate_max_forward_distance()
-	
-	# Guardar distância inicial ao player (para cálculo de volta)
-	if is_instance_valid(player_ref):
-		initial_player_distance = global_position.distance_to(player_ref.global_position)
 
 	# =================================================
 	# ÁUDIO DE IDA - v1.2.2
@@ -176,7 +171,7 @@ func _update_scale() -> void:
 				return
 			
 			# Distância REAL (sem lerp na distância)
-			var current_dist = global_position.distance_to(player_ref.global_position)
+			var current_dist = global_position.distance_to(player_ref.get_body_center_position())
 			
 			# Calcula qual scale deveria ser
 			var progress = 0.0
@@ -363,7 +358,7 @@ func process_return(delta: float) -> void:
 		queue_free()
 		return
 
-	var to_player := player_ref.global_position - global_position
+	var to_player := player_ref.get_body_center_position() - global_position
 	var distance := to_player.length()
 
 	if distance <= arrive_distance:

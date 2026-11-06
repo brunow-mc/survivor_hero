@@ -2,10 +2,6 @@
 
 Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar.
 
-## Prioridade alta
-
-- Ao concluir *Entity anatomy*, interromper as migrações e corrigir: `power_04_bo` e `XPItem` usam os pés do jogador (`global_position`) e devem usar o corpo (`get_body_center_position()`). Depois, voltar às migrações
-
 ## Reorganização da documentação (em andamento)
 
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
