@@ -121,7 +121,7 @@ enum EnemyState {
 ## Maior = mantém mais distância das paredes. 0 = steering ignora paredes.
 @export var steer_wall_clearance: float = 16.0
 ## "Aguardar": se nem a melhor fatia livre aponta razoavelmente para o player
-## (interesse abaixo disto), o inimigo está cercado sem acesso — segura a
+## (interesse abaixo disto), o inimigo está sem fatia livre útil — segura a
 ## posição em vez de circular/forçar. Interesse = cos do ângulo até o rumo do
 ## player (0.3 ≈ 72°). 0 desliga o "aguardar" (volta a sempre circular).
 @export var steer_block_min_interest: float = 0.3
@@ -416,10 +416,10 @@ func base_move(delta: float) -> void:
 		var desired_velocity: Vector2 = move_dir * move_speed
 
 		if steering_enabled:
-			# move_dir == ZERO → estado "aguardar" (cercado sem acesso, ou
+			# move_dir == ZERO → estado "aguardar" (sem fatia livre útil, ou
 			# navegação concluída): segura a posição, como a parada normal.
 			# A animação segue a regra atual (velocity ZERO → IDLE; ataque
-			# ainda decidido só pela distância de 50px). Nada é alterado nela.
+			# ainda decidido só pela attack_distance). Nada é alterado nela.
 			if move_dir == Vector2.ZERO:
 				can_walk = false
 				velocity = Vector2.ZERO
@@ -562,7 +562,7 @@ func _steer_direction(base_dir: Vector2) -> Vector2:
 			best_dir = slice_dirs[i]
 
 	# "Aguardar": nem a melhor fatia livre aponta razoavelmente para o player
-	# → cercado sem acesso. Retorna ZERO para o base_move segurar a posição
+	# → sem fatia livre útil. Retorna ZERO para o base_move segurar a posição
 	# (mesmo tratamento da parada normal; animação não é tocada aqui).
 	if best_interest < steer_block_min_interest:
 		return Vector2.ZERO

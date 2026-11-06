@@ -7,10 +7,11 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
 - *Occlusion silhouette*: concluída (migrada, conferida com o código, corrigida e testada).
 - *World objects*: concluída (Chambers, Barrier, cenas `@tool` e `RESET`, Portas e detalhes de troca de cena). Cada parte foi migrada, conferida com o código, corrigida e testada.
+- *Context Steering*: concluída (migrada, conferida com o código, corrigida e testada).
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 110 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 103 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -39,6 +40,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 - Silhuetas (`outline_color`, `fill_alpha`, `tolerance`), `start_hold_seconds`, `initial_spawn_delay`, `fallback_*` do snowflake, `FADE_*` da chamber, `swap_sound_*`, `HOLD_BEFORE_MOVE`/`HOLD_AFTER_MOVE`, `MAIN_MENU_FADE_*`
 - `ARRIVAL_CLEARANCE` (6.0)
+- `steer_enemy_clearance` do gator: falta calibrar. Antes disso, Claude explica ao usuário como esse valor funciona, pois ele ainda não ficou totalmente claro
 
 ## Fases, portas e personagens
 
@@ -52,6 +54,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Sistemas de jogo
 
+- **PRIORIDADE ALTA (acima da maioria das pendências):** mover o dano de contato (`_on_hitbox_area_entered/exited`) e o `queue_free()` de `dead_state()` de `enemy_chaser.gd` para `EnemyBase`. Inimigos são boa parte do jogo, e sem isso o primeiro inimigo com script próprio teria um problema sério: não sairia de cena ao morrer e não causaria dano de contato sem copiar código. Fazer antes de chegar nesse ponto.
 - Alcance de ataques com o tempo parado (boss, hitstop)
 - Dano de projéteis já lançados fora de COMBAT: adiado
 - XP coletado após a morte: adiado

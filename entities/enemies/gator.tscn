@@ -95,7 +95,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_6vesj")
 }],
-"loop": true,
+"loop": 1,
 "name": &"attack",
 "speed": 7.0
 }, {
@@ -103,7 +103,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("2_3rau8")
 }],
-"loop": false,
+"loop": 0,
 "name": &"idle",
 "speed": 7.0
 }, {
@@ -120,7 +120,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_rrp0o")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
 "speed": 7.0
 }, {
@@ -137,7 +137,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_rp1ac")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk_attack",
 "speed": 7.0
 }]
@@ -167,6 +167,7 @@ flash_color = Color(0.627451, 0, 0, 1)
 death_effect = ExtResource("6_6vesj")
 steer_slice_count = 16
 steer_detect_radius = 26.0
+steer_enemy_clearance = 18.0
 steer_block_min_interest = 0.2
 steer_update_interval = 8
 
