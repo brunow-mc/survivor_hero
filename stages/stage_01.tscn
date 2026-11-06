@@ -40,15 +40,15 @@ spawn_clearance_radius = 16.0
 min_game_time = 30.0
 metadata/_custom_type_script = "uid://bw1gjvwruq6ci"
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hg3a"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gk8eh"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_t0un3"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c4ntl"]
 resource_local_to_scene = true
 size = Vector2(16, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_cy1k7"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xt4xj"]
 resource_local_to_scene = true
 size = Vector2(16, 16)
 
@@ -119,14 +119,14 @@ position = Vector2(2744, 24)
 destination = "uid://dt1ifvjdehund"
 
 [node name="CollisionShape2D" parent="ToSafeHouse" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_0hg3a")
+shape = SubResource("RectangleShape2D_gk8eh")
 
 [node name="Door01A" parent="." unique_id=1182610160 node_paths=PackedStringArray("partner") instance=ExtResource("21_rlkk8")]
 position = Vector2(64, -84)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_t0un3")
+shape = SubResource("RectangleShape2D_c4ntl")
 
 [node name="ArrivalPoint" parent="Door01A" index="1" unique_id=1913897894]
 position = Vector2(0, 16)
@@ -136,7 +136,7 @@ position = Vector2(768, -84)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_cy1k7")
+shape = SubResource("RectangleShape2D_xt4xj")
 
 [node name="ArrivalPoint" parent="Door01B" index="1" unique_id=1913897894]
 position = Vector2(0, 16)
