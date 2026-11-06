@@ -2,6 +2,10 @@
 
 Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar.
 
+## Prioridade alta
+
+- Ao concluir *Entity anatomy*, interromper as migrações e corrigir: `power_04_bo` e `XPItem` usam os pés do jogador (`global_position`) e devem usar o corpo (`get_body_center_position()`). Depois, voltar às migrações
+
 ## Reorganização da documentação (em andamento)
 
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
@@ -10,11 +14,11 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Context Steering*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Enemy system*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Attack system* e *PowerUp system*: concluída (migrada, conferida com o código, corrigida e testada).
-- `CLAUDE.md`, *New enemy checklist*: acrescentar o nó `Hitbox`, agora resolvido por `EnemyBase`. Fazer ao migrar *Entity anatomy*.
+- *Entity anatomy*: concluída (migrada, conferida com o código, corrigida e testada).
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 91 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 86 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -67,6 +71,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Spawn: polígono de navegação vazio conta como chão em `_get_nav_layer_data()`. Sem efeito hoje; só importaria num tile com colisão parcial e centro livre
 - EXPLORATION: torneira/freio/purga
 - Rever a necessidade de `_guard_against_position_jump()`: foi um remendo para os saltos de posição dos inimigos, e esses saltos talvez viessem do sistema de navegação antigo (RVO), que não existe mais. Hipótese ainda não confirmada
+- Knockback: rever o desalinhamento entre `Hurtbox` e `BodyCenter` nos inimigos. O acerto é detectado na `Hurtbox`, mas a direção do empurrão usa o `BodyCenter`. Tolerado por ora; o design ainda não está concluído
 - Prioridade no steering
 - Forma do `is_combat_allowed()`
 - Menu de pausa: apertar Resume durante a espera do `Reload_Timer` não cancela o restart
