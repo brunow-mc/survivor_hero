@@ -8,10 +8,11 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Occlusion silhouette*: concluída (migrada, conferida com o código, corrigida e testada).
 - *World objects*: concluída (Chambers, Barrier, cenas `@tool` e `RESET`, Portas e detalhes de troca de cena). Cada parte foi migrada, conferida com o código, corrigida e testada.
 - *Context Steering*: concluída (migrada, conferida com o código, corrigida e testada).
+- *Enemy system*: concluída (migrada, conferida com o código, corrigida e testada).
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 103 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 100 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -62,6 +63,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - `SpawnManagerConfig` independente da ordem na árvore
 - Spawn: polígono de navegação vazio conta como chão em `_get_nav_layer_data()`. Sem efeito hoje; só importaria num tile com colisão parcial e centro livre
 - EXPLORATION: torneira/freio/purga
+- Rever a necessidade de `_guard_against_position_jump()`: foi um remendo para os saltos de posição dos inimigos, e esses saltos talvez viessem do sistema de navegação antigo (RVO), que não existe mais. Hipótese ainda não confirmada
 - Prioridade no steering
 - Forma do `is_combat_allowed()`
 - Menu de pausa: apertar Resume durante a espera do `Reload_Timer` não cancela o restart

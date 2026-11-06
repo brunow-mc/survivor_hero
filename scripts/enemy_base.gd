@@ -79,7 +79,7 @@ enum EnemyState {
 ## Transparência do inimigo ao atravessar uma Barrier fechada (efeito de
 ## "fantasma"). 0 = invisível, 1 = totalmente opaco. Calibrável por inimigo.
 ## Usa só o canal ALPHA (flash_red usa RGB) — os dois convivem hoje, mas
-## brigariam se algum efeito futuro também mexer no alpha (ver CLAUDE.md /
+## brigariam se algum efeito futuro também mexer no alpha (ver .claude/rules/enemy-system.md /
 ## nota do "árbitro único de modulate", ainda não implementado).
 @export_range(0.0, 1.0, 0.05) var phase_alpha: float = 0.4
 ## Cena instanciada quando o inimigo morre (impacto, explosão…). Vazio = sem
