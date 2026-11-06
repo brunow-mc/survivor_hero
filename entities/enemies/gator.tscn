@@ -210,5 +210,3 @@ position = Vector2(0, -10)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=278959778]
 
-[connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
-[connection signal="area_exited" from="Hitbox" to="." method="_on_hitbox_area_exited"]

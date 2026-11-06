@@ -275,7 +275,15 @@ func _setup_base() -> void:
 	damage_timer.wait_time = damage_interval
 	damage_timer.timeout.connect(_on_damage_timer_timeout)
 	add_child(damage_timer)
-	
+
+	# Dano de contato: resolvido e conectado aqui, para todo inimigo nascer
+	# causando dano sem ligação manual na cena. Sem o nó Hitbox, não há dano
+	# de contato (avisado em _validate_scene_setup()).
+	hitbox = get_node_or_null("Hitbox") as Area2D
+	if hitbox:
+		hitbox.area_entered.connect(_on_hitbox_area_entered)
+		hitbox.area_exited.connect(_on_hitbox_area_exited)
+
 	# Busca player e cacheia seu BodyCenter. EXCEÇÃO DELIBERADA: os demais
 	# lugares usam player.get_body_center_position(); aqui cacheamos o NÓ e
 	# lemos .global_position em update_direction() — que roda todo frame, por
@@ -314,6 +322,9 @@ func _validate_scene_setup() -> void:
 	if scene_key == "" or _warned_enemy_scenes.has(scene_key):
 		return
 	_warned_enemy_scenes[scene_key] = true
+
+	if not hitbox:
+		push_warning("Inimigo '%s': sem nó 'Hitbox'. Ele não causa dano de contato." % scene_key)
 
 	var who: String = scene_key.get_file()
 
@@ -885,7 +896,21 @@ func handle_knockback_transfer() -> void:
 
 # =================================================
 # DAMAGE TO PLAYER
+# Padrão de todo inimigo. Um inimigo com outro sistema de dano sobrescreve
+# estes métodos no próprio script.
 # =================================================
+func _on_hitbox_area_entered(area: Area2D) -> void:
+	if area.is_in_group("PlayerHurtbox"):
+		player_in_contact = true
+		if player:
+			player.take_damage(damage_per_tick)
+		damage_timer.start()
+
+func _on_hitbox_area_exited(area: Area2D) -> void:
+	if area.is_in_group("PlayerHurtbox"):
+		player_in_contact = false
+		damage_timer.stop()
+
 func _on_damage_timer_timeout() -> void:
 	if player_in_contact and player and is_instance_valid(player):
 		player.take_damage(damage_per_tick)
@@ -910,5 +935,7 @@ func _spawn_death_effect() -> void:
 # =================================================
 # MÉTODOS VIRTUAIS
 # =================================================
+## Padrão: sai de cena. Um inimigo com outra morte (animação longa, por
+## exemplo) sobrescreve este método no próprio script.
 func dead_state() -> void:
-	pass
+	queue_free()

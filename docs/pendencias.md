@@ -9,6 +9,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *World objects*: concluída (Chambers, Barrier, cenas `@tool` e `RESET`, Portas e detalhes de troca de cena). Cada parte foi migrada, conferida com o código, corrigida e testada.
 - *Context Steering*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Enemy system*: concluída (migrada, conferida com o código, corrigida e testada).
+- `CLAUDE.md`, *New enemy checklist*: acrescentar o nó `Hitbox`, agora resolvido por `EnemyBase`. Fazer ao migrar *Entity anatomy*.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
@@ -55,7 +56,6 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Sistemas de jogo
 
-- **PRIORIDADE ALTA (acima da maioria das pendências):** mover o dano de contato (`_on_hitbox_area_entered/exited`) e o `queue_free()` de `dead_state()` de `enemy_chaser.gd` para `EnemyBase`. Inimigos são boa parte do jogo, e sem isso o primeiro inimigo com script próprio teria um problema sério: não sairia de cena ao morrer e não causaria dano de contato sem copiar código. Fazer antes de chegar nesse ponto.
 - Alcance de ataques com o tempo parado (boss, hitstop)
 - Dano de projéteis já lançados fora de COMBAT: adiado
 - XP coletado após a morte: adiado
