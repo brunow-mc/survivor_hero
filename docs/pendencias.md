@@ -9,11 +9,12 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *World objects*: concluída (Chambers, Barrier, cenas `@tool` e `RESET`, Portas e detalhes de troca de cena). Cada parte foi migrada, conferida com o código, corrigida e testada.
 - *Context Steering*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Enemy system*: concluída (migrada, conferida com o código, corrigida e testada).
+- *Attack system* e *PowerUp system*: concluída (migrada, conferida com o código, corrigida e testada).
 - `CLAUDE.md`, *New enemy checklist*: acrescentar o nó `Hitbox`, agora resolvido por `EnemyBase`. Fazer ao migrar *Entity anatomy*.
 - `CLAUDE.md`, seção *Player*: a regra de ordem diz que o `SpawnManagerConfig` é quem exige o `PlayerSpawner` primeiro, mas ele espera um quadro antes de iniciar (`auto_start`). Quem depende da ordem é a `LoadoutBar`. Corrigir ao migrar *Player* e rever o item `SpawnManagerConfig` independente da ordem.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 100 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 91 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -30,6 +31,8 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Skills, agents e MCP: escolher quando for usar (MCP preferencialmente só para leitura; skill citando a Godot 4.7.2)
 - Trocar `run/main_scene` para o menu principal quando existir; botão "Jogar" via `go_to_scene()`
 - `remove_powerup()`/`list_active_powerups()`: sair junto com o `TestPowerups`
+- Código e recurso sem uso, avaliar remoção: `get_attack_stats_with_upgrades()`, `apply_powerup()`, `level_down()`, `get_damage_multiplier()`, `PowerUpStatsGlobal.reset()`, `BasePower.get_hit_data()`/`get_attack_data()`, `PRIMARY_01_fire.tres`
+- Identificadores de shapes nas fases: F5 pode salvar `stage_01`/`safe_house_01` trocando só os ids das shapes com `resource_local_to_scene = true`. É inofensivo, mas confunde os commits. Investigar o que fazer
 
 ## Visual
 
@@ -40,7 +43,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 ## Calibragem
 
-- Silhuetas (`outline_color`, `fill_alpha`, `tolerance`), `start_hold_seconds`, `initial_spawn_delay`, `fallback_*` do snowflake, `FADE_*` da chamber, `swap_sound_*`, `HOLD_BEFORE_MOVE`/`HOLD_AFTER_MOVE`, `MAIN_MENU_FADE_*`
+- Silhuetas (`outline_color`, `fill_alpha`, `tolerance`), `start_hold_seconds`, `initial_spawn_delay`, `fallback_*` do snowflake, `FADE_*` da chamber, `swap_sound_*`, `HOLD_BEFORE_MOVE`/`HOLD_AFTER_MOVE`, `MAIN_MENU_FADE_*`, `orbit_speed_effectiveness`
 - `ARRIVAL_CLEARANCE` (6.0)
 - `steer_enemy_clearance` do gator: falta calibrar. Antes disso, Claude explica ao usuário como esse valor funciona, pois ele ainda não ficou totalmente claro
 
