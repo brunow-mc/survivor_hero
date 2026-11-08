@@ -825,6 +825,12 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
 agent_radius = 0.0
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_i207q"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4s8kn"]
 resource_name = "tech_01_front"
 texture = ExtResource("1_4s8kn")
@@ -1668,6 +1674,54 @@ texture = ExtResource("1_4s8kn")
 1:14/0 = 0
 1:14/0/z_index = 4
 1:14/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_755nd")
+4:12/0 = 0
+4:12/0/z_index = 4
+4:12/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+5:13/0 = 0
+5:13/0/z_index = 4
+5:13/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+6:14/0 = 0
+6:14/0/z_index = 4
+6:14/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+7:14/0 = 0
+7:14/0/z_index = 4
+7:14/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+7:15/0 = 0
+7:15/0/z_index = 4
+7:15/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+7:13/0 = 0
+7:13/0/z_index = 4
+7:13/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+6:13/0 = 0
+6:13/0/z_index = 4
+6:13/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+6:12/0 = 0
+6:12/0/z_index = 4
+6:12/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+5:12/0 = 0
+5:12/0/z_index = 4
+5:12/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+7:12/0 = 0
+7:12/0/z_index = 4
+7:12/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+4:13/0 = 0
+4:13/0/z_index = 4
+4:13/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+4:14/0 = 0
+4:14/0/z_index = 4
+4:14/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+4:15/0 = 0
+4:15/0/z_index = 4
+4:15/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+5:15/0 = 0
+5:15/0/z_index = 4
+5:15/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+6:15/0 = 0
+6:15/0/z_index = 4
+6:15/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
+5:14/0 = 0
+5:14/0/z_index = 4
+5:14/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i207q")
 
 [resource]
 physics_layer_0/collision_layer = 1
