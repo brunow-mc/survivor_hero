@@ -17,10 +17,10 @@ class_name PlayerSpawner
 # A criação em si mora em spawn() (estática), usada também pela chamber: um
 # único lugar decide como um jogador entra no mundo.
 #
-# ORDEM NA ÁRVORE: coloque este nó ANTES do SpawnManagerConfig. O
-# initialize_spawn_manager() dele chama start_spawning(), que busca o grupo
-# "Player" — se o jogador ainda não existir, ele dá push_error e NÃO liga o
-# spawn. A ordem errada falha ALTO, não em silêncio.
+# ORDEM NA ÁRVORE: normalmente o primeiro filho da fase, por convenção.
+# SpawnManagerConfig e LoadoutBar esperam um quadro, e a câmera volta a
+# procurar o jogador, então eles não dependem disso. Só um nó que busque o
+# grupo "Player" no próprio _ready() precisaria vir depois deste.
 # =================================================
 
 ## Impõe um personagem nesta fase, ignorando a escolha do jogador.

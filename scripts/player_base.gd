@@ -262,7 +262,7 @@ func take_damage(amount: float) -> void:
 
 	# Inimigos retidos não ferem (alcance ENEMIES = movimento + dano juntos).
 	# Aqui, e não no inimigo, cobre os dois caminhos de dano de contato: o
-	# toque inicial (enemy_chaser) e o timer contínuo (enemy_base).
+	# toque inicial e o timer contínuo (ambos em enemy_base).
 	if HoldGlobal.is_held(HoldGlobal.Scope.ENEMIES):
 		return
 

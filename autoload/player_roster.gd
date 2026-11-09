@@ -7,11 +7,11 @@ extends Node
 #
 # POR QUE É UM AUTOLOAD PRÓPRIO, e não uma variável no GameStateGlobal: o
 # critério é TEMPO DE VIDA. O GameStateGlobal é o estado da PARTIDA (vida,
-# FSM), e o restart_game() é documentado como o único lugar que limpa estado
-# entre sessões. Nada daqui deve ser limpo: morrer e reiniciar não troca o seu
+# FSM), e o _end_current_scene() dele é o único lugar que limpa estado entre
+# sessões. Nada daqui deve ser limpo: morrer e reiniciar não troca o seu
 # personagem, e desbloqueio vai para arquivo de save. Guardar isto lá
-# funcionaria hoje e criaria a armadilha de quem acrescentar algo ao
-# restart_game() ter de lembrar de NÃO limpar estas linhas.
+# funcionaria hoje e criaria a armadilha de quem acrescentar algo a essa
+# limpeza ter de lembrar de NÃO limpar estas linhas.
 #
 # Nomeado pelo PAPEL (o elenco), não pelo mecanismo: "PlayerSelection"
 # envelheceria no dia em que o desbloqueio entrar.
