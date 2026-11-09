@@ -2,7 +2,7 @@ extends Node
 class_name LevelUpManager
 
 # =================================================
-# LEVEL UP MANAGER - v1.3.28 FASE 2
+# LEVEL UP MANAGER - v1.3.28
 # =================================================
 
 # -------------------------------------------------
@@ -28,7 +28,7 @@ var heal_amount: float = 20.0
 var heal_icon: Texture2D = preload("uid://cvpdyr5mb78vr")
 
 # -------------------------------------------------
-# CONFIGURAÇÃO DE PESOS (preparado para FASE 4)
+# CONFIGURAÇÃO DE PESOS (para sortear as opções do menu por raridade)
 # -------------------------------------------------
 @export_group("Weight System")
 @export var common_weight: float = 1.0
@@ -119,7 +119,7 @@ func _on_level_up(new_level: int) -> void:
 	upgrade_options_ready.emit(current_options)
 
 # =================================================
-# GERAR OPÇÕES - v1.4.0 FASE 3
+# GERAR OPÇÕES - v1.4.0
 # =================================================
 func generate_upgrade_options(level: int) -> Array[Dictionary]:
 	var player = get_tree().get_first_node_in_group("Player")
