@@ -12,9 +12,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Attack system* e *PowerUp system*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Entity anatomy*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Player*: concluída (migrada, conferida com o código, corrigida e testada).
+- *NavmeshMerger* e *Performance budget*: concluída (migrada, conferida com o código, corrigida e testada).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 80 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 73 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -40,6 +41,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Efeitos visuais futuros: usar a faixa de z 51–59
 - Tiles alternativos no TileSet: investigar para simplificar `building_02` / `building_02_front` (opcional)
 - Árbitro de `modulate`
+- Silhueta: medir o custo. Cada inimigo e item roda `_process()` copiando propriedades e chamando `FrontTiles.rect_touches()`, mesmo com a cópia invisível, e o custo de render não foi medido depois dela
 
 ## Calibragem
 
@@ -68,6 +70,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - EXPLORATION: torneira/freio/purga
 - Rever a necessidade de `_guard_against_position_jump()`: foi um remendo para os saltos de posição dos inimigos, e esses saltos talvez viessem do sistema de navegação antigo (RVO), que não existe mais. Hipótese ainda não confirmada
 - Knockback: rever o desalinhamento entre `Hurtbox` e `BodyCenter` nos inimigos. O acerto é detectado na `Hurtbox`, mas a direção do empurrão usa o `BodyCenter`. Tolerado por ora; o design ainda não está concluído
+- `enemy-steering.md`: rever "cheapest navigation lever" e os ~370 µs, medidos antes do `NavmeshMerger`. `performance.md` diz que `path_recalc_interval` não é alavanca de desempenho
 - Prioridade no steering
 - Forma do `is_combat_allowed()`
 - Menu de pausa: apertar Resume durante a espera do `Reload_Timer` não cancela o restart
