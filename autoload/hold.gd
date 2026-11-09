@@ -5,7 +5,7 @@ extends Node
 # =================================================
 # Congela partes específicas do jogo por um instante — o direcional do
 # jogador numa travessia de porta, por exemplo. Padrão para TODA pausa breve
-# do jogo (portas, início de fase, surgimento de boss, troca na estátua),
+# do jogo (portas, início de fase, surgimento de boss, troca na chamber),
 # para não nascer uma pausa exclusiva de cada situação.
 #
 # NÃO se chama "pausa" de propósito: no projeto essa palavra já significa o
@@ -16,7 +16,7 @@ extends Node
 #   - HoldGlobal          → congela ALGO específico, por um instante
 #
 # Mora num autoload, e não numa flag do jogador, porque precisa sobreviver à
-# destruição do jogador (a troca na estátua recria o jogador no meio da
+# destruição do jogador (a troca na chamber recria o jogador no meio da
 # retenção).
 #
 # COMO FUNCIONA
@@ -40,9 +40,8 @@ extends Node
 #
 # ALCANCES: SÓ EXISTE NO CÓDIGO O QUE TEM CONSUMIDOR. Um alcance declarado
 # que ninguém consulta seria uma promessa vazia — alguém pede "inimigos" e
-# nada acontece, em silêncio. O mapa completo planejado (inimigos, relógio do
-# spawn, ataques) está no CLAUDE.md; cada um entra aqui JUNTO com o seu
-# consumidor.
+# nada acontece, em silêncio. Os alcances e as ideias futuras estão em
+# .claude/rules/brief-holds.md; cada um entra aqui JUNTO com o seu consumidor.
 # =================================================
 
 ## O que pode ser retido. Valores em bits, para combinar com |.

@@ -13,9 +13,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Entity anatomy*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Player*: concluída (migrada, conferida com o código, corrigida e testada).
 - *NavmeshMerger* e *Performance budget*: concluída (migrada, conferida com o código, corrigida e testada).
+- *Brief holds*: concluída (migrada, conferida com o código, corrigida e testada).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 73 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 64 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -33,6 +34,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Trocar `run/main_scene` para o menu principal quando existir; botão "Jogar" via `go_to_scene()`
 - `remove_powerup()`/`list_active_powerups()`: sair junto com o `TestPowerups`
 - Código e recurso sem uso, avaliar remoção: `get_attack_stats_with_upgrades()`, `apply_powerup()`, `level_down()`, `get_damage_multiplier()`, `PowerUpStatsGlobal.reset()`, `BasePower.get_hit_data()`/`get_attack_data()`, `PRIMARY_01_fire.tres`
+- `HoldGlobal.hold_for()`: sem chamador hoje, mantido de propósito para pausas que terminam só por tempo
 - Identificadores de shapes nas fases: F5 pode salvar `stage_01`/`safe_house_01` trocando só os ids das shapes com `resource_local_to_scene = true`. É inofensivo, mas confunde os commits. Investigar o que fazer
 
 ## Visual
