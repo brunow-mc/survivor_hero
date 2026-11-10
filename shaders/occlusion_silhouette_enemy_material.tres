@@ -6,4 +6,8 @@
 shader = ExtResource("1_mpy7i")
 shader_parameter/outline_color = Color(0.627451, 0, 0, 1)
 shader_parameter/fill_alpha = 0.25
-shader_parameter/tolerance = 0.02
+shader_parameter/tolerance = 0.002000000095
+shader_parameter/use_front_mask = false
+shader_parameter/mask_origin = Vector2(0, 0)
+shader_parameter/mask_cell_size = Vector2(16, 16)
+shader_parameter/mask_size_cells = Vector2(1, 1)

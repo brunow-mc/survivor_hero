@@ -34,23 +34,23 @@
 [ext_resource type="Texture2D" uid="uid://d3xc0tcdr3po3" path="res://sprites/chambers/chamber_05_GM_locked.png" id="24_fv4bh"]
 [ext_resource type="TileSet" uid="uid://d2fpgdsq103mc" path="res://tiles/tileset/tech_signs_01.tres" id="26_xiy38"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_y88l1"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5p64y"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_aqy2j"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_spq2y"]
 resource_local_to_scene = true
 size = Vector2(32, 16)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_agh6f"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fv4bh"]
 resource_local_to_scene = true
 size = Vector2(16, 48)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_tyaxo"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y88l1"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5o1p5"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aqy2j"]
 resource_local_to_scene = true
 size = Vector2(16, 32)
 
@@ -137,7 +137,7 @@ position = Vector2(0, -101)
 partner = NodePath("../Door01B")
 
 [node name="CollisionShape2D" parent="Door01A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_y88l1")
+shape = SubResource("RectangleShape2D_5p64y")
 
 [node name="ArrivalPoint" parent="Door01A" index="1" unique_id=1913897894]
 position = Vector2(0, 16)
@@ -147,7 +147,7 @@ position = Vector2(0, -384)
 partner = NodePath("../Door01A")
 
 [node name="CollisionShape2D" parent="Door01B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_aqy2j")
+shape = SubResource("RectangleShape2D_spq2y")
 
 [node name="ArrivalPoint" parent="Door01B" index="1" unique_id=1913897894]
 position = Vector2(0, -22)
@@ -157,7 +157,7 @@ position = Vector2(264, -520)
 partner = NodePath("../Door02B")
 
 [node name="CollisionShape2D" parent="Door02A" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_agh6f")
+shape = SubResource("RectangleShape2D_fv4bh")
 
 [node name="ArrivalPoint" parent="Door02A" index="1" unique_id=1913897894]
 position = Vector2(-20, 4)
@@ -167,7 +167,7 @@ position = Vector2(524, -512)
 partner = NodePath("../Door02A")
 
 [node name="CollisionShape2D" parent="Door02B" index="0" unique_id=2079690919]
-shape = SubResource("RectangleShape2D_tyaxo")
+shape = SubResource("RectangleShape2D_y88l1")
 
 [node name="ArrivalPoint" parent="Door02B" index="1" unique_id=1913897894]
 position = Vector2(20, 4)
@@ -177,7 +177,7 @@ position = Vector2(756, -512)
 destination = "uid://okwsu3sadb1e"
 
 [node name="CollisionShape2D" parent="ToStage01" index="0" unique_id=688618483]
-shape = SubResource("RectangleShape2D_5o1p5")
+shape = SubResource("RectangleShape2D_aqy2j")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1207907719]
 stream = ExtResource("23_mk65g")

@@ -26,6 +26,12 @@ uniform float fill_alpha : hint_range(0.0, 1.0) = 0.25;
 // Diferença de cor (0 a ~1.7) abaixo da qual "é o próprio corpo".
 uniform float tolerance : hint_range(0.0, 0.5) = 0.02;
 
+// Alpha mínimo para um pixel contar como corpo (e para achar a borda do
+// contorno). Pixels semitransparentes ficam de fora: na tela eles aparecem
+// misturados com o fundo, então a comparação de cor sempre acusaria algo na
+// frente e a silhueta acenderia sozinha.
+uniform float alpha_cutoff : hint_range(0.0, 1.0) = 0.99;
+
 // MAPA DE CÉLULAS DA FRENTE — preenchido em runtime por FrontTiles.bind_mask()
 // (inimigos e itens). Com ele ligado, um pixel só vira silhueta se ALÉM de a
 // cor diferir ele estiver numa célula com tile da frente: um inimigo passando
@@ -59,7 +65,7 @@ void fragment() {
 	// COLOR já chega como pixel da sprite × modulate — exatamente a cor que
 	// a sprite original desenhou neste ponto.
 	vec4 expected = COLOR;
-	if (expected.a < 0.5) {
+	if (expected.a < alpha_cutoff) {
 		discard;
 	}
 
@@ -80,10 +86,10 @@ void fragment() {
 
 	// Contorno INTERNO: pixel do corpo com algum vizinho vazio.
 	vec2 px = TEXTURE_PIXEL_SIZE;
-	bool edge = alpha_at(TEXTURE, UV + vec2(px.x, 0.0)) < 0.5
-		|| alpha_at(TEXTURE, UV - vec2(px.x, 0.0)) < 0.5
-		|| alpha_at(TEXTURE, UV + vec2(0.0, px.y)) < 0.5
-		|| alpha_at(TEXTURE, UV - vec2(0.0, px.y)) < 0.5;
+	bool edge = alpha_at(TEXTURE, UV + vec2(px.x, 0.0)) < alpha_cutoff
+		|| alpha_at(TEXTURE, UV - vec2(px.x, 0.0)) < alpha_cutoff
+		|| alpha_at(TEXTURE, UV + vec2(0.0, px.y)) < alpha_cutoff
+		|| alpha_at(TEXTURE, UV - vec2(0.0, px.y)) < alpha_cutoff;
 
 	if (edge) {
 		COLOR = outline_color;
