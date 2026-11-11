@@ -7,7 +7,7 @@ extends CanvasLayer
 # de um nó visual que SOBREVIVA à troca de cena: a porta de fase vai escurecer
 # na safe house e clarear já na fase seguinte.
 #
-# Camada 50: acima do HUD (1) e abaixo dos menus de pausa e game over (90) e
+# Camada 50: acima do HUD (10) e abaixo dos menus de pausa e game over (90) e
 # do level-up (100). Pausar no meio de uma travessia mostra o menu por cima
 # do preto.
 #
@@ -47,9 +47,9 @@ func fade_in(duration: float) -> void:
 	overlay.visible = false
 
 
-## Volta ao estado limpo na hora. Chamado em toda troca de cena: um fade
-## interrompido (restart no meio de uma travessia) deixaria a tela preta para
-## sempre na cena seguinte.
+## Volta ao estado limpo na hora. É o caminho de FALHA de uma troca de cena
+## (destino inválido): sem ele a tela ficaria preta. Na troca normal o preto
+## sobrevive à troca e clareia com fade_in() na cena nova.
 func clear() -> void:
 	if _tween:
 		_tween.kill()

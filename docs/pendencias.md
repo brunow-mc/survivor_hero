@@ -16,9 +16,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Brief holds*: concluída (migrada, conferida com o código, corrigida e testada).
 - *XP & Level-up flow*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Debug and test systems*: concluída (migrada, conferida com o código, corrigida e testada).
+- *Draw layers* e *Screen fade*: concluída (migrada, conferida com o código, corrigida e testada).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 53 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 49 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
