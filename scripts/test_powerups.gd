@@ -15,9 +15,9 @@ extends Node
 #
 # É uma CONST no script, e não um @export no nó, de propósito: "os testes
 # estão ligados?" é um fato sobre a SESSÃO DE TRABALHO, não sobre um
-# personagem. Como @export, o valor viveria dentro de cada uma das 4 cenas de
-# jogador — 4 lugares para editar, 4 lugares para divergir em silêncio, e a
-# pergunta "estão desligados?" só se responderia abrindo as quatro cenas.
+# personagem. Como @export, o valor viveria dentro de cada cena de jogador —
+# um lugar a mais para editar e para divergir em silêncio a cada personagem, e
+# a pergunta "estão desligados?" só se responderia abrindo todas elas.
 # O par desta constante está em test_attack_upgrades.gd.
 # =================================================
 

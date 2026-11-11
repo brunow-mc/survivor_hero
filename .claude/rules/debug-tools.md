@@ -1,0 +1,40 @@
+---
+paths:
+  - "scripts/test_*.gd"
+  - "scripts/debug_*.gd"
+  - "debug/**"
+---
+
+## Debug and test systems (inventory + status)
+
+Everything in the project that exists only to test or observe. **Kept here so nobody has to rediscover it**, and so that "is this dirt or is this deliberate?" has a written answer.
+
+| What | Where | Status |
+|---|---|---|
+| `TestPowerups` — number keys apply powerups, `R` reset, `L` list, `S` stats | node in **every** player scene (`scripts/test_powerups.gd`); switch: `const ENABLED` | **Stays.** In daily use |
+| `TestAttackUpgrades` — letter keys raise each attack one level, `X` list | node in **every** player scene (`scripts/test_attack_upgrades.gd`); switch: `const ENABLED` | **Stays.** In daily use |
+| Spawn log + grid overlay | `debug_enabled` / `debug_draw_enabled` on `SpawnManagerConfig`; `debug/debug_draw_overlay.tscn`, `scripts/debug_draw_overlay.gd`, `scripts/debug_drawer.gd` | Gated, **off** in stage_01. Files stay |
+| `NavmeshMerger` `log_bake` (default on) / `verify_connectivity` (default off) | `scripts/navmesh_merger.gd` | **Not test code.** Production diagnostics with a switch; both stay |
+
+**Turning both off is two edits: `const ENABLED: bool = true` → `false`, at the top of `scripts/test_powerups.gd` and `scripts/test_attack_upgrades.gd`.** With it `false`, `_ready()` calls `set_process_input(false)` and returns before printing: no key reaches the tool, no help text reaches the console (so someone outside the project never learns the keys), and the node stays in the scene doing nothing. The two tools are independent — one may be on and the other off.
+
+**Each key points at a fixed id in the script** (`powerup_id` or `attack_id`), and the powerup reset walks a fixed id range. A new power or powerup has no key until one is added to `_input()` — and the reset range widened — in the same pass; nothing warns otherwise. The help text printed at start lists the current keys.
+
+- **It is a `const` in the script, deliberately NOT an `@export` on the node.** "Are the test tools on?" is a fact about the **work session**, not about a character. As an `@export` the value would live inside each player scene: one more place to edit and to diverge invisibly per character (`bo_girl` off while `sonic_gal` is on, with nothing in the console saying so), and the question "are they off?" would only be answerable by opening every player scene. It would also orphan the stored `enabled = …` lines across those scenes the day the property is removed (see *`@export` discipline*).
+- **The check belongs in `_ready()`, not at the top of `_input()`.** Guarding only `_input()` would still print the help text and still route every input event through the tool. One place, one effect.
+- **Pause behaviour is untouched and must stay so:** these nodes are children of the player, so `get_tree().paused` freezes them — the keys are already dead during PAUSED and UPGRADE. Do not give them `PROCESS_MODE_ALWAYS`.
+
+**These two are nodes duplicated across the player scenes only because the later players were built as copies of the first.** There is no technical reason for it — both find their target through the `Player` group in `_ready()`, so both *could* be autoloads resolved once, and a new player scene built from scratch would silently lack them. **Converting them was evaluated and REFUSED (2026-09-28); revisit only if the player scenes themselves get reworked.** `PlayerSpawner` did not change the argument: it rebuilds the player — and therefore these nodes — on every scene load and on every chamber swap, so the "destroyed and rebuilt with the player" guarantee below still holds. The duplication is one node line, not one copy of logic: a single script is referenced by every player scene, so editing it already affects them all. Against that, the move costs real properties the current shape gives for free: as children of the player these nodes are destroyed and rebuilt by `reload_current_scene()`, so a cached controller reference can never dangle — an autoload survives the restart and would need lazy per-keypress resolution written just to restore that guarantee; and because the keys are **raw keycodes**, not Input Map actions, a global autoload would deliver them to every scene in the game, including future menus, where today the tools simply don't exist. A forgotten node announces itself on the first keypress — that is a checklist step, not technical debt.
+
+**Two production methods are kept alive by `TestPowerups` alone and are commented as such** — `PowerUpController.remove_powerup()` (key `R`) and `list_active_powerups()` (key `L`). They are not dead code today, but they have a single caller and it is a debug tool: when that tool goes, they go with it. The comment sits on the methods, where the debt comes due. Four neighbours that had **no** caller at all were deleted in the same pass (`get_powerup_level`, and `AttackController`'s `disable_attack` / `enable_attack` / `upgrade_attack`, the last two already marked `DEPRECATED` by their own docstrings) — a public API nobody exercises is not a safety net, it is a promise never tested: `disable_attack()` zeroed a level without recalculating anything, while its powerup counterpart always called `_recalculate_all_stats()`, and no one ever found out which behaviour was right.
+
+**A debug tool must reach the game through the same door the game uses.** `TestAttackUpgrades` used to *lower* attack levels by writing `upgrade.current_level -= 1` directly, with the comment "no method for this" — while `AttackUpgradeData.level_down()` had existed all along, validated and never called. It was the only place in the project producing a state no real match can reach, so a bug appearing only after those keys might not have been a bug at all. The feature was **removed** rather than fixed: lowering a level is not a game mechanic, and it had never been used. If it ever becomes one, it starts in the controller with its own validation and the tool merely calls it.
+
+**A removed tool, for the record.** `LevelUpDebug` (keys `Z`/`C`/`V`) chose an option in the level-up menu by keyboard, back when no menu UI existed. Its own header said it would go "when the UI is ready"; the UI now works with keyboard, gamepad and mouse, so the tool survived purely on inertia. Removing it also removed `LevelUpManager.simulate_choice()` and `is_upgrade_active()`, which existed only to serve it. Note its autoload line read `##LevelUpDebug="…"` — the `##` did **not** comment it out, it became part of the singleton's *name*, which is why it kept loading and printing.
+
+### Debug overlay (Grid Sampling) — only faithful at camera zoom = 1
+- The spawn debug (`debug_draw_overlay`, gated by `SpawnManagerConfig.debug_draw_enabled`) draws on a `CanvasLayer` and projects world→screen by hand in `debug_drawer.gd`: `point - camera_position + viewport_size/2`, with **no zoom factor**. `CanvasLayer` also ignores the `Camera2D` transform.
+- **Consequence:** it is only correct at camera **zoom = 1**. Under zoom-out (e.g. `0.5`) the scenery scales but the debug points do not, so they "parallax" (move faster than the world) and the overlay detaches — it does **not** work as a magnifying lens.
+- **Even at zoom 1 the dots sit a couple of pixels off the tile they represent**: `camera_position` is captured in the *physics* frame (inside the debug dictionary) but `_draw()` runs in the *idle* frame, so the overlay projects with a camera position up to one frame stale while the world renders with the current one. Visible in pixel art, harmless in fact.
+- **The spawn logic itself is zoom-invariant and camera-free** (the snap returns `layer.to_global(cell_centre)`, pure world space, and `spawn_enemy` writes that same coordinate); every discrepancy above is confined to the overlay's own projection. Don't misread the parallax or the offset as the spawn system malfunctioning.
+- At zoom 1 the points only flash briefly near the screen edge (offscreen ones are culled), so the tool is of low practical use.
