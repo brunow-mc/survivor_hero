@@ -20,7 +20,7 @@ class_name OcclusionSilhouette
 # bateriam e o corpo inteiro "acenderia" a cada troca de quadro.
 # =================================================
 
-## Acima dos tiles da frente (z 4) e das entidades (z efetivo 4). As
+## Acima dos tiles da frente (z 4) e das entidades (z 2). As
 ## interfaces ficam acima por estarem em CanvasLayer.
 const SILHOUETTE_Z: int = 50
 

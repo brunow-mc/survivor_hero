@@ -213,8 +213,8 @@ func initialize_spawn_manager() -> void:
 	# Resolve o container Y-sort: export (override explícito) → grupo → nada.
 	# O grupo está marcado na CENA BASE do YSortContainer, então nenhum stage
 	# precisa de fiação manual — o que elimina o erro silencioso de esquecer
-	# de arrastar (sem container, os inimigos caem na raiz da cena, com z
-	# efetivo menor que o do player, e o player renderiza sempre na frente).
+	# de arrastar (sem container, os inimigos caem na raiz da cena e deixam de
+	# ser ordenados por Y contra o player: quem cobre quem segue a árvore).
 	var container: Node2D = enemy_container
 	if not is_instance_valid(container):
 		container = get_tree().get_first_node_in_group("YSortContainer") as Node2D

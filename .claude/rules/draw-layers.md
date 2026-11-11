@@ -37,14 +37,15 @@ Convention — groups spaced in tens so new layers fit between them:
 
 The fade must sit above the HUD (or the XP bar shows through the black) and below the pause menu (or pausing mid-crossing hides the menu under the black). A new `CanvasLayer` picks its slot from this table. Members of the same group may share the group's number; where they overlap, tree order decides. For a fixed order inside a group, use a free number in its ten (11–19 for the HUD, for example). Never use another group's number.
 
-**Inside the world sheet, `z_index` order** (effective values; relative z sums with the parent — `YSortContainer` is z 2):
+**Inside the world sheet, `z_index` order** (effective values; relative z sums with the parent — `YSortContainer` is z 0, so inside it the written value is the effective one):
 
 | Effective z | What |
 |---|---|
 | 0 | floor and, normally, back tiles |
-| 4 | entities in the `YSortContainer` (2 + 2), front tiles (per-tile z 4 in the TileSet) |
+| 2 | entities in the `YSortContainer`, and tiles that Y-sort with them inside it |
+| 4 | front tiles (per-tile z 4 in the TileSet), always above the entities |
 | **50 (absolute)** | **occlusion silhouette** (see *Occlusion silhouette*) |
-| **51–59** | **visual effects** — for example `impact_01.tscn`: root `z_index = 51`, its `AnimatedSprite2D` at 0 (so the number lives in one place); added to the enemy's parent, the container, so 51 relative becomes **53**. Above the silhouette (drawn after the snapshot, so a death effect bursting over the player no longer lights the player's outline) and below powers |
-| **60+** | **every power** — `z_index = 60` on each power scene's root, relative (62 loose in the container, 64 when attached to the player) |
+| **51–59** | **visual effects** — for example `impact_01.tscn`: root `z_index = 51`, its `AnimatedSprite2D` at 0 (so the number lives in one place); added to the enemy's parent, the container, so it stays at **51**. Above the silhouette (drawn after the snapshot, so a death effect bursting over the player no longer lights the player's outline) and below powers |
+| **60+** | **every power** — `z_index = 60` on each power scene's root, relative (60 loose in the container, 62 when attached to the player) |
 
-**Rule: every power scene uses `z_index = 60`** on its root, set in the Inspector like the rest of the power calibration. It does two jobs: powers always draw above players, enemies and scenery (the design intent), and they draw **after** the silhouette took its screen snapshot, so they never trigger it. A new power left at a low z makes the silhouette flicker whenever it crosses a body — visible at once, not silent. (Powers already looked above buildings at z 4 because, loose in the container, 4 relative became 6.)
+**Rule: every power scene uses `z_index = 60`** on its root, set in the Inspector like the rest of the power calibration. It does two jobs: powers always draw above players, enemies and scenery (the design intent), and they draw **after** the silhouette took its screen snapshot, so they never trigger it. A new power left at a low z makes the silhouette flicker whenever it crosses a body — visible at once, not silent.

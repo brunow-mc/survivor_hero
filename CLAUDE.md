@@ -97,22 +97,7 @@ Full rules: `.claude/rules/entity-anatomy.md`. It loads by itself with the enemy
 
 ### Y-sort (2.5D depth illusion)
 
-Entities and scenery tiles occlude each other by Y position (feet origin = the sort line). Three requirements, ALL mandatory:
-
-1. **Same `z_index`** — Y-sort only breaks ties within one z level; a different z overrides it. The world standard is **`z_index = 2`** (`z_as_relative = true`): player, enemies, XP items set it on the scene root; TileMap layers get it **per-tile in the TileSet** (setting it on the TileMapLayer node in the Inspector does NOT work for this — leave the layer at z 0 and paint z 2 inside the TileSet tiles).
-2. **`y_sort_enabled = true`** on the entity root and on participating TileMap layers.
-3. **Being a child of the Y-sort container** — Y-sort only sorts CHILDREN of a `y_sort_enabled` parent. Each stage instances **`entities/stage_parts/y_sort_container.tscn`** (a configured, permanently-empty Node2D `YSortContainer`: z 2, relative, y-sort on). **The membership criterion is functional and single: anything that needs variable occlusion along the Y axis (Godot's Y-sort) goes inside the container; anything that doesn't stays outside.**
-   - **Player and enemies always belong to the container** (they always need variable occlusion), and **both now join at runtime**: the player via `PlayerSpawner`, enemies via `SpawnManager` (see next paragraph). Both resolve the container by the `YSortContainer` group, so a stage wires nothing. No player is placed in a stage tree any more.
-   - **TileMap layers are case-by-case**, decided per layer by whether they need to trade occlusion with entities. **No layer trait decides this**: having collision does not determine participation (`TileMapDecoration` itself has colliders and is inside), having navigation does not either, and tiles with neither collision nor navigation don't either. Only the functional criterion decides.
-   - **Expect TileMaps both inside and outside the container within the same stage.** Typically a floor layer does not need variable occlusion and stays outside — that is the only "normal" case; no other TileMap name should be treated as fixedly inside or outside.
-
-   Content placed in the editor inside the instance belongs to the stage file; never add children to the base scene `y_sort_container.tscn` (they would be shared across every stage).
-
-   **Why the container matters for spawned enemies:** the effective z of an entity is `parent_z + own_z`. Player and enemies are all `z_index = 2` (relative), so inside the container they land at `2 + 2 = 4` and Y-sort tie-breaks them by Y. If enemies were parented to the scene root instead (z 0) they would land at effective z `0 + 2 = 2` — **below** the player's 4 — and the player would render permanently in front of every enemy.
-
-   **The container is resolved automatically by group — no per-stage wiring.** The base scene `y_sort_container.tscn` carries the group **`YSortContainer`**, so every instance in every stage is already in it. `SpawnManagerConfig.initialize_spawn_manager()` resolves in cascade: the `enemy_container` export (explicit override) → `get_first_node_in_group("YSortContainer")` → nothing (one `push_warning`). **Leave the export empty in the normal case**; fill it only to disambiguate a stage with more than one container. This replaced a manual drag-and-drop step whose omission broke Y-sort silently (deleting a container invalidated the NodePath and a fresh one was never auto-reassigned).
-
-**Spawned entities join the container via explicit parenting**: the container resolved by `SpawnManagerConfig` (see above) is transferred to `SpawnManagerGlobal` — `spawn_enemy()` adds enemies there (fallback: scene root, no Y-sort). Item drops inherit it for free (`_spawn_single_drop_item` adds to the enemy's `get_parent()`), and projectiles too (`add_sibling(player)` = child of the player's parent). Tile occlusion switch points are calibrated via each tile's **Y Sort Origin** in the TileSet relative to the entity feet origin.
+Entities and scenery tiles occlude each other by the Y of their feet, inside the stage's `YSortContainer`. Full rules: `.claude/rules/y-sort.md`. It loads by itself with the stages, tilesets and `YSortContainer`; read it first when discussing depth or occlusion without opening them. Covers the three requirements for Y-sort, which TileMap layers go inside the container, the player always drawn in front of or behind enemies, a tile that covers or uncovers an entity at the wrong height, and how spawned enemies, items and projectiles join the container.
 
 ### Player
 

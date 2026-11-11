@@ -70,13 +70,13 @@ func _ready() -> void:
 static func spawn(scene: PackedScene, at: Vector2, from: Node) -> Node2D:
 	# O jogador tem de entrar no YSortContainer, resolvido por grupo —
 	# exatamente como o SpawnManagerConfig resolve o pai dos inimigos. Fora
-	# dele o z efetivo é 2 em vez de 4, e o jogador renderiza atrás de todo
-	# inimigo, permanentemente.
+	# dele o jogador não é ordenado por Y contra os inimigos: quem cobre quem
+	# passa a seguir a ordem na árvore, a partida inteira.
 	var parent: Node = from.get_tree().get_first_node_in_group("YSortContainer")
 	if not parent:
 		parent = from.get_parent()
 		push_warning(
-			"PlayerSpawner: nenhum nó no grupo 'YSortContainer'. O jogador vai para '%s' e o Y-sort NÃO vai funcionar — ele renderiza atrás de todo inimigo (z efetivo 2 contra 4). Instancie entities/stage_parts/y_sort_container.tscn nesta fase."
+			"PlayerSpawner: nenhum nó no grupo 'YSortContainer'. O jogador vai para '%s' e o Y-sort com os inimigos NÃO vai funcionar — quem cobre quem passa a seguir a ordem na árvore. Instancie entities/stage_parts/y_sort_container.tscn nesta fase."
 			% parent.name
 		)
 

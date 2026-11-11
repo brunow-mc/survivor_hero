@@ -17,9 +17,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *XP & Level-up flow*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Debug and test systems*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Draw layers* e *Screen fade*: concluída (migrada, conferida com o código, corrigida e testada).
+- *Y-sort*: concluída (migrada, conferida com o código, corrigida e testada).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 49 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 46 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -48,6 +49,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 - Silhueta: uma cor por tipo de inimigo; índice e mapa dos tiles da frente na primeira consulta (antecipar se engasgar); miolo mostrando o personagem; itens futuros com outro script
 - Efeitos visuais futuros: usar a faixa de z 51–59
+- Tabela de z em `draw-layers.md`: incluir os valores das camadas de portas, sombras e block quando o trabalho nelas estiver concluído
 - Tiles alternativos no TileSet: investigar para simplificar `building_02` / `building_02_front` (opcional)
 - Árbitro de `modulate`
 - Silhueta: medir o custo. Cada inimigo e item roda `_process()` copiando propriedades e chamando `FrontTiles.rect_touches()`, mesmo com a cópia invisível, e o custo de render não foi medido depois dela
