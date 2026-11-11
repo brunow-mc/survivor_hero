@@ -18,6 +18,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Debug and test systems*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Draw layers* e *Screen fade*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Y-sort*: concluída (migrada, conferida com o código, corrigida e testada).
+- Próxima migração: *Knockback*, para `enemy-system.md`.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
   - `CLAUDE.md` (meta medida em KB; hoje cerca de 46 KB): o que vale em qualquer tarefa.
@@ -53,6 +54,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Tiles alternativos no TileSet: investigar para simplificar `building_02` / `building_02_front` (opcional)
 - Árbitro de `modulate`
 - Silhueta: medir o custo. Cada inimigo e item roda `_process()` copiando propriedades e chamando `FrontTiles.rect_touches()`, mesmo com a cópia invisível, e o custo de render não foi medido depois dela
+- Silhueta do jogador sobre inimigos: avaliar se continua ou sai. Em teste, ela pareceu poluir a tela. Inimigos e itens já só mostram silhueta atrás de tiles da frente; o jogador poderia seguir o mesmo caminho
 
 ## Calibragem
 
