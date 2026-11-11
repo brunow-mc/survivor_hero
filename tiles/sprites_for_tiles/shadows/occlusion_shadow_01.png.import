@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://vkxba1fy45n8"
-path="res://.godot/imported/occlusion_shadows_01.png-560d725262dce22f31afea8cec3d5833.ctex"
+path="res://.godot/imported/occlusion_shadow_01.png-1cc046b902a696d9c0e488b2f9806b04.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tiles/sprites_for_tiles/shadows/occlusion_shadows_01.png"
-dest_files=["res://.godot/imported/occlusion_shadows_01.png-560d725262dce22f31afea8cec3d5833.ctex"]
+source_file="res://tiles/sprites_for_tiles/shadows/occlusion_shadow_01.png"
+dest_files=["res://.godot/imported/occlusion_shadow_01.png-1cc046b902a696d9c0e488b2f9806b04.ctex"]
 
 [params]
 
