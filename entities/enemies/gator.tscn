@@ -209,4 +209,3 @@ debug_color = Color(1, 0, 0, 0.41960785)
 position = Vector2(0, -10)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="BodyCenter" unique_id=278959778]
-
