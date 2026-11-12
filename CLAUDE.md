@@ -110,6 +110,12 @@ Powers and powerups grow by level through resources read by a controller on the 
 ### Enemy system
 Enemy logic lives in `EnemyBase`, then an archetype script such as `enemy_chaser.gd`, and a per-enemy script only when the logic diverges. Full rules: `.claude/rules/enemy-system.md`. It loads by itself with the enemy scripts and scenes; read it first when discussing enemies without opening them. Covers creating an enemy, its death, item drops, enemies jumping a few pixels near walls, recalculating the route after a teleport, and the damage flash and ghost effect fighting over `modulate`.
 
+### Knockback
+Same rules file as *Enemy system*: `.claude/rules/enemy-system.md`. Covers the knockback direction, how fast it fades, and how it passes from one enemy to the next.
+
+### Enemy inter-enemy avoidance — Context Steering
+Enemies dodge each other by context steering, not RVO, and the `NavigationAgent2D` only finds the route. Full rules: `.claude/rules/enemy-steering.md`. It loads by itself with `scripts/enemy_base.gd` and the enemy scenes; read it first when discussing enemy movement without opening them. Covers enemies that crowd, queue, stand still or slow down around each other, walls while dodging, the `steer_*` calibration, priority between enemies, why RVO was removed, repath spikes and `path_recalc_interval`.
+
 ### Spawn system (`SpawnManagerGlobal`)
 
 Budget-based enemy spawn with grid sampling and a teleport system. Full rules: `.claude/rules/spawn.md`. It loads by itself when the spawn files are touched; read it first when discussing spawn without opening them. Covers how many enemies appear and when (budget, difficulty, `max_enemies`), where they appear (offscreen grid sampling, walkable ground, excluded layers, wall clearance, enemy spacing, enemies stuck to walls or overlapping), the teleport of distant enemies, per-stage calibration (`SpawnManagerConfig`, `EnemySpawnData`) and spawn stutter.
@@ -213,18 +219,6 @@ Tools that exist only to test or observe: the keyboard test tools on each player
 ## Known bugs
 
 *(none currently documented)*
-
-## Calibration reference
-
-### Knockback
-- Decay is frame-rate independent: `knockback = knockback.move_toward(Vector2.ZERO, knockback_decay * delta)` — values are **per second**, calibrated per enemy in the Inspector (heavier enemies use higher decay so they travel less).
-- `knockback_retention_after_transfer` default: `0.8` (export var on `EnemyBase`).
-- **Direction, attack → enemy**: `receive_hit()` computes `(get_body_center_position() − source_pos)` — from the projectile's centre **through the enemy's centre of mass** (the `BodyCenter` normally sits on the physical `CollisionShape2D`). The hit is *detected* on the `Hurtbox`, which is higher than the body (gator `−13` vs `−10`; red gator `−19` vs `−15`), so measuring to the scene origin (feet) added a **constant downward component** (~13 / ~19 px): a dead-on horizontal shot flung the enemy ~35° diagonally down, and upward knockback was nearly impossible. **The misalignment between `Hurtbox` and `BodyCenter` is tolerated, not a finished design:** the BodyCenter sets the impulse, because you push the mass, not the point you touched, but the hit is still detected higher up, on the `Hurtbox`.
-- **Direction, enemy → enemy (transfer)**: `handle_knockback_transfer()` uses the **real physics contact normal** from `get_slide_collision()` between the two body colliders — exact, and unaffected by the feet/BodyCenter question. The two mechanisms differ in method (approximation vs true normal) but now agree on *what* is pushed: the body.
-- Residual approximation (accepted): the direction leaves the projectile's **centre**, not the surface contact point — `area_entered` gives no contact normal. Fine for small fast projectiles against roughly circular bodies; not compensated.
-
-### Enemy inter-enemy avoidance — Context Steering
-Enemies dodge each other by context steering, not RVO, and the `NavigationAgent2D` only finds the route. Full rules: `.claude/rules/enemy-steering.md`. It loads by itself with `scripts/enemy_base.gd` and the enemy scenes; read it first when discussing enemy movement without opening them. Covers enemies that crowd, queue, stand still or slow down around each other, walls while dodging, the `steer_*` calibration, priority between enemies, why RVO was removed, repath spikes and `path_recalc_interval`.
 
 ## Performance budget and NavmeshMerger
 

@@ -18,10 +18,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Debug and test systems*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Draw layers* e *Screen fade*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Y-sort*: concluída (migrada, conferida com o código, corrigida e testada).
-- Próxima migração: *Knockback*, para `enemy-system.md`.
+- *Knockback*: concluída (migrada para `enemy-system.md`, conferida com o código, corrigida e testada).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 46 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 44 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
@@ -83,6 +83,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - EXPLORATION: torneira/freio/purga
 - Rever a necessidade de `_guard_against_position_jump()`: foi um remendo para os saltos de posição dos inimigos, e esses saltos talvez viessem do sistema de navegação antigo (RVO), que não existe mais. Hipótese ainda não confirmada
 - Knockback: rever o desalinhamento entre `Hurtbox` e `BodyCenter` nos inimigos. O acerto é detectado na `Hurtbox`, mas a direção do empurrão usa o `BodyCenter`. Tolerado por ora; o design ainda não está concluído
+- Knockback recebido de um vizinho: o teto aplicado é o `max_knockback_magnitude` de quem empurra, não o de quem recebe. Um inimigo pesado não consegue recusar o empurrão da horda. Avaliar um conceito de massa no recebimento
 - `enemy-steering.md`: rever "cheapest navigation lever" e os ~370 µs, medidos antes do `NavmeshMerger`. `performance.md` diz que `path_recalc_interval` não é alavanca de desempenho
 - Prioridade no steering
 - Forma do `is_combat_allowed()`
