@@ -515,7 +515,7 @@ func check_and_teleport_distant_enemies(delta: float) -> void:
 		total_teleports += 1
 		teleported_count += 1
 
-		# v1.4.x Passo 1: zera velocidade residual e força recálculo imediato de rota
+		# zera velocidade residual e força recálculo imediato de rota
 		if enemy is CharacterBody2D:
 			enemy.velocity = Vector2.ZERO
 		if enemy.has_method("makepath"):
@@ -1022,7 +1022,7 @@ func scan_navigable_grid() -> Array:
 	"""
 	Varre grade em 4 RETÂNGULOS (perímetro de spawn) SEM sobreposição.
 	
-	OTIMIZAÇÃO v1.1.6:
+	OTIMIZAÇÃO:
 	- Gera pontos APENAS nas 4 faixas úteis de spawn
 	- Norte/Sul: retângulos horizontais completos (cobrem cantos)
 	- Oeste/Leste: retângulos verticais centrais (sem cantos - já cobertos por N/S)

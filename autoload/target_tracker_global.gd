@@ -1,12 +1,12 @@
 extends Node
 
 # =================================================
-# TARGET TRACKER GLOBAL - v1.3.21b
+# TARGET TRACKER GLOBAL
 # =================================================
 # Sistema genérico de rastreamento de alvos para evitar
 # repetição excessiva em ataques teleguiados/direcionados.
 #
-# v1.3.21b: Detecção automática de novo batch por tempo
+# Detecção automática de novo batch por tempo
 # - Lista zera automaticamente entre batches de ataques
 # - Mantém distribuição uniforme DENTRO de cada batch
 # - Reset automático quando passa interval do ataque
@@ -28,7 +28,7 @@ var recently_targeted: Array[Node2D] = []
 
 
 # -------------------------------------------------
-# CONTROLE DE BATCH (v1.3.21b)
+# CONTROLE DE BATCH
 # -------------------------------------------------
 var last_add_time: float = 0.0
 ## Timestamp do último add_target (para detectar novo batch).
@@ -49,7 +49,7 @@ func add_target(enemy: Node2D, batch_interval: float = 0.0) -> void:
 	"""
 	Adiciona um alvo à lista de recentemente targetados.
 	
-	v1.3.21b: Detecção automática de novo batch (OPCIONAL):
+	Detecção automática de novo batch (OPCIONAL):
 	- batch_interval = 0.0 (padrão): comportamento simples, sem reset
 	- batch_interval > 0.0: detecta novo batch e limpa lista automaticamente
 	
@@ -60,7 +60,7 @@ func add_target(enemy: Node2D, batch_interval: float = 0.0) -> void:
 	if not is_instance_valid(enemy):
 		return
 	
-	# v1.3.21b: DETECÇÃO AUTOMÁTICA DE NOVO BATCH (se batch_interval > 0)
+	# DETECÇÃO AUTOMÁTICA DE NOVO BATCH (se batch_interval > 0)
 	if batch_interval > 0.0:
 		var current_time = Time.get_ticks_msec() / 1000.0
 		var time_since_last = current_time - last_add_time

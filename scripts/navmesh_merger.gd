@@ -2,7 +2,7 @@ extends Node2D
 class_name NavmeshMerger
 
 # =====================================================================
-# MALHA DE NAVEGACAO UNIFICADA — v1.0.0
+# MALHA DE NAVEGACAO UNIFICADA
 #
 # O TileMapLayer cria UMA REGIAO DE NAVEGACAO POR TILE (3762 no
 # stage_01, ~1 poligono cada). Toda consulta de rota localiza os

@@ -30,7 +30,7 @@ func _show_game_over_delayed() -> void:
 	await get_tree().create_timer(game_over_delay, false).timeout
 
 	visible = true
-	GameStateGlobal.show_game_over()  # v1.4.6: via GameStateGlobal em vez de get_tree().paused diretamente
+	GameStateGlobal.show_game_over()  # via GameStateGlobal em vez de get_tree().paused diretamente
 	restart_btn.grab_focus()
 
 

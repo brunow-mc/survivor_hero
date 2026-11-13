@@ -15,7 +15,7 @@ var orbit_angle: float = 0.0
 var orbit_speed: float = 0.0
 
 # =================================================
-# CENTER POSITION - v1.2.4
+# CENTER POSITION
 # =================================================
 var center_position: Vector2
 var center_initialized: bool = false

@@ -2,7 +2,7 @@ extends Node
 class_name AttackController
 
 signal primary_attack_started
-signal attack_unlocked(attack_id: int, icon: Texture2D)  # v1.4.7: emitido por qualquer fonte
+signal attack_unlocked(attack_id: int, icon: Texture2D)  # emitido por qualquer fonte
 
 var player: CharacterBody2D
 var attack_position_right: Node2D
@@ -33,7 +33,7 @@ const COOLDOWN_REDUCTION_CAP: float = 0.99
 const MIN_ATTACK_INTERVAL: float = 0.05
 
 # -------------------------------------------------
-# READY - v1.3.24: Sistema simplificado
+# READY
 # -------------------------------------------------
 func _ready():
 	_duplicate_and_initialize_upgrades()
@@ -44,7 +44,7 @@ func _ready():
 
 
 # -------------------------------------------------
-# DUPLICATE AND INITIALIZE - v1.3.24
+# DUPLICATE AND INITIALIZE
 # -------------------------------------------------
 func _duplicate_and_initialize_upgrades() -> void:
 	if attack_upgrades.size() == 0:
@@ -84,7 +84,7 @@ func _duplicate_and_initialize_upgrades() -> void:
 
 
 # -------------------------------------------------
-# APPLY INITIAL UPGRADES - v1.3.7 | v1.3.11
+# APPLY INITIAL UPGRADES
 # -------------------------------------------------
 func _apply_initial_upgrades() -> void:
 	for upgrade in attack_upgrades:
@@ -95,7 +95,7 @@ func _apply_initial_upgrades() -> void:
 		print("⚡ Applied initial upgrades for '%s' (Lv%d)" % [upgrade.attack_name, upgrade.current_level])
 
 # -------------------------------------------------
-# INITIALIZE UPGRADE TRACKING - v1.3.10
+# INITIALIZE UPGRADE TRACKING
 # -------------------------------------------------
 func _initialize_upgrade_tracking() -> void:
 	for upgrade in attack_upgrades:
@@ -204,7 +204,7 @@ func create_attack_data_with_upgrades(attack_data: AttackData) -> AttackData:
 	return temp_copy
 
 # -------------------------------------------------
-# SETUP - v1.3.11
+# SETUP
 # -------------------------------------------------
 func setup(
 	_player: CharacterBody2D,
@@ -257,7 +257,7 @@ func _start_attacks() -> void:
 			print("⚡ Attack '%s' fired immediately (start_immediately)" % attack_data.attack_name)
 
 # -------------------------------------------------
-# PHYSICS PROCESS - v1.3.11
+# PHYSICS PROCESS
 # -------------------------------------------------
 func _physics_process(_delta: float) -> void:
 	# Consulta barata (um E de bits) num lugar que já roda todo frame — evita
@@ -269,7 +269,7 @@ func _physics_process(_delta: float) -> void:
 	_check_upgrade_changes()
 
 # -------------------------------------------------
-# CHECK UPGRADE CHANGES - v1.3.10 | v1.3.11
+# CHECK UPGRADE CHANGES
 # -------------------------------------------------
 func _check_upgrade_changes() -> void:
 	for upgrade in attack_upgrades:
@@ -311,7 +311,7 @@ func _check_upgrade_changes() -> void:
 				print("%s Upgrade '%s' Lv%d → Lv%d (auto-detected)" % [arrow, upgrade.attack_name, last_level, current_level])
 
 # -------------------------------------------------
-# SPAWN - v1.3.24
+# SPAWN
 # -------------------------------------------------
 func _spawn_attack(attack_data: AttackData) -> void:
 	var upgrade = find_upgrade(attack_data.attack_id)
@@ -396,7 +396,7 @@ func _spawn_single_projectile(attack_data: AttackData, index: int) -> void:
 		attack.set_projectile_index(index, attack_data.projectile_count)
 
 # -------------------------------------------------
-# TIMER - v1.3.11
+# TIMER
 # -------------------------------------------------
 func _create_attack_timer(attack_data: AttackData) -> void:
 	var timer := Timer.new()
@@ -414,7 +414,7 @@ func _create_attack_timer(attack_data: AttackData) -> void:
 	attack_timers[attack_data.attack_id] = timer
 
 # -------------------------------------------------
-# CONTROL - v1.3.26: Unificado
+# CONTROL
 # -------------------------------------------------
 func apply_upgrade(attack_id: int) -> bool:
 	var upgrade = find_upgrade(attack_id)

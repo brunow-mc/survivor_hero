@@ -1,7 +1,7 @@
 extends BasePower
 
 # -------------------------------------------------
-# ÁUDIO - v1.1.12
+# ÁUDIO
 # -------------------------------------------------
 # NOTA: Este power cria AudioStreamPlayer2D dinamicamente para áudio em loop.
 # A flag handles_own_audio no AttackData impede attack_controller de tocar via AudioManager.
@@ -14,7 +14,7 @@ var audio_player: AudioStreamPlayer2D
 var enemies_in_contact: Dictionary[Node, Timer] = {}
 
 # -------------------------------------------------
-# SETUP - v1.1.12
+# SETUP
 # -------------------------------------------------
 func set_attack_data(data: AttackData) -> void:
 	super.set_attack_data(data)
@@ -106,7 +106,7 @@ func _on_area_exited(area: Area2D) -> void:
 
 
 # -------------------------------------------------
-# FIM DE VIDA - MODIFICADO v1.1.12
+# FIM DE VIDA
 # -------------------------------------------------
 func on_life_time_end() -> void:
 	# PARAR ÁUDIO ANTES de destruir

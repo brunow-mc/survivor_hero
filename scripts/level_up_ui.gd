@@ -50,7 +50,7 @@ func _on_upgrade_options_ready(options: Array) -> void:
 	_show_menu()
 
 func _populate_options() -> void:
-	"""v1.4.0: Preenche botões com dados vindos dos Resources"""
+	"""Preenche botões com dados vindos dos Resources"""
 	for i in range(3):
 		if i >= current_options.size():
 			option_buttons[i].visible = false
@@ -69,7 +69,7 @@ func _populate_options() -> void:
 		name_label.text = option.display_name
 		desc_label.text = option.description.replace("\\n", "\n")
 
-		# v1.4.4: exibe ícone se disponível
+		# exibe ícone se disponível
 		if option.has("icon") and option.icon != null:
 			icon_rect.texture = option.icon
 			icon_rect.visible = true

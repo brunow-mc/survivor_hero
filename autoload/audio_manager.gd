@@ -18,7 +18,7 @@ var audio_pool_2d: Array[AudioStreamPlayer2D] = []
 var active_players_2d: Array[AudioStreamPlayer2D] = []
 
 # ======================================
-# SOUND LIMITER (integrado v1.1.12)
+# SOUND LIMITER
 # ======================================
 const MIN_INTERVAL: float = 0.04
 var last_play_time: Dictionary = {}
@@ -47,7 +47,7 @@ func _create_audio_pools() -> void:
 	for i in range(POOL_SIZE_GLOBAL):
 		var player := AudioStreamPlayer.new()
 		player.bus = "SFX"
-		player.process_mode = Node.PROCESS_MODE_PAUSABLE  # v1.4.6: para durante pause
+		player.process_mode = Node.PROCESS_MODE_PAUSABLE  # para durante pause
 		player.finished.connect(_on_global_player_finished.bind(player))
 		add_child(player)
 		audio_pool_global.append(player)
@@ -56,7 +56,7 @@ func _create_audio_pools() -> void:
 	for i in range(POOL_SIZE_2D):
 		var player := AudioStreamPlayer2D.new()
 		player.bus = "SFX"
-		player.process_mode = Node.PROCESS_MODE_PAUSABLE  # v1.4.6: para durante pause
+		player.process_mode = Node.PROCESS_MODE_PAUSABLE  # para durante pause
 		
 		# Configurações espaciais (ajuste para testes)
 		player.max_distance = sound_max_distance  # Distância máxima audível (pixels)

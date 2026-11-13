@@ -48,7 +48,7 @@ class_name PowerUpData
 # 0.05 = reduz 5% do Interval base de cada ataque.
 @export var cooldown_reduction_percent_per_level: Array[float] = []
 
-# NOVO v1.2.6 - Lethal Impact
+# Lethal Impact
 @export_group("Projectile Speed")
 @export var projectile_speed_percent_per_level: Array[float] = []
 
@@ -107,7 +107,7 @@ func get_cooldown_reduction_bonus() -> Dictionary:
 		"percent": _get_value(cooldown_reduction_percent_per_level)
 	}
 
-# NOVO v1.2.6 - Lethal Impact
+# Lethal Impact
 func get_projectile_speed_bonus() -> Dictionary:
 	return {
 		"flat": 0.0,
@@ -126,7 +126,7 @@ func get_knockback_bonus() -> Dictionary:
 # =================================================
 func _get_value(arr: Array[float]) -> float:
 	"""
-	v1.3.6: MÉTODO ACUMULATIVO - soma valores de arr[0] até arr[current_level-1].
+	MÉTODO ACUMULATIVO - soma valores de arr[0] até arr[current_level-1].
 	
 	Exemplo com arr = [20, 20, 20, 20, 20]:
 	- Level 0: retorna 0 (não adquirido)
@@ -147,7 +147,7 @@ func _get_value(arr: Array[float]) -> float:
 
 
 # =================================================
-# UI HELPERS - v1.4.0
+# UI HELPERS
 # =================================================
 func get_display_name_for_level(level: int) -> String:
 	"""Retorna display_name para um level específico"""

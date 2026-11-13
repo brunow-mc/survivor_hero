@@ -1,7 +1,7 @@
 extends Node
 
 # =================================================
-# TEST POWERUPS - v1.2.6 | v1.3.2
+# TEST POWERUPS
 # =================================================
 # Sistema de debug para testar powerups com teclas.
 # [1-8] = Aplica powerups
@@ -118,8 +118,8 @@ func _input(event: InputEvent) -> void:
 
 func _try_apply(powerup_id: int, powerup_name: String) -> void:
 	"""
-	v1.3.2: Validação prévia antes de aplicar powerup
-	v1.3.27: Usa apply_upgrade() unificado
+	Validação prévia antes de aplicar powerup
+	Usa apply_upgrade() unificado
 	"""
 	var powerup = powerup_controller.get_powerup(powerup_id)
 	

@@ -1,7 +1,7 @@
 extends Node
 
 # =================================================
-# TEST ATTACK UPGRADES - v1.3.0
+# TEST ATTACK UPGRADES
 # =================================================
 # [E] Fire+   [T] Ring+   [Y] Elec+
 # [U] Bo+     [I] Gear+   [O] Snow+
@@ -68,7 +68,7 @@ func _raise(id: int, attack_name: String) -> void:
 		print("⚠️ '%s' (ID %d) sem upgrade configurado" % [attack_name, id])
 		return
 
-	# v1.3.27: Usar apply_upgrade() unificado — mesma porta do menu de level-up.
+	# Usar apply_upgrade() unificado — mesma porta do menu de level-up.
 	if not attack_controller.apply_upgrade(id):
 		print("⚠️ '%s' já está em max (Lv%d)" % [attack_name, upgrade.max_level])
 		return

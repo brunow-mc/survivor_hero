@@ -2,10 +2,10 @@ extends Node
 class_name PowerUpController
 
 # =================================================
-# POWERUP CONTROLLER - v1.1.19 v3 | v1.3.2
+# POWERUP CONTROLLER
 # =================================================
 
-signal powerup_unlocked(powerup_id: int, icon: Texture2D)  # v1.4.7: emitido por qualquer fonte
+signal powerup_unlocked(powerup_id: int, icon: Texture2D)  # emitido por qualquer fonte
 
 @export var powerups: Array[PowerUpData] = []
 
@@ -75,7 +75,7 @@ func _duplicate_float_array(arr: Array[float]) -> Array[float]:
 
 
 # =================================================
-# APPLY UPGRADE - v1.3.26 | v1.4.7
+# APPLY UPGRADE
 # =================================================
 func apply_upgrade(powerup_id: int) -> bool:
 	var powerup := _find_powerup(powerup_id)
@@ -91,7 +91,7 @@ func apply_upgrade(powerup_id: int) -> bool:
 	
 	if was_level == 0:
 		print("\n✨ PowerUp UNLOCKED: '%s' (Level %d)" % [powerup.powerup_name, powerup.current_level])
-		powerup_unlocked.emit(powerup_id, powerup.icon)  # v1.4.7
+		powerup_unlocked.emit(powerup_id, powerup.icon)
 	else:
 		print("\n⬆️ PowerUp UPGRADED: '%s' (Level %d → %d)" % [powerup.powerup_name, was_level, powerup.current_level])
 	
@@ -100,7 +100,7 @@ func apply_upgrade(powerup_id: int) -> bool:
 
 
 func apply_powerup(powerup_id: int) -> bool:
-	"""DEPRECATED v1.3.26: Use apply_upgrade() instead."""
+	"""DEPRECATED: Use apply_upgrade() instead."""
 	return apply_upgrade(powerup_id)
 
 

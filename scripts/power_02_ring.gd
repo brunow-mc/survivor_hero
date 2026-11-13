@@ -92,10 +92,10 @@ func _physics_process(delta: float) -> void:
 
 
 # =================================================
-# DEFINIÇÃO DA TRAJETÓRIA - v1.3.16
+# DEFINIÇÃO DA TRAJETÓRIA
 # =================================================
 func define_trajectory() -> void:
-	# v1.3.16: Usa find_nearest_enemy_on_screen() do BasePower
+	# Usa find_nearest_enemy_on_screen() do BasePower
 	# Usa screen_edge_tolerance para controlar margem de busca
 	var enemy := find_nearest_enemy_on_screen(screen_edge_tolerance)
 	if not enemy:

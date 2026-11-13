@@ -45,7 +45,6 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Código e recurso sem uso, avaliar remoção: `get_attack_stats_with_upgrades()`, `apply_powerup()`, `level_down()`, `get_damage_multiplier()`, `PowerUpStatsGlobal.reset()`, `BasePower.get_hit_data()`/`get_attack_data()`, `LevelUpManager.get_current_options()`, `PRIMARY_01_fire.tres`
 - Sorteio das opções do menu por raridade: é para isso que existem `common_weight`, `uncommon_weight`, `rare_weight` e `epic_weight` no `LevelUpManager`. Hoje nenhum código os lê: as opções são sorteadas sem peso. A ideia é preliminar
 - `HoldGlobal.hold_for()`: sem chamador hoje, mantido de propósito para pausas que terminam só por tempo
-- Comentários de código: buscar e limpar as menções a versões como `v1.3.28`, de antes do uso do GitHub
 - **Prioridade média** — overlay de debug do spawn (`debug_draw_enabled`): desenhar os pontos no mundo, como um nó da fase, e não numa `CanvasLayer` presa à tela. Assim a câmera aplica zoom e posição sozinha, e dá para afastar a câmera e ver toda a área de spawn
 - Ferramentas de teste: as teclas de `TestPowerups` e `TestAttackUpgrades` apontam para ids fixos no código. Avaliar ler os ids direto dos controllers, para um poder ou powerup novo ganhar tecla sozinho
 - Identificadores de shapes nas fases: F5 pode salvar `stage_01`/`safe_house_01` trocando só os ids das shapes com `resource_local_to_scene = true`. É inofensivo, mas confunde os commits. Investigar o que fazer

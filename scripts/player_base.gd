@@ -266,7 +266,7 @@ func take_damage(amount: float) -> void:
 	if HoldGlobal.is_held(HoldGlobal.Scope.ENEMIES):
 		return
 
-	# v1.1.19: Aplicar armor (redução de dano)
+	# Aplicar armor (redução de dano)
 	var damage_reduction = PowerUpStatsGlobal.get_armor_damage_reduction()
 	var final_damage = amount * (1.0 - damage_reduction)
 	

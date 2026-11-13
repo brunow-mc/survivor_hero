@@ -7,7 +7,7 @@ extends BasePower
 
 
 # =================================================
-# CONFIGURAÇÃO DO BO - v1.2.2
+# CONFIGURAÇÃO DO BO
 # =================================================
 var speed: float = 0.0
 var current_speed: float = 0.0
@@ -51,7 +51,7 @@ var state: BoState = BoState.GOING_FORWARD
 
 
 # -------------------------------------------------
-# MOVIMENTO - v1.3.18
+# MOVIMENTO
 # -------------------------------------------------
 var move_direction: Vector2 = Vector2.ZERO
 var traveled_distance: float = 0.0
@@ -75,11 +75,11 @@ var enemies_in_contact: Dictionary = {}
 
 
 # =================================================
-# ESCALA DINÂMICA - v1.1.15 | v1.3.13 | v1.3.18
+# ESCALA DINÂMICA
 # =================================================
 var current_scale: float = 1.0
 var max_forward_distance: float = 0.0
-var target_scale: float = 1.0  # v1.3.13: Snapshot do scale no spawn
+var target_scale: float = 1.0  # Snapshot do scale no spawn
 
 
 # -------------------------------------------------
@@ -97,7 +97,7 @@ func _ready() -> void:
 	_calculate_max_forward_distance()
 
 	# =================================================
-	# ÁUDIO DE IDA - v1.2.2
+	# ÁUDIO DE IDA
 	# =================================================
 	# Toca som primary do AttackData (ida)
 	if attack_data and attack_data.attack_sound:
@@ -131,11 +131,11 @@ func _physics_process(delta: float) -> void:
 
 
 # =================================================
-# ESCALA DINÂMICA - v1.1.15 | v1.3.13 | v1.3.18
+# ESCALA DINÂMICA
 # =================================================
 func _calculate_max_forward_distance() -> void:
 	"""
-	v1.2.2: Agora forward_distance JÁ É o alcance total.
+	Agora forward_distance JÁ É o alcance total.
 	Esta função apenas garante que max_forward_distance = forward_distance.
 	Mantida para compatibilidade com sistema de escala.
 	"""
@@ -144,12 +144,12 @@ func _calculate_max_forward_distance() -> void:
 
 func _update_scale() -> void:
 	"""
-	v1.3.18: Suaviza APENAS o scale final (não a distância).
+	Suaviza APENAS o scale final (não a distância).
 	
 	Lê distância real ao player, mas aplica lerp no scale para evitar saltos.
 	Um único lerp garante convergência e mantém suavidade visual.
 	
-	v1.3.13: Usa target_scale (snapshot) ao invés de ler attack_data continuamente.
+	Usa target_scale (snapshot) ao invés de ler attack_data continuamente.
 	Chamada a cada _physics_process.
 	"""
 	if not attack_data:
@@ -199,10 +199,10 @@ func _apply_current_scale() -> void:
 
 
 # -------------------------------------------------
-# DIREÇÃO INICIAL - v1.3.16
+# DIREÇÃO INICIAL
 # -------------------------------------------------
 func define_initial_direction() -> void:
-	# v1.3.16: Usa find_nearest_enemy_on_screen() do BasePower
+	# Usa find_nearest_enemy_on_screen() do BasePower
 	var enemy := find_nearest_enemy_on_screen(screen_edge_tolerance)
 
 	if enemy:
@@ -225,11 +225,11 @@ func process_forward(delta: float) -> void:
 
 
 # =================================================
-# DESACELERAÇÃO - v1.2.2 SOLUÇÃO 3
+# DESACELERAÇÃO
 # =================================================
 func start_slow_down() -> void:
 	"""
-	v1.2.2: Tween baseado em DISTÂNCIA, não tempo.
+	Tween baseado em DISTÂNCIA, não tempo.
 	Calcula matematicamente o tempo necessário para desacelerar
 	de current_speed até 0 percorrendo exatamente a distância restante
 	até forward_distance.
@@ -283,7 +283,7 @@ func start_slow_down() -> void:
 
 func process_slow_down(delta: float) -> void:
 	"""
-	v1.2.2: Move durante desaceleração com limite HARD.
+	Move durante desaceleração com limite HARD.
 	Mesmo que tween não termine, para forçadamente ao atingir forward_distance.
 	"""
 	var displacement := move_direction * current_speed * delta
@@ -315,7 +315,7 @@ func process_slow_down(delta: float) -> void:
 
 
 # =================================================
-# RETORNO (ACELERAÇÃO) - v1.3.18
+# RETORNO (ACELERAÇÃO)
 # =================================================
 func start_return() -> void:
 	state = BoState.RETURNING
@@ -334,7 +334,7 @@ func start_return() -> void:
 	)
 	
 	# =================================================
-	# ÁUDIO DE RETORNO - v1.2.2
+	# ÁUDIO DE RETORNO
 	# =================================================
 	# Delay curto antes de tocar (mesma lógica do áudio anterior)
 	await get_tree().create_timer(0.09, false).timeout
@@ -351,7 +351,7 @@ func start_return() -> void:
 
 
 # =================================================
-# MOVIMENTO — VOLTA (TELEGUIADO) - v1.3.18
+# MOVIMENTO — VOLTA (TELEGUIADO)
 # =================================================
 func process_return(delta: float) -> void:
 	if not is_instance_valid(player_ref):
@@ -534,7 +534,7 @@ func _clear_all_continuous_timers() -> void:
 
 
 # =================================================
-# SETTERS - v1.3.13
+# SETTERS
 # =================================================
 func set_power_direction(player_direction: int) -> void:
 	direction = player_direction
@@ -543,7 +543,7 @@ func set_power_direction(player_direction: int) -> void:
 
 func set_attack_data(data: AttackData) -> void:
 	"""
-	v1.3.13: Faz snapshot do attack_scale no momento do spawn.
+	Faz snapshot do attack_scale no momento do spawn.
 	Isso padroniza o comportamento com os outros powers.
 	"""
 	# Chama BasePower EXCETO _apply_attack_scale()
@@ -552,7 +552,7 @@ func set_attack_data(data: AttackData) -> void:
 	max_life_time = data.life_time
 	damage_interval = data.damage_interval
 	
-	# v1.3.13: SNAPSHOT do scale no spawn
+	# SNAPSHOT do scale no spawn
 	target_scale = data.attack_scale
 	
 	# IMPORTANTE: NÃO chamar super._apply_attack_scale()

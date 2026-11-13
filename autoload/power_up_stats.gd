@@ -1,7 +1,7 @@
 extends Node
 
 # =================================================
-# POWERUP STATS GLOBAL - v1.2.6
+# POWERUP STATS GLOBAL
 # =================================================
 signal stats_changed
 

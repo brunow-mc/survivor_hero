@@ -90,7 +90,7 @@ func notify_player_dead() -> void:
 	state_changed.emit(current_state)
 
 func show_game_over() -> void:
-	# v1.4.6: Centraliza o pause do game over no GameStateGlobal.
+	# Centraliza o pause do game over no GameStateGlobal.
 	# Chamado pelo game_over_menu após o delay de exibição.
 	if current_state != GameplayState.PLAYER_DEAD:
 		return

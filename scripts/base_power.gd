@@ -93,7 +93,7 @@ func _on_area_entered(area: Area2D) -> void:
 	var total_damage_bonus: float = modified_hit_data.damage_upgrade_bonus + (PowerUpStatsGlobal.damage_multiplier - 1.0)
 	modified_hit_data.damage = modified_hit_data.damage * (1.0 + total_damage_bonus)
 
-	# v1.2.6: Aplicar knockback multiplier global
+	# Aplicar knockback multiplier global
 	modified_hit_data.knockback_force = modified_hit_data.knockback_force * PowerUpStatsGlobal.knockback_multiplier
 
 	# aplica dano
@@ -109,12 +109,12 @@ func set_attack_data(data: AttackData) -> void:
 	max_life_time = data.life_time
 	damage_interval = data.damage_interval
 	
-	# NOVO v1.1.15: Aplicar escala do ataque
+	# Aplicar escala do ataque
 	_apply_attack_scale()
 
 
 # -------------------------------------------------
-# SCALE - NOVO v1.1.15
+# SCALE
 # -------------------------------------------------
 func _apply_attack_scale() -> void:
 	"""
@@ -143,7 +143,7 @@ func get_attack_data() -> AttackData:
 
 
 # -------------------------------------------------
-# HELPER: CÁLCULO DE ÂNGULOS DE DISPERSÃO (v1.1.7)
+# HELPER: CÁLCULO DE ÂNGULOS DE DISPERSÃO
 # -------------------------------------------------
 # Calcula ângulos para dispersão de projéteis em padrão de "leque"
 # Usado por poderes que disparam múltiplos projéteis com ângulos diferentes
@@ -190,7 +190,7 @@ func calculate_projectile_spread_angles(count: int, spread_angle: float) -> Arra
 
 
 # =================================================
-# ENEMY TARGETING - NOVO v1.3.16
+# ENEMY TARGETING
 # =================================================
 
 ## Posição do CORPO de um inimigo (o BodyCenter), NÃO dos pés. A origem da
@@ -203,7 +203,7 @@ func _enemy_body_position(enemy: Node2D) -> Vector2:
 
 func find_nearest_enemy_on_screen(margin: float = 50.0) -> Node2D:
 	"""
-	v1.3.16: Encontra inimigo mais próximo DENTRO da tela visível.
+	Encontra inimigo mais próximo DENTRO da tela visível.
 	
 	Usado por ataques teleguiados (Ring, Boomerang) para evitar mirar 
 	em inimigos muito distantes fora da tela.
@@ -250,7 +250,7 @@ func find_nearest_enemy_on_screen(margin: float = 50.0) -> Node2D:
 
 func find_random_enemy_on_screen(margin: float = 50.0) -> Node2D:
 	"""
-	v1.3.21b: Encontra inimigo ALEATÓRIO dentro da tela visível.
+	Encontra inimigo ALEATÓRIO dentro da tela visível.
 	
 	Usa TargetTrackerGlobal para evitar repetição excessiva:
 	- Prioriza inimigos NÃO recentemente targetados
@@ -293,7 +293,7 @@ func find_random_enemy_on_screen(margin: float = 50.0) -> Node2D:
 	if on_screen.size() == 0:
 		return null
 	
-	# v1.3.21b: SISTEMA DE EXCLUSÃO TEMPORÁRIA COM AUTO-RESET
+	# SISTEMA DE EXCLUSÃO TEMPORÁRIA COM AUTO-RESET
 	# Tentar evitar inimigos recentemente targetados
 	var available = TargetTrackerGlobal.get_non_recent_enemies(on_screen)
 	
@@ -307,7 +307,7 @@ func find_random_enemy_on_screen(margin: float = 50.0) -> Node2D:
 		chosen = on_screen.pick_random()
 	
 	# Marcar escolhido como recentemente targetado
-	# v1.3.21b: Passa interval para detecção automática de novo batch
+	# Passa interval para detecção automática de novo batch
 	if chosen and attack_data:
 		TargetTrackerGlobal.add_target(chosen, attack_data.interval)
 	elif chosen:

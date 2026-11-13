@@ -2,7 +2,7 @@ extends Resource
 class_name AttackUpgradeData
 
 # =================================================
-# ATTACK UPGRADE DATA - v1.3.0
+# ATTACK UPGRADE DATA
 # =================================================
 # Define progressão de upgrades por ataque.
 # Arrays são 0-indexed: arr[0] = level 1, arr[1] = level 2, etc.
@@ -28,11 +28,9 @@ class_name AttackUpgradeData
 @export var speed_bonus_per_level: Array[float] = []
 @export var max_hits_per_level: Array[int] = []
 @export var cooldown_reduction_per_level: Array[float] = []
-# v1.3.8:
 @export var projectile_angle_spread_per_level: Array[float] = []
 @export var life_time_bonus_per_level: Array[float] = []
 @export var attack_scale_bonus_per_level: Array[float] = []
-# NOVOS v1.3.9:
 @export var projectile_stagger_delay_per_level: Array[float] = []
 @export var orbit_radius_per_level: Array[float] = []
 @export var orbit_speed_bonus_per_level: Array[float] = []
@@ -67,7 +65,6 @@ func get_max_hits_bonus() -> int:
 func get_cooldown_reduction() -> float:
 	return _sum_float(cooldown_reduction_per_level)
 
-# v1.3.8:
 func get_projectile_angle_spread_bonus() -> float:
 	return _sum_float(projectile_angle_spread_per_level)
 
@@ -77,7 +74,6 @@ func get_life_time_bonus() -> float:
 func get_attack_scale_bonus() -> float:
 	return _sum_float(attack_scale_bonus_per_level)
 
-# NOVOS v1.3.9:
 func get_projectile_stagger_delay_bonus() -> float:
 	return _sum_float(projectile_stagger_delay_per_level)
 
@@ -106,7 +102,7 @@ func _sum_float(arr: Array[float]) -> float:
 
 
 # =================================================
-# UI HELPERS - v1.4.0
+# UI HELPERS
 # =================================================
 func get_display_name_for_level(level: int) -> String:
 	"""Retorna display_name para um level específico"""

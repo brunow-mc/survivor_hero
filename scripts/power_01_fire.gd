@@ -36,7 +36,7 @@ func _physics_process(delta: float) -> void:
 	if is_fading_out:
 		return
 
-	# CORRIGIDO v1.1.8: Movimento com direction correto
+	# Movimento com direction correto
 	# Vetor base usa direction (1=direita, -1=esquerda)
 	# Depois rotaciona pelo ângulo do leque
 	position += Vector2(direction, 0).rotated(rotation) * speed * delta
@@ -106,7 +106,7 @@ func set_attack_data(data: AttackData) -> void:
 	max_hits = data.max_hits
 
 
-# MODIFICADO v1.1.8: Define rotação visual
+# Define rotação visual
 # Chamado por attack_controller quando projectile_count > 1
 func set_projectile_index(index: int, total: int) -> void:
 	if total == 1:
@@ -125,7 +125,7 @@ func set_projectile_index(index: int, total: int) -> void:
 	if index < angles.size():
 		var angle_degrees = angles[index]
 		
-		# CORRIGIDO v1.1.8: Rotação visual
+		# Rotação visual
 		rotation = deg_to_rad(angle_degrees)
 		# Para esquerda, inverte visualmente (flip_h já espelha horizontalmente)
 		if direction < 0:

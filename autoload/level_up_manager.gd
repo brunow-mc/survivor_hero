@@ -2,7 +2,7 @@ extends Node
 class_name LevelUpManager
 
 # =================================================
-# LEVEL UP MANAGER - v1.3.28
+# LEVEL UP MANAGER
 # =================================================
 
 # -------------------------------------------------
@@ -119,7 +119,7 @@ func _on_level_up(new_level: int) -> void:
 	upgrade_options_ready.emit(current_options)
 
 # =================================================
-# GERAR OPÇÕES - v1.4.0
+# GERAR OPÇÕES
 # =================================================
 func generate_upgrade_options(level: int) -> Array[Dictionary]:
 	var player = get_tree().get_first_node_in_group("Player")
@@ -283,7 +283,7 @@ func apply_upgrade(choice_index: int) -> void:
 	get_tree().paused = false
 
 # =================================================
-# APLICAR UPGRADE - v1.3.26 | v1.3.27
+# APLICAR UPGRADE
 # =================================================
 func _apply_upgrade(_player: Node, choice: Dictionary) -> void:
 	if choice.type == "bonus":
