@@ -18,3 +18,13 @@ paths:
 - **Destination is `@export_file("*.tscn") var destination: String`, never a `PackedScene`.** A `PackedScene` export makes the scene a *dependency*, so opening the safe house would load every stage it has a door to (scaling with the sum of all stages' unique assets, paid on every return to the safe house), and safe house ↔ stage pointing at each other would be a **cyclic dependency Godot cannot load**. A string loads nothing until `change_scene_to_file()` on touch.
 - **It is still addressed by uid — this is NOT an exception to the `uid://` rule.** The `.tscn` stores `destination = "uid://…"` (verified in both stages); the Inspector merely *displays* the resolved `res://` path so a human can tell which file it is. Moving or renaming a stage keeps every door working.
 - The door only detects the player and calls `GameStateGlobal.go_to_scene(destination, FADE_OUT_TIME, FADE_IN_TIME)` (its own constants). Init warnings: empty destination; destination that no longer exists (`ResourceLoader.exists`). Ignores the player while their input is held.
+
+**How the two door types differ:**
+
+| | Room door (`room_door`) | Stage door (`stage_door`) |
+|---|---|---|
+| Changes scene | no | yes |
+| Used | inside any scene, EXPLORATION **and** COMBAT | safe house → stage; stage end → safe house |
+| Direction | two-way by default | one-way by nature |
+| Destination | the partner door, same scene | a scene file, loaded only on touch |
+| Player, music, build | continue | fresh start |
