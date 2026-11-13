@@ -141,11 +141,11 @@ Project-wide registry. **Each group has exactly one declaration site** — never
 
 | Group | Declared in | Consumed by |
 |---|---|---|
-| `Player` | **scene** — each player scene's root (Groups tab) | camera, level-up, spawn manager, enemies, loadout bar, powers 04/05/06 |
+| `Player` | **scene** — each player scene's root (Groups tab) | every system that looks for the player — e.g. camera, enemies, spawn, level-up, loadout bar, XP items, doors, chambers, `PlayerSpawner`, powers that follow the player |
 | `Enemy` | **code** — `enemy_base.gd` `_ready()` | spawn manager, power targeting, steering neighbours, knockback transfer |
 | `EnemyHurtbox` | **scene** — each enemy's `Hurtbox` node | every power's hit detection |
-| `PlayerHurtbox` | **scene** — player's `Hurtbox` node | enemy hitboxes (contact damage) |
-| `YSortContainer` | **scene** — `y_sort_container.tscn` root (Groups tab) | `SpawnManagerConfig` (resolves the enemy parent; see Y-sort) |
+| `PlayerHurtbox` | **scene** — player's `Hurtbox` node | enemy hitboxes (contact damage), XP item pickup |
+| `YSortContainer` | **scene** — `y_sort_container.tscn` root (Groups tab) | `SpawnManagerConfig` and `PlayerSpawner` (resolve the parent of enemies and player; see Y-sort) |
 | `Power` | **code** — `base_power.gd` `_ready()` | *(reserved — no consumer yet)* |
 | `XPItems` | **code** — `xp_item.gd` `_ready()` | *(reserved — no consumer yet)* |
 
