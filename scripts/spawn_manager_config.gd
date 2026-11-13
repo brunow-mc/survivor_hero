@@ -317,13 +317,17 @@ func create_debug_overlay() -> void:
 	"""
 	Instancia o debug overlay para visualização do Grid Sampling.
 	"""
-	var overlay_scene = load("uid://bx7n3k9q2wdhs")
+	var overlay_scene = load("uid://bx7n3laq2wdhs")  # uid = debug/debug_draw_overlay.tscn
 	if not overlay_scene:
 		push_warning("SpawnManagerConfig: Debug overlay scene não encontrada!")
 		return
 	
 	var overlay = overlay_scene.instantiate()
-	get_tree().root.add_child(overlay)
 	overlay.set_enabled(true)
+	# Dentro da FASE, e não na raiz da árvore: morre junto com ela, então um
+	# restart não duplica o overlay e uma troca de cena não o leva junto.
+	# Adiado porque esta função pode rodar durante o _ready() da fase.
+	var stage: Node = get_tree().current_scene if get_tree().current_scene else get_parent()
+	stage.add_child.call_deferred(overlay)
 	
 	print("🎨 Debug overlay criado e ativado!")

@@ -33,7 +33,6 @@ Convention — groups spaced in tens so new layers fit between them:
 | 50 | `FadeGlobal` |
 | 90 | menus — `PauseMenu`, `GameOverMenu` |
 | 100 | `LevelUpUI` |
-| 110 | `DebugDrawOverlay` — above everything; it used to sit at 100, tied with `LevelUpUI`, and a tie is broken by tree order, which is fragile |
 
 The fade must sit above the HUD (or the XP bar shows through the black) and below the pause menu (or pausing mid-crossing hides the menu under the black). A new `CanvasLayer` picks its slot from this table. Members of the same group may share the group's number; where they overlap, tree order decides. For a fixed order inside a group, use a free number in its ten (11–19 for the HUD, for example). Never use another group's number.
 
@@ -47,5 +46,6 @@ The fade must sit above the HUD (or the XP bar shows through the black) and belo
 | **50 (absolute)** | **occlusion silhouette** (see *Occlusion silhouette*) |
 | **51–59** | **visual effects** — for example `impact_01.tscn`: root `z_index = 51`, its `AnimatedSprite2D` at 0 (so the number lives in one place); added to the enemy's parent, the container, so it stays at **51**. Above the silhouette (drawn after the snapshot, so a death effect bursting over the player no longer lights the player's outline) and below powers |
 | **60+** | **every power** — `z_index = 60` on each power scene's root, relative (60 loose in the container, 62 when attached to the player) |
+| **100 (absolute)** | **spawn debug overlay** (`debug_draw_overlay`, only when `debug_draw_enabled` is on) — above everything in the world, but under the HUD and menus, which are `CanvasLayer`s |
 
 **Rule: every power scene uses `z_index = 60`** on its root, set in the Inspector like the rest of the power calibration. It does two jobs: powers always draw above players, enemies and scenery (the design intent), and they draw **after** the silhouette took its screen snapshot, so they never trigger it. A new power left at a low z makes the silhouette flicker whenever it crosses a body — visible at once, not silent.

@@ -2,6 +2,5 @@
 
 [ext_resource type="Script" uid="uid://cuhhtdibx3nsk" path="res://scripts/debug_draw_overlay.gd" id="1_overlay_script"]
 
-[node name="DebugDrawOverlay" type="CanvasLayer" unique_id=2104734571]
-layer = 110
+[node name="DebugDrawOverlay" type="Node2D" unique_id=480380844]
 script = ExtResource("1_overlay_script")

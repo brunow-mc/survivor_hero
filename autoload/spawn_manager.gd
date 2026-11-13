@@ -389,8 +389,6 @@ func _physics_process(delta: float) -> void:
 	if debug_draw_enabled and not last_scanned_clusters.is_empty():
 		var debug_data: Dictionary = {
 			"clusters": last_scanned_clusters,
-			"player_position": player.global_position if player else Vector2.ZERO,
-			"camera_position": get_camera_position(),
 			"margin_min_h": spawn_margin_min_horizontal,
 			"margin_min_v": spawn_margin_min_vertical,
 			"margin_max_h": spawn_margin_max_horizontal,
