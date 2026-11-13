@@ -20,9 +20,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *Y-sort*: concluída (migrada, conferida com o código, corrigida e testada).
 - *Knockback*: concluída (migrada para `enemy-system.md`, conferida com o código, corrigida e testada).
 - *World objects* (parte restante): concluída (dividida entre `CLAUDE.md`, `doors.md` e `scene-changes.md`, conferida com o código, corrigida e testada).
+- Regras do *GameplayState*: concluída (divididas entre `CLAUDE.md` e `gameplay-state.md`, conferidas com o código, corrigidas e testadas).
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 43 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 37 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
