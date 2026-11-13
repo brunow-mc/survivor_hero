@@ -2,7 +2,7 @@
 
 Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar.
 
-## Reorganização da documentação (em andamento)
+## Reorganização da documentação (concluída)
 
 - Piloto do *Spawn system*: concluído (migrado, testado e conferido com o código).
 - *Occlusion silhouette*: concluída (migrada, conferida com o código, corrigida e testada).
@@ -22,9 +22,10 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - *World objects* (parte restante): concluída (dividida entre `CLAUDE.md`, `doors.md` e `scene-changes.md`, conferida com o código, corrigida e testada).
 - Regras do *GameplayState*: concluída (divididas entre `CLAUDE.md` e `gameplay-state.md`, conferidas com o código, corrigidas e testadas).
 - *Node groups*: mantida no `CLAUDE.md` (registro do projeto inteiro), conferida com o código e corrigida, inclusive as descrições em `project.godot`.
+- Revisão final do `CLAUDE.md`: concluída (conferida com o código, corrigida e testada). A reorganização em camadas está encerrada.
 - Regra de trabalho: cada assunto migrado é conferido com o código, corrigido e testado antes do commit que o fecha.
 - Destinos:
-  - `CLAUDE.md` (meta medida em KB; hoje cerca de 37 KB): o que vale em qualquer tarefa.
+  - `CLAUDE.md` (meta medida em KB; hoje cerca de 34 KB): o que vale em qualquer tarefa.
   - `.claude/rules/<sistema>.md`: conhecimento de cada sistema, inclusive rejeições ainda válidas.
   - `.claude/skills/`: só procedimentos (nova fase, novo inimigo, novo poder), no projeto.
   - `docs/`: pendências e histórico real.
