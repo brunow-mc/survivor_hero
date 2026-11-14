@@ -72,7 +72,8 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Desbloqueio de fases
 - Ponto de chegada na safe house conforme a porta de origem
 - Safe house sem `NavmeshMerger`: decidir se entra. Ele uniria as camadas navegáveis, mas também esconderia sobreposições de navegação entre tiles
-- Inimigos travam perto das cantoneiras de `block_01`: os colisores avançam sobre tiles navegáveis e o navmesh não os desconta. Proposta: o `NavmeshMerger` subtrair do navmesh as colisões que bloqueiam inimigos. Aguardando decisão
+- Bake do navmesh e colisores que não são tiles: hoje o `NavmeshMerger` desconta só colisores de `TileMapLayer`. Rever no futuro se ele deve descontar também os de outros nós (objetos com corpo de colisão próprio), caso os inimigos precisem desviar deles
+- `verify_connectivity` (`NavmeshMerger`) não serve para fases em ilhas: ele sorteia pares de pontos em todo o mapa e acusa como passagem perdida qualquer par em ilhas diferentes. Só imprime avisos, sem mudar o jogo. Decidir se adapta ou remove, e corrigir o conselho de `performance.md` ("rodar depois de editar o cenário")
 - Desbloqueio de personagens via save
 - Chamber: reinicializar a `LoadoutBar` na troca; retorno ao tocar chamber bloqueada; migração para `PlayerData`
 

@@ -25,6 +25,14 @@ class_name NavmeshMerger
 # de o SpawnManager iniciar e de qualquer inimigo chamar makepath(),
 # independente de onde este no esteja na cena.
 #
+# DESCONTA AS COLISOES QUE BLOQUEIAM INIMIGOS. Um colisor de uma
+# camada (ex.: as cantoneiras de block_01) pode avancar sobre o tile
+# navegavel de OUTRA camada. Sem o desconto, a malha manda o inimigo
+# por dentro do colisor e ele trava. O desconto so faz a malha
+# concordar com a fisica: nunca fecha o que a fisica nao fecha.
+# Camadas com colisao desligada ficam de fora; camadas invisiveis
+# continuam colidindo, entao contam.
+#
 # COMO REVERTER: trocar 'mode' para PER_TILE. O TileSet nunca e
 # tocado — a navegacao por tile volta exatamente como era.
 # =====================================================================
@@ -43,6 +51,10 @@ enum Mode {
 @export var verify_connectivity: bool = false
 
 const EPS: float = 0.01
+## Camadas de física cujos colisores de tile saem da malha: as que
+## bloqueiam inimigos e vêm de tiles (1 = environment). A Barrier (5)
+## bloqueia só o jogador e fica de fora de propósito.
+const OBSTRUCTION_MASK: int = 1
 const VERIFY_PAIRS: int = 60
 const VERIFY_SEED: int = 20260828
 const VERIFY_DIST_MIN: float = 150.0
@@ -93,7 +105,16 @@ func _build() -> void:
 		outlines.append_array(_maximal_rectangles(group["cells"], group["layer"]))
 	outlines.append_array(tiles["irregular"])
 
-	_mesh = _bake(_union(outlines))
+	# Obstáculos: mesma estratégia — quadrados em retângulos, o resto
+	# como está, tudo unido para o bake receber poucos contornos.
+	var blocked: Dictionary = _read_tile_obstructions(_layers_with_obstruction(root))
+	var obstruction_outlines: Array = []
+	for group in blocked["squares"]:
+		obstruction_outlines.append_array(_maximal_rectangles(group["cells"], group["layer"]))
+	obstruction_outlines.append_array(blocked["irregular"])
+	var obstructions: Array = _union(obstruction_outlines)
+
+	_mesh = _bake(_union(outlines), obstructions)
 	if _mesh == null:
 		push_warning("NavmeshMerger: o bake falhou. A navegação por tile foi mantida.")
 		return
@@ -109,9 +130,10 @@ func _build() -> void:
 	NavigationServer2D.region_set_navigation_polygon(_region, _mesh)
 
 	if log_bake:
-		print("🧭 NavmeshMerger: %d tiles → %d polígonos (%.1fx) em %.1f ms" % [
+		print("🧭 NavmeshMerger: %d tiles → %d polígonos (%.1fx), %d tiles de colisão → %d obstáculos, em %.1f ms" % [
 			tiles["cells"], _mesh.get_polygon_count(),
 			float(tiles["polygons"]) / maxf(_mesh.get_polygon_count(), 1.0),
+			blocked["cells"], obstructions.size(),
 			(Time.get_ticks_usec() - t0) / 1000.0,
 		])
 
@@ -170,9 +192,67 @@ func _read_tile_polygons(layers: Array[TileMapLayer]) -> Dictionary:
 		"polygons": polygons,
 	}
 
+## Colisores dos tiles nas camadas de física de OBSTRUCTION_MASK, no
+## mesmo formato de _read_tile_polygons (quadrados por camada + formas
+## avulsas já em coordenadas globais).
+func _read_tile_obstructions(layers: Array[TileMapLayer]) -> Dictionary:
+	var squares: Array = []
+	var irregular: Array = []
+	var cells: int = 0
+
+	for layer in layers:
+		var half: Vector2 = Vector2(layer.tile_set.tile_size) * 0.5
+		var physics_layers: Array[int] = []
+		for p in layer.tile_set.get_physics_layers_count():
+			if layer.tile_set.get_physics_layer_collision_layer(p) & OBSTRUCTION_MASK != 0:
+				physics_layers.append(p)
+		var square_cells: Array[Vector2i] = []
+
+		for cell in layer.get_used_cells():
+			var source_id: int = layer.get_cell_source_id(cell)
+			if source_id == -1 or not layer.tile_set.has_source(source_id):
+				continue
+			var data: TileData = layer.get_cell_tile_data(cell)
+			if data == null:
+				continue
+
+			var shapes: Array[PackedVector2Array] = []
+			for p in physics_layers:
+				for i in data.get_collision_polygons_count(p):
+					var pts: PackedVector2Array = data.get_collision_polygon_points(p, i)
+					if pts.size() >= 3:
+						shapes.append(pts)
+			if shapes.is_empty():
+				continue
+
+			cells += 1
+			var center: Vector2 = layer.map_to_local(cell)
+			var full: bool = false
+			for pts in shapes:
+				if _is_square_outline(pts, half):
+					full = true
+					break
+			if full:
+				# Um quadrado cheio já cobre qualquer outra forma do tile.
+				square_cells.append(cell)
+				continue
+			for pts in shapes:
+				var global_pts := PackedVector2Array()
+				for pt in pts:
+					global_pts.append(layer.to_global(center + pt))
+				irregular.append(global_pts)
+
+		if not square_cells.is_empty():
+			squares.append({"layer": layer, "cells": square_cells})
+
+	return {"squares": squares, "irregular": irregular, "cells": cells}
+
 ## Verdadeiro se o NavigationPolygon cobre o tile inteiro.
 func _is_full_square(np: NavigationPolygon, half: Vector2) -> bool:
-	var v: PackedVector2Array = np.get_vertices()
+	return _is_square_outline(np.get_vertices(), half)
+
+## Verdadeiro se os 4 pontos são os cantos do tile.
+func _is_square_outline(v: PackedVector2Array, half: Vector2) -> bool:
 	if v.size() != 4:
 		return false
 	for p in v:
@@ -195,6 +275,24 @@ func _layers_with_navigation(node: Node) -> Array[TileMapLayer]:
 			out.append(layer)
 	for child in node.get_children():
 		out.append_array(_layers_with_navigation(child))
+	return out
+
+## Todas as camadas que colidem e cuja TileSet tem uma camada de física
+## em OBSTRUCTION_MASK. Visibilidade não importa: uma camada escondida
+## continua colidindo.
+func _layers_with_obstruction(node: Node) -> Array[TileMapLayer]:
+	var out: Array[TileMapLayer] = []
+	if node == null:
+		return out
+	if node is TileMapLayer:
+		var layer := node as TileMapLayer
+		if layer.tile_set != null and layer.collision_enabled:
+			for p in layer.tile_set.get_physics_layers_count():
+				if layer.tile_set.get_physics_layer_collision_layer(p) & OBSTRUCTION_MASK != 0:
+					out.append(layer)
+					break
+	for child in node.get_children():
+		out.append_array(_layers_with_obstruction(child))
 	return out
 
 # =================================================
@@ -286,7 +384,7 @@ func _bounds(p: PackedVector2Array) -> Rect2:
 # =================================================
 # BAKE
 # =================================================
-func _bake(outlines: Array) -> NavigationPolygon:
+func _bake(outlines: Array, obstructions: Array) -> NavigationPolygon:
 	if not NavigationServer2D.has_method("bake_from_source_geometry_data"):
 		push_error("NavmeshMerger: bake_from_source_geometry_data indisponível nesta versão da Godot.")
 		return null
@@ -299,6 +397,9 @@ func _bake(outlines: Array) -> NavigationPolygon:
 	var geo := NavigationMeshSourceGeometryData2D.new()
 	for o in outlines:
 		geo.add_traversable_outline(o)
+	# O bake recorta os obstáculos de dentro do chão.
+	for o in obstructions:
+		geo.add_obstruction_outline(o)
 
 	NavigationServer2D.bake_from_source_geometry_data(mesh, geo)
 	if mesh.get_polygon_count() == 0:
