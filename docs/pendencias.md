@@ -72,6 +72,7 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 - Desbloqueio de fases
 - Ponto de chegada na safe house conforme a porta de origem
 - Safe house sem `NavmeshMerger`: decidir se entra. Ele uniria as camadas navegáveis, mas também esconderia sobreposições de navegação entre tiles
+- Inimigos travam perto das cantoneiras de `block_01`: os colisores avançam sobre tiles navegáveis e o navmesh não os desconta. Proposta: o `NavmeshMerger` subtrair do navmesh as colisões que bloqueiam inimigos. Aguardando decisão
 - Desbloqueio de personagens via save
 - Chamber: reinicializar a `LoadoutBar` na troca; retorno ao tocar chamber bloqueada; migração para `PlayerData`
 
