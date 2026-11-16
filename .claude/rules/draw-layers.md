@@ -40,12 +40,20 @@ The fade must sit above the HUD (or the XP bar shows through the black) and belo
 
 | Effective z | What |
 |---|---|
-| 0 | floor and, normally, back tiles |
-| 2 | entities in the `YSortContainer`, and tiles that Y-sort with them inside it |
-| 4 | front tiles (per-tile z 4 in the TileSet), always above the entities |
+| 0 | **floor** — ground tiles and other ground objects. Colliders do not move a tile out of here: a non-navigable ground tile with colliders (for example `road_01_block`) stays at 0 because the drawing asks for it |
+| 1 | above the floor, below everything else — for example the entities' shadows (`shadow_01.tscn`, written z −3, relative to the entity's 4) and the Barrier |
+| 2 | **scenery behind the entities** (players, enemies, XP items) — for example `building_01` and `tech_01`. Neither collision nor navigation decides this level; only being behind the entities does |
+| 3 | decoration laid over the z-2 scenery, still behind the entities — for example `tech_signs_01`, `occlusion_shadow_01`. Normally no collision or navigation |
+| **4** | **the Y-sort level** — everything that trades occlusion by Y inside the `YSortContainer`: players, enemies, XP items, chambers, and tiles that Y-sort with them (for example `street_objects_01`) |
+| 5 | **front tiles** (normally the `*_front` sources), always above the entities; this is where the silhouettes of bodies behind scenery show (`FrontTiles.MIN_Z`, see *Occlusion silhouette*) |
+| 6 | decoration over the front tiles — for example `occlusion_shadow_01_front`, `tech_signs_01_front`. Normally no collision or navigation |
+| 7 | invisible spacers (for example `block_01`); when shown for editing, above all the scenery |
+| 9 | overhead `HealthBar` and `HealthLabel` — written z 5, relative to the player's 4 |
 | **50 (absolute)** | **occlusion silhouette** (see *Occlusion silhouette*) |
 | **51–59** | **visual effects** — for example `impact_01.tscn`: root `z_index = 51`, its `AnimatedSprite2D` at 0 (so the number lives in one place); added to the enemy's parent, the container, so it stays at **51**. Above the silhouette (drawn after the snapshot, so a death effect bursting over the player no longer lights the player's outline) and below powers |
 | **60+** | **every power** — `z_index = 60` on each power scene's root, relative (60 loose in the container, 62 when attached to the player) |
 | **100 (absolute)** | **spawn debug overlay** (`debug_draw_overlay`, only when `debug_draw_enabled` is on) — above everything in the world, but under the HUD and menus, which are `CanvasLayer`s |
+
+**Levels 0–9 follow one criterion: what must be in front of or behind the entities**, never whether a tile has collision or navigation. Tiles take their level per tile in the TileSet (see *Y-sort*). **Moving the Y-sort level moves every participant at once**: the root of each player, enemy, XP item and chamber scene, and the per-tile z of every tile that Y-sorts with them. A participant left behind no longer ties, so it always wins or always loses, whatever its Y. A forgotten character showed this once: it only appeared after a chamber swap, because only then did that scene enter the game. `FrontTiles.MIN_Z` must stay one above the Y-sort level.
 
 **Rule: every power scene uses `z_index = 60`** on its root, set in the Inspector like the rest of the power calibration. It does two jobs: powers always draw above players, enemies and scenery (the design intent), and they draw **after** the silhouette took its screen snapshot, so they never trigger it. A new power left at a low z makes the silhouette flicker whenever it crosses a body — visible at once, not silent.

@@ -52,7 +52,6 @@ Trabalho em aberto do Survivor Hero. Atualizar quando um item surgir ou terminar
 
 - Silhueta: uma cor por tipo de inimigo; índice e mapa dos tiles da frente na primeira consulta (antecipar se engasgar); miolo mostrando o personagem; itens futuros com outro script
 - Efeitos visuais futuros: usar a faixa de z 51–59
-- Tabela de z em `draw-layers.md`: incluir os valores das camadas de portas, sombras e block quando o trabalho nelas estiver concluído
 - Tiles alternativos no TileSet: investigar para simplificar `building_02` / `building_02_front` (opcional)
 - Árbitro de `modulate`
 - Silhueta: medir o custo. Cada inimigo e item roda `_process()` copiando propriedades e chamando `FrontTiles.rect_touches()`, mesmo com a cópia invisível, e o custo de render não foi medido depois dela

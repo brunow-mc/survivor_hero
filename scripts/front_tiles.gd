@@ -29,8 +29,10 @@ class_name FrontTiles
 # =================================================
 
 ## z_index de tile a partir do qual ele conta como "da frente" (desenhado por
-## cima das entidades, que ficam em 2 dentro do YSortContainer).
-const MIN_Z: int = 4
+## cima das entidades). Sempre um acima do nível do Y-sort: um tile NO nível
+## do Y-sort troca oclusão com as entidades e não é da frente. Tabela de z em
+## draw-layers.md.
+const MIN_Z: int = 5
 
 # [{ "layer": TileMapLayer, "cells": Dictionary }]
 static var _index: Array = []

@@ -30,5 +30,5 @@ paths:
   - **The script fails without these:** `Sprite2D`, `AnimationPlayer` (animations `idle`, `walk`, `attack`, `walk_attack`), `Hurtbox` and `AttackController`, all found by fixed path.
   - **Errors or no function without these:** group `Player` on the root; `PowerUpController`, which `LoadoutBar` requires.
   - **Degrades with a warning without these:** `BodyCenter`, `AttackPositionRight/Left`, `Hurtbox` in the `PlayerHurtbox` group.
-  - **Visual and calibration:** root configured for Y-sort (`z_index = 2`, `y_sort_enabled = true`), `primary_attack_id` on `AttackController`, `HealthBar` and `HealthLabel`.
+  - **Visual and calibration:** root configured for Y-sort (`z_index = 4`, the Y-sort level; `y_sort_enabled = true`), `primary_attack_id` on `AttackController`, `HealthBar` and `HealthLabel`.
   - **Test tools:** `TestPowerups` and `TestAttackUpgrades` (see *Debug and test systems*).

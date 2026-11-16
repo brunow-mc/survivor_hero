@@ -176,6 +176,7 @@ _data = {
 }
 
 [node name="Barrier" type="StaticBody2D" unique_id=1430736777]
+z_index = 1
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("1_tu85p")

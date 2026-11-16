@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://drvojjsvm02nx"
-path="res://.godot/imported/signs_01.png-d4d4bdd2b80ff2b69fdb6181362a10db.ctex"
+path="res://.godot/imported/street_objects_01.png-525670c68f00a495c1644fc3566b5884.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tiles/sprites_for_tiles/scenario/signs_01.png"
-dest_files=["res://.godot/imported/signs_01.png-d4d4bdd2b80ff2b69fdb6181362a10db.ctex"]
+source_file="res://tiles/sprites_for_tiles/scenario/street_objects_01.png"
+dest_files=["res://.godot/imported/street_objects_01.png-525670c68f00a495c1644fc3566b5884.ctex"]
 
 [params]
 

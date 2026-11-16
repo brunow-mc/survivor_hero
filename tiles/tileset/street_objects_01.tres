@@ -1,20 +1,25 @@
 [gd_resource type="TileSet" format=3 uid="uid://c2nqnk2fvlhff"]
 
-[ext_resource type="Texture2D" uid="uid://drvojjsvm02nx" path="res://tiles/sprites_for_tiles/scenario/signs_01.png" id="1_me62n"]
+[ext_resource type="Texture2D" uid="uid://drvojjsvm02nx" path="res://tiles/sprites_for_tiles/scenario/street_objects_01.png" id="1_0thad"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ttfnp"]
-texture = ExtResource("1_me62n")
+resource_name = "street_objects_01"
+texture = ExtResource("1_0thad")
 0:0/size_in_atlas = Vector2i(2, 4)
 0:0/0 = 0
 0:0/0/texture_origin = Vector2i(0, 24)
-0:0/0/z_index = 2
+0:0/0/z_index = 4
 0:0/0/y_sort_origin = -2
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(0, -6.5, -1, -5.5, -1, -5, 0, -4, 1, -4, 2, -5, 2, -5.5, 1, -6.5)
 2:0/size_in_atlas = Vector2i(1, 2)
 2:0/0 = 0
 2:0/0/texture_origin = Vector2i(0, 8)
-2:0/0/z_index = 2
+2:0/0/z_index = 4
 2:0/0/y_sort_origin = -3
+2:2/0 = 0
+2:2/0/z_index = 4
+2:3/0 = 0
+2:3/0/z_index = 4
 
 [resource]
 physics_layer_0/collision_layer = 1

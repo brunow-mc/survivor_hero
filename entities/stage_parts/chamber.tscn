@@ -13,7 +13,7 @@ resource_local_to_scene = true
 size = Vector2(20, 4)
 
 [node name="Chamber" type="Node2D" unique_id=1409572011]
-z_index = 2
+z_index = 4
 y_sort_enabled = true
 script = ExtResource("1_5qvhx")
 swap_sound = ExtResource("2_8wtdk")
