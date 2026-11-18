@@ -202,7 +202,7 @@ Tools that exist only to test or observe: the keyboard test tools on each player
 
 ## Performance budget and NavmeshMerger
 
-Measured costs of the game and why the navigation mesh is baked into one region. Full rules: `.claude/rules/performance.md`. It loads by itself with the `NavmeshMerger` files; read it first when discussing performance, frame time, stutter or navigation cost without opening them. Covers what is expensive and what is not, how to read the measurements, the settings already measured and rejected, the merged navmesh, enemies losing routes after a scenery edit, the engine warning about navigation edge errors and waiting for the navigation server.
+Measured costs of the game, why the navigation mesh is baked into one merged region, and the extra mesh per enemy body size. Full rules: `.claude/rules/performance.md`. It loads by itself with the `NavmeshMerger` files; read it first when discussing performance, frame time, stutter or navigation cost without opening them. Covers what is expensive and what is not, how to read the measurements, the settings already measured and rejected, the merged navmesh, enemies losing routes after a scenery edit, the engine warning about navigation edge errors and waiting for the navigation server.
 
 **New stage checklist (navigation):** instance `entities/stage_parts/navmesh_merger.tscn` anywhere in the stage and leave `mode = MERGED`. Position in the tree or in the world does not matter, and nothing else needs wiring.
 

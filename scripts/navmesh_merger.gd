@@ -33,6 +33,15 @@ class_name NavmeshMerger
 # Camadas com colisao desligada ficam de fora; camadas invisiveis
 # continuam colidindo, entao contam.
 #
+# UMA MALHA POR TAMANHO DE CORPO. A malha de raio zero (a de sempre)
+# não conhece o corpo: os cantos da rota caem colados no colisor, e um
+# obstáculo solto e fino vira armadilha. Além dela, faz uma malha por
+# faixa de raio dos inimigos que esta fase pode ter, já encolhida por
+# esse raio, cada uma no seu próprio mapa de navegação. O raio é lido
+# do colisor de cada inimigo (body_radius), nunca digitado à mão, e
+# arredondado PARA CIMA em faixas de RADIUS_STEP. A de raio zero fica
+# como reserva para quem não tiver malha própria.
+#
 # COMO REVERTER: trocar 'mode' para PER_TILE. O TileSet nunca e
 # tocado — a navegacao por tile volta exatamente como era.
 # =====================================================================
@@ -63,7 +72,25 @@ const VERIFY_DIST_MAX: float = 500.0
 ## espera fixa: ela para assim que o mapa responde (ver _verify).
 const VERIFY_SYNC_FRAMES: int = 30
 
+## Degrau das faixas de raio (px). O raio de cada inimigo é arredondado
+## PARA CIMA no múltiplo deste valor: inimigos de raios próximos dividem
+## uma malha. Menor = mais preciso e mais bakes; maior = o contrário.
+const RADIUS_STEP: float = 2.0
+## Deslocamento (px) entre o centro do colisor e o BodyCenter a partir
+## do qual body_radius() avisa.
+const BODY_OFFSET_WARN: float = 1.0
+
 var _mesh: NavigationPolygon
+
+## Faixa de raio → mapa de navegação com a malha daquela faixa. Estático
+## para o inimigo perguntar sem procurar este nó. Só guarda os mapas da
+## fase atual: cada NavmeshMerger tira os seus ao sair da árvore.
+static var _maps_by_radius: Dictionary = {}
+## Avisos de body_radius() já dados, por cena de inimigo: um por cena,
+## nunca um por instância.
+static var _radius_warned: Dictionary = {}
+## Mapas criados por ESTA instância, liberados no _exit_tree().
+var _own_maps: Array[RID] = []
 
 # =================================================
 # CICLO DE VIDA
@@ -72,6 +99,21 @@ func _enter_tree() -> void:
 	if mode != Mode.MERGED:
 		return
 	_build()
+
+func _exit_tree() -> void:
+	# Os filhos (as regiões) saem da árvore antes deste nó e já se
+	# desligaram dos mapas; agora os mapas podem ser liberados.
+	for radius in _maps_by_radius.keys():
+		if _own_maps.has(_maps_by_radius[radius]):
+			_maps_by_radius.erase(radius)
+	for map in _own_maps:
+		NavigationServer2D.free_rid(map)
+	_own_maps.clear()
+
+## Mapa de navegação da faixa de raio `radius` (já arredondado por
+## radius_bucket), ou RID vazio se esta fase não tem malha dessa faixa.
+static func map_for_radius(radius: float) -> RID:
+	return _maps_by_radius.get(radius, RID())
 
 # =================================================
 # CONSTRUCAO
@@ -108,7 +150,8 @@ func _build() -> void:
 	obstruction_outlines.append_array(blocked["irregular"])
 	var obstructions: Array = _union(obstruction_outlines)
 
-	_mesh = _bake(_union(outlines), obstructions)
+	var floor_outlines: Array = _union(outlines)
+	_mesh = _bake(floor_outlines, obstructions, 0.0)
 	if _mesh == null:
 		push_warning("NavmeshMerger: o bake falhou. A navegação por tile foi mantida.")
 		return
@@ -140,8 +183,153 @@ func _build() -> void:
 			(Time.get_ticks_usec() - t0) / 1000.0,
 		])
 
+	_build_size_meshes(root, floor_outlines, obstructions)
+
 	if verify_connectivity:
 		_verify()
+
+# =================================================
+# MALHAS POR TAMANHO DE CORPO
+# Os mesmos contornos e obstáculos da malha de raio zero, com outro
+# agent_radius: a Godot encolhe o chão e engorda os obstáculos por ele.
+# Cada faixa ganha um mapa próprio — malhas sobrepostas num mesmo mapa
+# arriscariam os erros de borda entre regiões.
+# =================================================
+func _build_size_meshes(root: Node, floor_outlines: Array, obstructions: Array) -> void:
+	var radii: Dictionary = _collect_enemy_radii(root)
+	if radii.is_empty():
+		if log_bake:
+			print("🧭 NavmeshMerger: nenhum inimigo com colisor nesta fase; nenhuma malha por tamanho.")
+		return
+
+	var default_map: RID = get_world_2d().get_navigation_map()
+	var sorted_radii: Array = radii.keys()
+	sorted_radii.sort()
+	for radius in sorted_radii:
+		var t0: int = Time.get_ticks_usec()
+		var mesh: NavigationPolygon = _bake(floor_outlines, obstructions, radius)
+		if mesh == null:
+			push_warning("NavmeshMerger: o bake do raio %.0f px falhou. Esses inimigos (%s) ficam na malha de raio zero." % [radius, ", ".join(radii[radius])])
+			continue
+
+		# Mapa novo com as MESMAS configurações do mapa padrão, copiadas
+		# dele, para os dois nunca divergirem.
+		var map: RID = NavigationServer2D.map_create()
+		NavigationServer2D.map_set_cell_size(map, NavigationServer2D.map_get_cell_size(default_map))
+		NavigationServer2D.map_set_edge_connection_margin(map, NavigationServer2D.map_get_edge_connection_margin(default_map))
+		NavigationServer2D.map_set_link_connection_radius(map, NavigationServer2D.map_get_link_connection_radius(default_map))
+		NavigationServer2D.map_set_use_edge_connections(map, NavigationServer2D.map_get_use_edge_connections(default_map))
+		NavigationServer2D.map_set_active(map, true)
+		_own_maps.append(map)
+		_maps_by_radius[radius] = map
+
+		# Mesma montagem da MergedRegion: nó (visível na depuração),
+		# top_level (ignora a posição deste nó).
+		var region := NavigationRegion2D.new()
+		region.name = "Region_r%d" % int(radius)
+		region.top_level = true
+		region.navigation_polygon = mesh
+		region.set_navigation_map(map)
+		add_child(region)
+
+		if log_bake:
+			print("🧭 NavmeshMerger: raio %d px (%s) → %d polígonos em %.1f ms" % [
+				int(radius), ", ".join(radii[radius]), mesh.get_polygon_count(),
+				(Time.get_ticks_usec() - t0) / 1000.0,
+			])
+
+## Faixas de raio dos inimigos que esta fase pode ter: os da lista do
+## spawn (SpawnManagerConfig.enemy_definitions) e os postos à mão na
+## cena. Devolve {faixa: [nomes das cenas]}.
+func _collect_enemy_radii(root: Node) -> Dictionary:
+	var out: Dictionary = {}
+	for config in _find_all(root, func(n): return n is SpawnManagerConfig):
+		for def in config.enemy_definitions:
+			if def == null or def.enemy_scene == null:
+				continue
+			# Cópia FORA da árvore: _ready() não roda, nada nasce no jogo.
+			var copy: Node = def.enemy_scene.instantiate()
+			_add_radius(out, copy)
+			copy.free()
+	for enemy in _find_all(root, func(n): return n is EnemyBase):
+		_add_radius(out, enemy)
+	return out
+
+func _add_radius(out: Dictionary, enemy: Node) -> void:
+	var radius: float = body_radius(enemy)
+	if radius <= 0.0:
+		return
+	var bucket: float = radius_bucket(radius)
+	var label: String = enemy.scene_file_path.get_file().get_basename() if enemy.scene_file_path != "" else String(enemy.name)
+	if not out.has(bucket):
+		out[bucket] = []
+	if not out[bucket].has(label):
+		out[bucket].append(label)
+
+## Todos os descendentes de `node` (ele incluído) que passam em `test`.
+func _find_all(node: Node, test: Callable) -> Array:
+	var out: Array = []
+	if node == null:
+		return out
+	if test.call(node):
+		out.append(node)
+	for child in node.get_children():
+		out.append_array(_find_all(child, test))
+	return out
+
+## Raio arredondado PARA CIMA no múltiplo de RADIUS_STEP: nunca dá ao
+## corpo menos folga do que ele precisa.
+static func radius_bucket(radius: float) -> float:
+	return ceilf(radius / RADIUS_STEP) * RADIUS_STEP
+
+## Raio do corpo de um inimigo, medido a partir do BodyCenter (onde a
+## navegação roda). Lê o colisor do CORPO — o CollisionShape2D filho
+## direto da raiz; os de Hurtbox e Hitbox ficam dentro de Area2D. Forma
+## não circular entra pelo raio que a envolve. Devolve -1 sem colisor.
+## Usado aqui (quais malhas fazer) e pelo inimigo (qual malha usar):
+## um só cálculo para os dois lados.
+static func body_radius(enemy: Node) -> float:
+	var collider: CollisionShape2D = null
+	for child in enemy.get_children():
+		if child is CollisionShape2D and child.shape != null and not child.disabled:
+			collider = child
+			break
+	if collider == null:
+		_warn_radius_once(enemy, "no_collider", "sem CollisionShape2D de corpo (filho direto da raiz). Fica na malha de raio zero.")
+		return -1.0
+
+	var shape: Shape2D = collider.shape
+	var radius: float
+	if shape is CircleShape2D:
+		radius = (shape as CircleShape2D).radius
+	elif shape is CapsuleShape2D:
+		var capsule := shape as CapsuleShape2D
+		radius = maxf(capsule.radius, capsule.height * 0.5)
+	elif shape is RectangleShape2D:
+		radius = (shape as RectangleShape2D).size.length() * 0.5
+	else:
+		radius = shape.get_rect().size.length() * 0.5
+		_warn_radius_once(enemy, "other_shape", "colisor de forma %s; o raio usado (%.1f px) é o da caixa que o envolve." % [shape.get_class(), radius])
+	radius *= maxf(absf(collider.scale.x), absf(collider.scale.y))
+
+	# A navegação roda no BodyCenter (ou na origem, sem ele): um colisor
+	# deslocado dali precisa de um raio maior para caber.
+	var body_center := enemy.get_node_or_null("BodyCenter") as Node2D
+	var anchor: Vector2 = body_center.position if body_center else Vector2.ZERO
+	var offset: float = collider.position.distance_to(anchor)
+	if offset > BODY_OFFSET_WARN:
+		_warn_radius_once(enemy, "offset", "colisor do corpo a %.1f px do BodyCenter; o raio foi aumentado nessa medida. Revisar o que supõe os dois juntos (entity-anatomy.md)." % offset)
+	return radius + offset
+
+## Um aviso por cena de inimigo e por motivo, nunca por instância.
+static func _warn_radius_once(enemy: Node, reason: String, message: String) -> void:
+	var key: String = "%s|%s" % [enemy.scene_file_path, reason]
+	if _radius_warned.has(key):
+		return
+	_radius_warned[key] = true
+	push_warning("NavmeshMerger: inimigo '%s' %s" % [
+		enemy.scene_file_path.get_file() if enemy.scene_file_path != "" else String(enemy.name), message
+	])
 
 # =================================================
 # LEITURA DOS POLIGONOS REAIS
@@ -387,15 +575,15 @@ func _bounds(p: PackedVector2Array) -> Rect2:
 # =================================================
 # BAKE
 # =================================================
-func _bake(outlines: Array, obstructions: Array) -> NavigationPolygon:
+func _bake(outlines: Array, obstructions: Array, radius: float) -> NavigationPolygon:
 	if not NavigationServer2D.has_method("bake_from_source_geometry_data"):
 		push_error("NavmeshMerger: bake_from_source_geometry_data indisponível nesta versão da Godot.")
 		return null
 
 	var mesh := NavigationPolygon.new()
-	# Raio zero: a geometria tem que sair idêntica à dos tiles. Qualquer
-	# valor > 0 encolhe a malha e muda por onde os inimigos passam.
-	mesh.agent_radius = 0.0
+	# Raio zero: a geometria sai idêntica à dos tiles (a malha de reserva).
+	# Raio > 0: a malha de um tamanho de corpo, encolhida por ele.
+	mesh.agent_radius = radius
 
 	var geo := NavigationMeshSourceGeometryData2D.new()
 	for o in outlines:
