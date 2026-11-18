@@ -63,7 +63,6 @@ const VERIFY_DIST_MAX: float = 500.0
 ## espera fixa: ela para assim que o mapa responde (ver _verify).
 const VERIFY_SYNC_FRAMES: int = 30
 
-var _region: RID
 var _mesh: NavigationPolygon
 
 # =================================================
@@ -73,11 +72,6 @@ func _enter_tree() -> void:
 	if mode != Mode.MERGED:
 		return
 	_build()
-
-func _exit_tree() -> void:
-	if _region.is_valid():
-		NavigationServer2D.free_rid(_region)
-		_region = RID()
 
 # =================================================
 # CONSTRUCAO
@@ -124,10 +118,19 @@ func _build() -> void:
 	for layer in layers:
 		layer.navigation_enabled = false
 
-	_region = NavigationServer2D.region_create()
-	NavigationServer2D.region_set_map(_region, get_world_2d().get_navigation_map())
-	NavigationServer2D.region_set_transform(_region, Transform2D.IDENTITY)
-	NavigationServer2D.region_set_navigation_polygon(_region, _mesh)
+	# Registra a malha por um NavigationRegion2D filho, não direto no
+	# servidor: só NÓS de navegação são desenhados pela depuração
+	# (Navegação Visível). Uma região criada no servidor funcionava, mas
+	# ficava invisível. Filho adicionado em _enter_tree() entra na árvore
+	# logo em seguida, na mesma propagação — antes de qualquer _ready().
+	# top_level: a região ignora a posição deste nó e fica na origem do
+	# mundo, onde os contornos (já em coordenadas globais) foram montados.
+	# O nó é liberado junto com este; nada a limpar à mão.
+	var region := NavigationRegion2D.new()
+	region.name = "MergedRegion"
+	region.top_level = true
+	region.navigation_polygon = _mesh
+	add_child(region)
 
 	if log_bake:
 		print("🧭 NavmeshMerger: %d tiles → %d polígonos (%.1fx), %d tiles de colisão → %d obstáculos, em %.1f ms" % [

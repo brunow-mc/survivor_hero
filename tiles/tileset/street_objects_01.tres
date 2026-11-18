@@ -1,6 +1,7 @@
 [gd_resource type="TileSet" format=3 uid="uid://c2nqnk2fvlhff"]
 
 [ext_resource type="Texture2D" uid="uid://drvojjsvm02nx" path="res://tiles/sprites_for_tiles/scenario/street_objects_01.png" id="1_0thad"]
+[ext_resource type="Texture2D" uid="uid://bmd4v6686gagt" path="res://tiles/sprites_for_tiles/scenario/cars_01.png" id="2_cpg5q"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ttfnp"]
 resource_name = "street_objects_01"
@@ -21,6 +22,21 @@ texture = ExtResource("1_0thad")
 2:3/0 = 0
 2:3/0/z_index = 4
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_n163x"]
+resource_name = "cars_01"
+texture = ExtResource("2_cpg5q")
+0:0/size_in_atlas = Vector2i(5, 2)
+0:0/0 = 0
+0:0/0/z_index = 4
+0:0/0/y_sort_origin = 9
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-35, 9, -35, 5.5, -31, 2, 30, 2, 34, 5.5, 34, 10, 30.5, 13, -31, 13)
+0:2/size_in_atlas = Vector2i(5, 3)
+0:2/0 = 0
+0:2/0/z_index = 4
+0:2/0/y_sort_origin = 9
+0:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-35, 9, -35, 5, -31, 2, 30.5, 2, 34.5, 5, 34.5, 9, 30.5, 12, -31, 12)
+
 [resource]
 physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_ttfnp")
+sources/1 = SubResource("TileSetAtlasSource_n163x")
