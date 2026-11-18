@@ -75,7 +75,7 @@ Everything cheaper than the merge was measured and rejected — do not re-litiga
 | Rejected | Measured |
 |---|---|
 | `path_search_max_distance` / `path_search_max_polygons` | 1–5%; the aggressive values that gained more broke ~50% of routes |
-| `path_postprocessing = edgecentered` | 5% **slower** than `corridorfunnel` |
+| `path_postprocessing = edgecentered` | 5% **slower** than `corridorfunnel` (measured on per-tile navigation). **It does not work with the merged mesh at all**: it puts one point in the middle of every edge the route crosses, and the merged mesh has few, very large polygons, so those midpoints land far from the route, sometimes off screen, and enemies shake in place. On 16 px tiles the midpoints stayed within 8 px of the route, which is why it used to work. Confirmed in play: `PER_TILE` + `edgecentered` routes normally, `MERGED` + `edgecentered` does not. Keep `corridorfunnel` |
 | `simplify_path` | 3% |
 | `path_max_distance` | no effect at the default 100 px. The mechanism is real but never triggers: at the 10 px minimum every enemy repaths every frame and the game collapses |
 | staggering the per-frame read | 8% of the frame at absolute best, and degrades path following |
