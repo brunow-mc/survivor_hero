@@ -251,7 +251,10 @@ func _setup_base() -> void:
 		# navegante é o centro do colisor (não os pés/origem) — caminho e
 		# waypoints no mesmo referencial do corpo.
 		_nav_anchor = navigation_agent.get_parent() as Node2D
-	
+		# ANTES da primeira rota (makepath, abaixo): ela já nasce na malha
+		# do tamanho deste corpo.
+		_use_body_size_navigation()
+
 	# Path timer.
 	# ESCALONADO POR INSTÂNCIA, mesma ideia do steer_update_interval: o
 	# primeiro ciclo recebe uma duração ALEATÓRIA dentro do intervalo, e a
@@ -316,6 +319,37 @@ func _setup_base() -> void:
 # instância — senão uma horda geraria centenas de avisos idênticos.
 # =================================================
 static var _warned_enemy_scenes: Dictionary = {}
+static var _warned_no_size_map: Dictionary = {}
+
+# =================================================
+# NAVEGAÇÃO NA MALHA DO TAMANHO DO CORPO
+# O NavmeshMerger faz uma malha por faixa de raio, encolhida por ele: a
+# rota já sai com a folga do corpo (sem cantos colados nos colisores, sem
+# frestas onde o corpo não cabe). O raio vem da MESMA função que decidiu
+# quais malhas fazer, então os dois lados nunca divergem.
+# Sem malha do tamanho, o agente fica no mapa padrão (raio zero).
+# =================================================
+func _use_body_size_navigation() -> void:
+	# Fase sem malhas por tamanho (sem NavmeshMerger, ou PER_TILE): é o
+	# caminho de reversão conhecido, sem aviso.
+	if not NavmeshMerger.has_size_maps():
+		return
+	var radius: float = NavmeshMerger.body_radius(self)
+	if radius <= 0.0:
+		return  # sem colisor de corpo: body_radius() já avisou
+	var bucket: float = NavmeshMerger.radius_bucket(radius)
+	var map: RID = NavmeshMerger.map_for_radius(bucket)
+	if map.is_valid():
+		navigation_agent.set_navigation_map(map)
+		return
+	# A fase tem malhas por tamanho, mas não esta: o inimigo não está na
+	# lista do spawn nem foi posto à mão na fase. Um aviso por cena.
+	if _warned_no_size_map.has(scene_file_path):
+		return
+	_warned_no_size_map[scene_file_path] = true
+	push_warning("EnemyBase [%s]: a fase não tem malha de navegação do raio %d px. Ele navega na malha de raio zero (cantos colados nos colisores). Inclua-o em enemy_definitions do SpawnManagerConfig." % [
+		scene_file_path.get_file(), int(bucket)
+	])
 
 func _validate_scene_setup() -> void:
 	var scene_key: String = scene_file_path

@@ -115,6 +115,11 @@ func _exit_tree() -> void:
 static func map_for_radius(radius: float) -> RID:
 	return _maps_by_radius.get(radius, RID())
 
+## true se a fase atual tem alguma malha por tamanho. false = sem
+## NavmeshMerger, modo PER_TILE ou fase sem inimigos com colisor.
+static func has_size_maps() -> bool:
+	return not _maps_by_radius.is_empty()
+
 # =================================================
 # CONSTRUCAO
 # =================================================
