@@ -35,9 +35,10 @@ extends Resource
 # =================================================
 @export_group("Spawn Fit")
 ## Raio de folga de paredes exigido no spawn, medido no centro do corpo.
-## Referência: o raio do colisor do inimigo. Um pouco abaixo dele é
-## calibragem legítima — permite 1-3px de sobreposição que a física
-## resolve no primeiro quadro, e ganha corredores estreitos.
+## Regra: pelo menos o raio da FAIXA de navegação do inimigo (raio do
+## colisor arredondado para cima em NavmeshMerger.RADIUS_STEP). Assim o
+## ponto aprovado já cai na malha do tamanho dele. Abaixo disso o inimigo
+## pode nascer onde a malha dele não existe (corredor estreito demais).
 ##
 ## O offset do centro do corpo NÃO fica aqui: o SpawnManager lê o nó
 ## BodyCenter da própria cena do inimigo. Havia um body_center_offset
